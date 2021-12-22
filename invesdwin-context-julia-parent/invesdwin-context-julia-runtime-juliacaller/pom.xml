@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.invesdwin</groupId>
@@ -7,9 +9,6 @@
 	</parent>
 	<artifactId>invesdwin-context-julia-runtime-juliacaller</artifactId>
 	<packaging>jar</packaging>
-
-	<!-- Via R: install.packages('Rserve',repos='http://rforge.net') -->
-	<!-- sudo apt-get install r-cran-rserve (1.7-3 does not work on newer R versions) -->
 
 	<dependencies>
 		<dependency>
@@ -24,8 +23,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.yannrichet</groupId>
-			<artifactId>Rsession</artifactId>
+			<groupId>org.expr</groupId>
+			<artifactId>juliacaller</artifactId>
 		</dependency>
 	</dependencies>
 
