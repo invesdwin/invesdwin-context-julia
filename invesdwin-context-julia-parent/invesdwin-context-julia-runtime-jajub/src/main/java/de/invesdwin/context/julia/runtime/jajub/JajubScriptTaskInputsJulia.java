@@ -2,11 +2,11 @@ package de.invesdwin.context.julia.runtime.jajub;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.context.julia.runtime.contract.IScriptTaskInputsR;
+import de.invesdwin.context.julia.runtime.contract.IScriptTaskInputsJulia;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class JajubScriptTaskInputsJulia implements IScriptTaskInputsR {
+public class JajubScriptTaskInputsJulia implements IScriptTaskInputsJulia {
 
     private final JajubScriptTaskEngineJulia engine;
 

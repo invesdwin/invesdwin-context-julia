@@ -1,14 +1,14 @@
 package de.invesdwin.context.julia.runtime.jajub.pool.internal;
 
+import java.util.concurrent.ExecutionException;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.fest.reflect.field.Invoker;
 
-import com.github.rcaller.EventHandler;
 import com.github.rcaller.MessageSaver;
 import com.github.rcaller.TempFileService;
-import com.github.rcaller.exception.ExecutionException;
 import com.github.rcaller.rstuff.FailurePolicy;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCallerOptions;
@@ -16,7 +16,7 @@ import com.github.rcaller.rstuff.RCode;
 import com.github.rcaller.rstuff.ROutputParser;
 import com.github.rcaller.rstuff.RStreamHandler;
 
-import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerR;
+import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.JajubScriptTaskRunnerJulia;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -61,7 +61,7 @@ public class ModifiedRCaller extends RCaller {
             @Override
             public void messageReceived(final String senderName, final String msg) {
                 if (Strings.isNotBlank(msg)) {
-                    IScriptTaskRunnerR.LOG.debug(msg);
+                    IScriptTaskRunnerJulia.LOG.debug(msg);
                 }
             }
         });
@@ -74,7 +74,7 @@ public class ModifiedRCaller extends RCaller {
             @Override
             public void messageReceived(final String senderName, final String msg) {
                 if (Strings.isNotBlank(msg)) {
-                    IScriptTaskRunnerR.LOG.warn(msg);
+                    IScriptTaskRunnerJulia.LOG.warn(msg);
                 }
             }
         });

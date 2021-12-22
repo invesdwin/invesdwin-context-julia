@@ -7,7 +7,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.github.rcaller.rstuff.RCaller;
 
-import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerR;
+import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.JajubScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.pool.internal.ModifiedRCaller;
 import de.invesdwin.util.concurrent.pool.timeout.ATimeoutObjectPool;
@@ -37,7 +37,7 @@ public final class JajubObjectPool extends ATimeoutObjectPool<RCaller> implement
     @Override
     protected void passivateObject(final RCaller obj) {
         obj.getRCode().clear();
-        obj.getRCode().getCode().insert(0, IScriptTaskRunnerR.CLEANUP_SCRIPT + "\n");
+        obj.getRCode().getCode().insert(0, IScriptTaskRunnerJulia.CLEANUP_SCRIPT + "\n");
         obj.getRCode().addRCode(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE + " <- c()");
         obj.runAndReturnResultOnline(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE);
         obj.deleteTempFiles();

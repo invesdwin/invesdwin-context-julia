@@ -2,12 +2,12 @@ package de.invesdwin.context.julia.runtime.jajub;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.context.julia.runtime.contract.IScriptTaskResultsR;
+import de.invesdwin.context.julia.runtime.contract.IScriptTaskResultsJulia;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
-public class JajubScriptTaskResultsJulia implements IScriptTaskResultsR {
+public class JajubScriptTaskResultsJulia implements IScriptTaskResultsJulia {
 
     private static final String INTERNAL_RESULT_VARIABLE_EXPRESSION = JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE
             + "_expression";
@@ -77,8 +77,9 @@ public class JajubScriptTaskResultsJulia implements IScriptTaskResultsR {
             if (ct == null) {
                 return null;
             }
-            engine.unwrap().getRCode().addRCode(
-                    JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE + " <- dim(" + variable + ")");
+            engine.unwrap()
+                    .getRCode()
+                    .addRCode(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE + " <- dim(" + variable + ")");
             final int[] ds = getIntegerVector(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE);
             if ((ds == null) || (ds.length != 2)) {
                 return null;
@@ -230,8 +231,10 @@ public class JajubScriptTaskResultsJulia implements IScriptTaskResultsR {
         if (isNull(variable)) {
             return null;
         } else {
-            engine.unwrap().getRCode().addRCode(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE
-                    + " <- array(as.numeric(" + variable + "), dim(" + variable + "))");
+            engine.unwrap()
+                    .getRCode()
+                    .addRCode(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE + " <- array(as.numeric(" + variable
+                            + "), dim(" + variable + "))");
             final double[][] matrix = getDoubleMatrix(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE);
             final boolean[][] booleanMatrix = new boolean[matrix.length][];
             for (int i = 0; i < matrix.length; i++) {

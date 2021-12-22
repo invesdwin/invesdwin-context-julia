@@ -7,14 +7,15 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.github.rcaller.rstuff.RCaller;
 
-import de.invesdwin.context.julia.runtime.contract.AScriptTaskR;
-import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerR;
+import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
+import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.pool.JajubObjectPool;
 import de.invesdwin.util.error.Throwables;
 
 @Immutable
 @Named
-public final class JajubScriptTaskRunnerJulia implements IScriptTaskRunnerR, FactoryBean<JajubScriptTaskRunnerJulia> {
+public final class JajubScriptTaskRunnerJulia
+        implements IScriptTaskRunnerJulia, FactoryBean<JajubScriptTaskRunnerJulia> {
 
     public static final JajubScriptTaskRunnerJulia INSTANCE = new JajubScriptTaskRunnerJulia();
 
@@ -27,7 +28,7 @@ public final class JajubScriptTaskRunnerJulia implements IScriptTaskRunnerR, Fac
     }
 
     @Override
-    public <T> T run(final AScriptTaskR<T> scriptTask) {
+    public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
         final RCaller rcaller = JajubObjectPool.INSTANCE.borrowObject();
         try {
