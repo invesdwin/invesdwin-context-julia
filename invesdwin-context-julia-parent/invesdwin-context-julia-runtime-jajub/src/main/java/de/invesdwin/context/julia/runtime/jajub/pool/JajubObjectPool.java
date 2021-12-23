@@ -7,7 +7,6 @@ import javax.inject.Named;
 
 import org.springframework.beans.factory.FactoryBean;
 
-import de.invesdwin.context.integration.network.NetworkUtil;
 import de.invesdwin.util.concurrent.pool.timeout.ATimeoutObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
@@ -25,20 +24,14 @@ public final class JajubObjectPool extends ATimeoutObjectPool<ExtendedJuliaBridg
 
     @Override
     public void destroyObject(final ExtendedJuliaBridge obj) {
-        try {
-            obj.shutdownServer();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+        obj.close();
     }
 
     @Override
     protected ExtendedJuliaBridge newObject() {
-        final int port = NetworkUtil.findAvailableTcpPort();
-        final ExtendedJuliaBridge session = new ExtendedJuliaBridge("julia", port);
+        final ExtendedJuliaBridge session = new ExtendedJuliaBridge();
         try {
-            session.startServer();
-            session.connect();
+            session.open();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
