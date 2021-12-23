@@ -1,54 +1,54 @@
 print("getPercent")
-if(exists("getPercent")){
-	stop("getPercent already defined!")
+if(isdefined(Main, :getPercent) && !isnothing(getPercent)){
+	error("getPercent already defined!")
 }
-getPercent <- putPercent
+getPercent = putPercent
 print(typeof(getPercent))
 print(getPercent)
-if(typeof(getPercent) != "double"){
-	stop("getPercent not double!")
+if(typeof(getPercent) != Float64){
+	error("getPercent not Float64!")
 }
 
 print("getPercentVector")
-if(exists("getPercentVector")){
-	stop("getPercentVector already defined!")
+if(isdefined(Main, :getPercentVector) && !isnothing(getPercentVector)){
+	error("getPercentVector already defined!")
 }
-getPercentVector <- putPercentVector
+getPercentVector = putPercentVector
 print(typeof(getPercentVector))
 print(getPercentVector)
-if(typeof(getPercentVector) != "double"){
-	stop("getPercentVector not double!")
+if(typeof(getPercentVector) != Float64){
+	error("getPercentVector not Float64!")
 }
 
 print("getPercentVectorAsList")
-if(exists("getPercentVectorAsList")){
-	stop("getPercentVectorAsList already defined!")
+if(isdefined(Main, :getPercentVectorAsList) && !isnothing(getPercentVectorAsList)){
+	error("getPercentVectorAsList already defined!")
 }
-getPercentVectorAsList <- putPercentVectorAsList
+getPercentVectorAsList = putPercentVectorAsList
 print(typeof(getPercentVectorAsList))
 print(getPercentVectorAsList)
-if(typeof(getPercentVectorAsList) != "double"){
-	stop("getPercentVectorAsList not double!")
+if(typeof(getPercentVectorAsList) != Float64){
+	error("getPercentVectorAsList not Float64!")
 }
 
 print("getPercentMatrix")
-if(exists("getPercentMatrix")){
-	stop("getPercentMatrix already defined!")
+if(isdefined(Main, :getPercentMatrix) && !isnothing(getPercentMatrix)){
+	error("getPercentMatrix already defined!")
 }
-getPercentMatrix <- putPercentMatrix
+getPercentMatrix = putPercentMatrix
 print(typeof(getPercentMatrix))
 print(getPercentMatrix)
-if(typeof(getPercentMatrix) != "double"){
-	stop("getPercentMatrix not double!")
+if(typeof(getPercentMatrix) != Float64){
+	error("getPercentMatrix not Float64!")
 }
 
 print("getPercentMatrixAsList")
-if(exists("getPercentMatrixAsList")){
-	stop("getPercentMatrixAsList already defined!")
+if(isdefined(Main, :getPercentMatrixAsList) && !isnothing(getPercentMatrixAsList)){
+	error("getPercentMatrixAsList already defined!")
 }
-getPercentMatrixAsList <- putPercentMatrixAsList
+getPercentMatrixAsList = putPercentMatrixAsList
 print(typeof(getPercentMatrixAsList))
 print(getPercentMatrixAsList)
-if(typeof(getPercentMatrixAsList) != "double"){
-	stop("getPercentMatrixAsList not double!")
+if(typeof(getPercentMatrixAsList) != Float64){
+	error("getPercentMatrixAsList not Float64!")
 }

@@ -1,54 +1,54 @@
 print("getCharacter")
-if(exists("getCharacter")){
-	stop("getCharacter already defined!")
+if(isdefined(Main, :getCharacter) && !isnothing(getCharacter)){
+	error("getCharacter already defined!")
 }
-getCharacter <- putCharacter
+getCharacter = putCharacter
 print(typeof(getCharacter))
 print(getCharacter)
-if(typeof(getCharacter) != "character"){
-	stop("getCharacter not character!")
+if(typeof(getCharacter) != Char){
+	error("getCharacter not Char!")
 }
 
 print("getCharacterVector")
-if(exists("getCharacterVector")){
-	stop("getCharacterVector already defined!")
+if(isdefined(Main, :getCharacterVector) && !isnothing(getCharacterVector)){
+	error("getCharacterVector already defined!")
 }
-getCharacterVector <- putCharacterVector
+getCharacterVector = putCharacterVector
 print(typeof(getCharacterVector))
 print(getCharacterVector)
-if(typeof(getCharacterVector) != "character"){
-	stop("getCharacterVector not character!")
+if(typeof(getCharacterVector) != Char){
+	error("getCharacterVector not Char!")
 }
 
 print("getCharacterVectorAsList")
-if(exists("getCharacterVectorAsList")){
-	stop("getCharacterVectorAsList already defined!")
+if(isdefined(Main, :getCharacterVectorAsList) && !isnothing(getCharacterVectorAsList)){
+	error("getCharacterVectorAsList already defined!")
 }
-getCharacterVectorAsList <- putCharacterVectorAsList
+getCharacterVectorAsList = putCharacterVectorAsList
 print(typeof(getCharacterVectorAsList))
 print(getCharacterVectorAsList)
-if(typeof(getCharacterVectorAsList) != "character"){
-	stop("getCharacterVectorAsList not character!")
+if(typeof(getCharacterVectorAsList) != Char){
+	error("getCharacterVectorAsList not Char!")
 }
 
 print("getCharacterMatrix")
-if(exists("getCharacterMatrix")){
-	stop("getCharacterMatrix already defined!")
+if(isdefined(Main, :getCharacterMatrix) && !isnothing(getCharacterMatrix)){
+	error("getCharacterMatrix already defined!")
 }
-getCharacterMatrix <- putCharacterMatrix
+getCharacterMatrix = putCharacterMatrix
 print(typeof(getCharacterMatrix))
 print(getCharacterMatrix)
-if(typeof(getCharacterMatrix) != "character"){
-	stop("getCharacterMatrix not character!")
+if(typeof(getCharacterMatrix) != Char){
+	error("getCharacterMatrix not Char!")
 }
 
 print("getCharacterMatrixAsList")
-if(exists("getCharacterMatrixAsList")){
-	stop("getCharacterMatrixAsList already defined!")
+if(isdefined(Main, :getCharacterMatrixAsList) && !isnothing(getCharacterMatrixAsList)){
+	error("getCharacterMatrixAsList already defined!")
 }
-getCharacterMatrixAsList <- putCharacterMatrixAsList
+getCharacterMatrixAsList = putCharacterMatrixAsList
 print(typeof(getCharacterMatrixAsList))
 print(getCharacterMatrixAsList)
-if(typeof(getCharacterMatrixAsList) != "character"){
-	stop("getCharacterMatrixAsList not character!")
+if(typeof(getCharacterMatrixAsList) != Char){
+	error("getCharacterMatrixAsList not Char!")
 }

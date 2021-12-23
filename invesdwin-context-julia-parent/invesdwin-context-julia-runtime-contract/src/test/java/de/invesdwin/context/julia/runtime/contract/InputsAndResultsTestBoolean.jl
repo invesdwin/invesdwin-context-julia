@@ -1,54 +1,54 @@
 print("getBoolean")
-if(exists("getBoolean")){
-	stop("getBoolean already defined!")
+if(isdefined(Main, :getBoolean) && !isnothing(getBoolean)){
+	error("getBoolean already defined!")
 }
-getBoolean <- putBoolean
+getBoolean = putBoolean
 print(typeof(getBoolean))
 print(getBoolean)
-if(typeof(getBoolean) != "logical"){
-	stop("getBoolean not logical!")
+if(typeof(getBoolean) != Bool){
+	error("getBoolean not Bool!")
 }
 
 print("getBooleanVector")
-if(exists("getBooleanVector")){
-	stop("getBooleanVector already defined!")
+if(isdefined(Main, :getBooleanVector) && !isnothing(getBooleanVector(){
+	error("getBooleanVector already defined!")
 }
-getBooleanVector <- putBooleanVector
+getBooleanVector = putBooleanVector
 print(typeof(getBooleanVector))
 print(getBooleanVector)
-if(typeof(getBooleanVector) != "logical"){
-	stop("getBooleanVector not logical!")
+if(typeof(getBooleanVector) != Bool){
+	error("getBooleanVector not Bool!")
 }
 
 print("getBooleanVectorAsList")
-if(exists("getBooleanVectorAsList")){
-	stop("getBooleanVectorAsList already defined!")
+if(isdefined(Main, :getBooleanVectorAsList) && !isnothing(getBooleanVectorAsList)){
+	error("getBooleanVectorAsList already defined!")
 }
-getBooleanVectorAsList <- putBooleanVectorAsList
+getBooleanVectorAsList = putBooleanVectorAsList
 print(typeof(getBooleanVectorAsList))
 print(getBooleanVectorAsList)
-if(typeof(getBooleanVectorAsList) != "logical"){
-	stop("getBooleanVectorAsList not logical!")
+if(typeof(getBooleanVectorAsList) != Bool){
+	error("getBooleanVectorAsList not Bool!")
 }
 
 print("getBooleanMatrix")
-if(exists("getBooleanMatrix")){
-	stop("getBooleanMatrix already defined!")
+if(isdefined(Main, :getBooleanMatrix) && !isnothing(getBooleanMatrix)){
+	error("getBooleanMatrix already defined!")
 }
-getBooleanMatrix <- putBooleanMatrix
+getBooleanMatrix = putBooleanMatrix
 print(typeof(getBooleanMatrix))
 print(getBooleanMatrix)
-if(typeof(getBooleanMatrix) != "logical"){
-	stop("getBooleanMatrix not logical!")
+if(typeof(getBooleanMatrix) != Bool){
+	error("getBooleanMatrix not Bool!")
 }
 
 print("getBooleanMatrixAsList")
-if(exists("getBooleanMatrixAsList")){
-	stop("getBooleanMatrixAsList already defined!")
+if(isdefined(Main, :getBooleanMatrixAsList) && !isnothing(getBooleanMatrixAsList)){
+	error("getBooleanMatrixAsList already defined!")
 }
-getBooleanMatrixAsList <- putBooleanMatrixAsList
+getBooleanMatrixAsList = putBooleanMatrixAsList
 print(typeof(getBooleanMatrixAsList))
 print(getBooleanMatrixAsList)
-if(typeof(getBooleanMatrixAsList) != "logical"){
-	stop("getBooleanMatrixAsList not logical!")
+if(typeof(getBooleanMatrixAsList) != Bool){
+	error("getBooleanMatrixAsList not Bool!")
 }

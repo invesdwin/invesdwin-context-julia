@@ -1,54 +1,54 @@
 print("getDouble")
-if(exists("getDouble")){
-	stop("getDouble already defined!")
+if(isdefined(Main, :getDouble) && !isnothing(getDouble)){
+	error("getDouble already defined!")
 }
-getDouble <- putDouble
+getDouble = putDouble
 print(typeof(getDouble))
 print(getDouble)
-if(typeof(getDouble) != "double"){
-	stop("getDouble not double!")
+if(typeof(getDouble) != Float64){
+	error("getDouble not Float64!")
 }
 
 print("getDoubleVector")
-if(exists("getDoubleVector")){
-	stop("getDoubleVector already defined!")
+if(isdefined(Main, :getDoubleVector) && !isnothing(getDoubleVector)){
+	error("getDoubleVector already defined!")
 }
-getDoubleVector <- putDoubleVector
+getDoubleVector = putDoubleVector
 print(typeof(getDoubleVector))
 print(getDoubleVector)
-if(typeof(getDoubleVector) != "double"){
-	stop("getDoubleVector not double!")
+if(typeof(getDoubleVector) != Float64){
+	error("getDoubleVector not Float64!")
 }
 
 print("getDoubleVectorAsList")
-if(exists("getDoubleVectorAsList")){
-	stop("getDoubleVectorAsList already defined!")
+if(isdefined(Main, :getDoubleVectorAsList) && !isnothing(getDoubleVectorAsList)){
+	error("getDoubleVectorAsList already defined!")
 }
-getDoubleVectorAsList <- putDoubleVectorAsList
+getDoubleVectorAsList = putDoubleVectorAsList
 print(typeof(getDoubleVectorAsList))
 print(getDoubleVectorAsList)
-if(typeof(getDoubleVectorAsList) != "double"){
-	stop("getDoubleVectorAsList not double!")
+if(typeof(getDoubleVectorAsList) != Float64){
+	error("getDoubleVectorAsList not Float64!")
 }
 
 print("getDoubleMatrix")
-if(exists("getDoubleMatrix")){
-	stop("getDoubleMatrix already defined!")
+if(isdefined(Main, :getDoubleMatrix) && !isnothing(getDoubleMatrix)){
+	error("getDoubleMatrix already defined!")
 }
-getDoubleMatrix <- putDoubleMatrix
+getDoubleMatrix = putDoubleMatrix
 print(typeof(getDoubleMatrix))
 print(getDoubleMatrix)
-if(typeof(getDoubleMatrix) != "double"){
-	stop("getDoubleMatrix not double!")
+if(typeof(getDoubleMatrix) != Float64){
+	error("getDoubleMatrix not Float64!")
 }
 
 print("getDoubleMatrixAsList")
-if(exists("getDoubleMatrixAsList")){
-	stop("getDoubleMatrixAsList already defined!")
+if(isdefined(Main, :getDoubleMatrixAsList) && !isnothing(getDoubleMatrixAsList)){
+	error("getDoubleMatrixAsList already defined!")
 }
-getDoubleMatrixAsList <- putDoubleMatrixAsList
+getDoubleMatrixAsList = putDoubleMatrixAsList
 print(typeof(getDoubleMatrixAsList))
 print(getDoubleMatrixAsList)
-if(typeof(getDoubleMatrixAsList) != "double"){
-	stop("getDoubleMatrixAsList not double!")
+if(typeof(getDoubleMatrixAsList) != Float64){
+	error("getDoubleMatrixAsList not Float64!")
 }

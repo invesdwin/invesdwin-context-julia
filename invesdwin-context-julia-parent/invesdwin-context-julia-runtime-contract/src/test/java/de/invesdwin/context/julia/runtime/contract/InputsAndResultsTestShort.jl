@@ -1,54 +1,54 @@
 print("getShort")
-if(exists("getShort")){
-	stop("getShort already defined!")
+if(isdefined(Main, :getShort) && !isnothing(getShort)){
+	error("getShort already defined!")
 }
-getShort <- putShort
+getShort = putShort
 print(typeof(getShort))
 print(getShort)
-if(typeof(getShort) != "integer"){
-	stop("getShort not integer!")
+if(typeof(getShort) != Int16){
+	error("getShort not Int16!")
 }
 
 print("getShortVector")
-if(exists("getShortVector")){
-	stop("getShortVector already defined!")
+if(isdefined(Main, :getShortVector) && !isnothing(getShortVector)){
+	error("getShortVector already defined!")
 }
-getShortVector <- putShortVector
+getShortVector = putShortVector
 print(typeof(getShortVector))
 print(getShortVector)
-if(typeof(getShortVector) != "integer"){
-	stop("getShortVector not integer!")
+if(typeof(getShortVector) != Int16){
+	error("getShortVector not Int16!")
 }
 
 print("getShortVectorAsList")
-if(exists("getShortVectorAsList")){
-	stop("getShortVectorAsList already defined!")
+if(isdefined(Main, :getShortVectorAsList) && !isnothing(getShortVectorAsList)){
+	error("getShortVectorAsList already defined!")
 }
-getShortVectorAsList <- putShortVectorAsList
+getShortVectorAsList = putShortVectorAsList
 print(typeof(getShortVectorAsList))
 print(getShortVectorAsList)
-if(typeof(getShortVectorAsList) != "integer"){
-	stop("getShortVectorAsList not integer!")
+if(typeof(getShortVectorAsList) != Int16){
+	error("getShortVectorAsList not Int16!")
 }
 
 print("getShortMatrix")
-if(exists("getShortMatrix")){
-	stop("getShortMatrix already defined!")
+if(isdefined(Main, :getShortMatrix) && !isnothing(getShortMatrix)){
+	error("getShortMatrix already defined!")
 }
-getShortMatrix <- putShortMatrix
+getShortMatrix = putShortMatrix
 print(typeof(getShortMatrix))
 print(getShortMatrix)
-if(typeof(getShortMatrix) != "integer"){
-	stop("getShortMatrix not integer!")
+if(typeof(getShortMatrix) != Int16){
+	error("getShortMatrix not Int16!")
 }
 
 print("getShortMatrixAsList")
-if(exists("getShortMatrixAsList")){
-	stop("getShortMatrixAsList already defined!")
+if(isdefined(Main, :getShortMatrixAsList) && !isnothing(getShortMatrixAsList)){
+	error("getShortMatrixAsList already defined!")
 }
-getShortMatrixAsList <- putShortMatrixAsList
+getShortMatrixAsList = putShortMatrixAsList
 print(typeof(getShortMatrixAsList))
 print(getShortMatrixAsList)
-if(typeof(getShortMatrixAsList) != "integer"){
-	stop("getShortMatrixAsList not integer!")
+if(typeof(getShortMatrixAsList) != Int16){
+	error("getShortMatrixAsList not Int16!")
 }

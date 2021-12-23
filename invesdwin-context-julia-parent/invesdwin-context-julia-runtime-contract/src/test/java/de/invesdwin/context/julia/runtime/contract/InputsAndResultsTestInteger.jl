@@ -1,54 +1,54 @@
 print("getInteger")
-if(exists("getInteger")){
-	stop("getInteger already defined!")
+if(isdefined(Main, :getInteger) && !isnothing(getInteger)){
+	error("getInteger already defined!")
 }
-getInteger <- putInteger
+getInteger = putInteger
 print(typeof(getInteger))
 print(getInteger)
-if(typeof(getInteger) != "integer"){
-	stop("getInteger not integer!")
+if(typeof(getInteger) != Int32){
+	error("getInteger not Int32!")
 }
 
 print("getIntegerVector")
-if(exists("getIntegerVector")){
-	stop("getIntegerVector already defined!")
+if(isdefined(Main, :getIntegerVector) && !isnothing(getIntegerVector)){
+	error("getIntegerVector already defined!")
 }
-getIntegerVector <- putIntegerVector
+getIntegerVector = putIntegerVector
 print(typeof(getIntegerVector))
 print(getIntegerVector)
-if(typeof(getIntegerVector) != "integer"){
-	stop("getIntegerVector not integer!")
+if(typeof(getIntegerVector) != Int32){
+	error("getIntegerVector not Int32!")
 }
 
 print("getIntegerVectorAsList")
-if(exists("getIntegerVectorAsList")){
-	stop("getIntegerVectorAsList already defined!")
+if(isdefined(Main, :getIntegerVectorAsList) && !isnothing(getIntegerVectorAsList)){
+	error("getIntegerVectorAsList already defined!")
 }
-getIntegerVectorAsList <- putIntegerVectorAsList
+getIntegerVectorAsList = putIntegerVectorAsList
 print(typeof(getIntegerVectorAsList))
 print(getIntegerVectorAsList)
-if(typeof(getIntegerVectorAsList) != "integer"){
-	stop("getIntegerVectorAsList not integer!")
+if(typeof(getIntegerVectorAsList) != Int32){
+	error("getIntegerVectorAsList not Int32!")
 }
 
 print("getIntegerMatrix")
-if(exists("getIntegerMatrix")){
-	stop("getIntegerMatrix already defined!")
+if(isdefined(Main, :getIntegerMatrix) && !isnothing(getIntegerMatrix)){
+	error("getIntegerMatrix already defined!")
 }
-getIntegerMatrix <- putIntegerMatrix
+getIntegerMatrix = putIntegerMatrix
 print(typeof(getIntegerMatrix))
 print(getIntegerMatrix)
-if(typeof(getIntegerMatrix) != "integer"){
-	stop("getIntegerMatrix not integer!")
+if(typeof(getIntegerMatrix) != Int32){
+	error("getIntegerMatrix not Int32!")
 }
 
 print("getIntegerMatrixAsList")
-if(exists("getIntegerMatrixAsList")){
-	stop("getIntegerMatrixAsList already defined!")
+if(isdefined(Main, :getIntegerMatrixAsList) && !isnothing(getIntegerMatrixAsList)){
+	error("getIntegerMatrixAsList already defined!")
 }
-getIntegerMatrixAsList <- putIntegerMatrixAsList
+getIntegerMatrixAsList = putIntegerMatrixAsList
 print(typeof(getIntegerMatrixAsList))
 print(getIntegerMatrixAsList)
-if(typeof(getIntegerMatrixAsList) != "integer"){
-	stop("getIntegerMatrixAsList not integer!")
+if(typeof(getIntegerMatrixAsList) != Int32){
+	error("getIntegerMatrixAsList not Int32!")
 }

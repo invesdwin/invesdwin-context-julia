@@ -20,6 +20,59 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
     }
 
     @Override
+    public void putCharacter(final String variable, final char value) {
+        putExpression(variable, "Char('" + value + "')");
+    }
+
+    @Override
+    public void putCharacterVector(final String variable, final char[] value) {
+        if (value == null) {
+            putNull(variable);
+        } else {
+            final StringBuilder sb = new StringBuilder("Array{Char}([");
+            for (int i = 0; i < value.length; i++) {
+                if (i < 0) {
+                    sb.append(",");
+                }
+                sb.append("'");
+                sb.append(value[i]);
+                sb.append("'");
+            }
+            sb.append("])");
+            putExpression(variable, sb.toString());
+        }
+    }
+
+    @Override
+    public void putCharacterMatrix(final String variable, final char[][] value) {
+        if (value == null) {
+            putNull(variable);
+        } else if (value.length == 0 || value[0].length == 0) {
+            putExpression(variable, "Array{Char}(undef, " + value.length + ", 0)");
+        } else {
+            final int rows = value.length;
+            final int cols = value[0].length;
+            final StringBuilder sb = new StringBuilder("Array{Char}([");
+            for (int row = 0; row < rows; row++) {
+                Assertions.checkEquals(value[row].length, cols);
+                if (row > 0) {
+                    sb.append(";");
+                }
+                for (int col = 0; col < cols; col++) {
+                    if (col > 0) {
+                        sb.append(" ");
+                    }
+                    sb.append("'");
+                    sb.append(value[row][col]);
+                    sb.append("'");
+                }
+            }
+            sb.append("])");
+            putExpression(variable, sb.toString());
+        }
+    }
+
+    @Override
     public void putString(final String variable, final String value) {
         if (value == null) {
             putNull(variable);

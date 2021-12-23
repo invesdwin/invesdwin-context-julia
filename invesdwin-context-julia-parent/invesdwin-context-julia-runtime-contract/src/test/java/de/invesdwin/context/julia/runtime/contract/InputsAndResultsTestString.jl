@@ -1,138 +1,138 @@
 print("getString")
-if(exists("getString")){
-	stop("getString already defined!")
+if(isdefined(Main, :getString) && !isnothing(getString)){
+	error("getString already defined!")
 }
-getString <- putString
+getString = putString
 print(typeof(getString))
 print(getString)
-if(typeof(getString) != "character"){
-	stop("getString not character!")
+if(typeof(getString) != String){
+	error("getString not String!")
 }
 
 print("getStringWithNull")
-if(exists("getStringWithNull")){
-	stop("getStringWithNull already defined!")
+if(isdefined(Main, :getStringWithNull) && !isnothing(getStringWithNull)){
+	error("getStringWithNull already defined!")
 }
-getStringWithNull <- putStringWithNull
+getStringWithNull = putStringWithNull
 print(typeof(getStringWithNull))
 print(getStringWithNull)
-if(typeof(getStringWithNull) != "character"){
-	stop("getStringWithNull not character!")
+if(typeof(getStringWithNull) != String){
+	error("getStringWithNull not String!")
 }
-if(!is.na(getStringWithNull)){
-	stop("getStringWithNull not na!")
+if(!isnothing(getStringWithNull)){
+	error("getStringWithNull not nothing!")
 }
 
 print("getStringVector")
-if(exists("getStringVector")){
-	stop("getStringVector already defined!")
+if(isdefined(Main, :getStringVector) && !isnothing(getStringVector)){
+	error("getStringVector already defined!")
 }
-getStringVector <- putStringVector
+getStringVector = putStringVector
 print(typeof(getStringVector))
 print(getStringVector)
-if(typeof(getStringVector) != "character"){
-	stop("getStringVector not character!")
+if(typeof(getStringVector) != String){
+	error("getStringVector not String!")
 }
 
 
 print("getStringVectorWithNull")
-if(exists("getStringVectorWithNull")){
-	stop("getStringVectorWithNull already defined!")
+if(isdefined(Main, :getStringVectorWithNull) && !isnothing(getStringVectorWithNull)){
+	error("getStringVectorWithNull already defined!")
 }
-getStringVectorWithNull <- putStringVectorWithNull
+getStringVectorWithNull = putStringVectorWithNull
 print(typeof(getStringVectorWithNull))
 print(getStringVectorWithNull)
-if(typeof(getStringVectorWithNull) != "character"){
-	stop("getStringVectorWithNull not character!")
+if(typeof(getStringVectorWithNull) != String){
+	error("getStringVectorWithNull not String!")
 }
-if(!is.na(getStringVectorWithNull[2])){
-	stop("getStringVectorWithNull[2] not na!")
+if(!isnothing(getStringVectorWithNull[2])){
+	error("getStringVectorWithNull[2] not nothing!")
 }
 
 print("getStringVectorAsList")
-if(exists("getStringVectorAsList")){
-	stop("getStringVectorAsList already defined!")
+if(isdefined(Main, :getStringVectorAsList) && !isnothing(getStringVectorAsList)){
+	error("getStringVectorAsList already defined!")
 }
-getStringVectorAsList <- putStringVectorAsList
+getStringVectorAsList = putStringVectorAsList
 print(typeof(getStringVectorAsList))
 print(getStringVectorAsList)
-if(typeof(getStringVectorAsList) != "character"){
-	stop("getStringVectorAsList not character!")
+if(typeof(getStringVectorAsList) != String){
+	error("getStringVectorAsList not String!")
 }
 
 print("getStringVectorAsListWithNull")
-if(exists("getStringVectorAsListWithNull")){
-	stop("getStringVectorAsListWithNull already defined!")
+if(isdefined(Main, :getStringVectorAsListWithNull) && !isnothing(getStringVectorAsListWithNull)){
+	error("getStringVectorAsListWithNull already defined!")
 }
-getStringVectorAsListWithNull <- putStringVectorAsListWithNull
+getStringVectorAsListWithNull = putStringVectorAsListWithNull
 print(typeof(getStringVectorAsListWithNull))
 print(getStringVectorAsListWithNull)
-if(typeof(getStringVectorAsListWithNull) != "character"){
-	stop("getStringVectorAsListWithNull not character!")
+if(typeof(getStringVectorAsListWithNull) != String){
+	error("getStringVectorAsListWithNull not String!")
 }
-if(!is.na(getStringVectorAsListWithNull[2])){
-	stop("getStringVectorAsListWithNull[2] not na!")
+if(!isnothing(getStringVectorAsListWithNull[2])){
+	error("getStringVectorAsListWithNull[2] not nothing!")
 }
 
 print("getStringMatrix")
-if(exists("getStringMatrix")){
-	stop("getStringMatrix already defined!")
+if(isdefined(Main, :getStringMatrix) && !isnothing(getStringMatrix)){
+	error("getStringMatrix already defined!")
 }
-getStringMatrix <- putStringMatrix
+getStringMatrix = putStringMatrix
 print(typeof(getStringMatrix))
 print(getStringMatrix)
-if(typeof(getStringMatrix) != "character"){
-	stop("getStringMatrix not character!")
+if(typeof(getStringMatrix) != String){
+	error("getStringMatrix not String!")
 }
 
 
 print("getStringMatrixWithNull")
-if(exists("getStringMatrixWithNull")){
-	stop("getStringMatrixWithNull already defined!")
+if(isdefined(Main, :getStringMatrixWithNull) && !isnothing(getStringMatrixWithNull)){
+	error("getStringMatrixWithNull already defined!")
 }
-getStringMatrixWithNull <- putStringMatrixWithNull
+getStringMatrixWithNull = putStringMatrixWithNull
 print(typeof(getStringMatrixWithNull))
 print(getStringMatrixWithNull)
-if(typeof(getStringMatrixWithNull) != "character"){
-	stop("getStringMatrixWithNull not character!")
+if(typeof(getStringMatrixWithNull) != String){
+	error("getStringMatrixWithNull not String!")
 }
-if(!is.na(getStringMatrixWithNull[1][1])){
-	stop("getStringMatrixWithNull[1][1] not na!")
+if(!isnothing(getStringMatrixWithNull[1][1])){
+	error("getStringMatrixWithNull[1][1] not nothing!")
 }
-if(!is.na(getStringMatrixWithNull[2][2])){
-	stop("getStringMatrixWithNull[2][2] not na!")
+if(!isnothing(getStringMatrixWithNull[2][2])){
+	error("getStringMatrixWithNull[2][2] not nothing!")
 }
-if(!is.na(getStringMatrixWithNull[3][3])){
-	stop("getStringMatrixWithNull[3][3] not na!")
+if(!isnothing(getStringMatrixWithNull[3][3])){
+	error("getStringMatrixWithNull[3][3] not nothing!")
 }
 
 print("getStringMatrixAsList")
-if(exists("getStringMatrixAsList")){
-	stop("getStringMatrixAsList already defined!")
+if(isdefined(Main, :getStringMatrixAsList) && !isnothing(getStringMatrixAsList)){
+	error("getStringMatrixAsList already defined!")
 }
-getStringMatrixAsList <- putStringMatrixAsList
+getStringMatrixAsList = putStringMatrixAsList
 print(typeof(getStringMatrixAsList))
 print(getStringMatrixAsList)
-if(typeof(getStringMatrixAsList) != "character"){
-	stop("getStringMatrixAsList not character!")
+if(typeof(getStringMatrixAsList) != String){
+	error("getStringMatrixAsList not String!")
 }
 
 print("getStringMatrixAsListWithNull")
-if(exists("getStringMatrixAsListWithNull")){
-	stop("getStringMatrixAsListWithNull already defined!")
+if(isdefined(Main, :getStringMatrixAsListWithNull) && !isnothing(getStringMatrixAsListWithNull)){
+	error("getStringMatrixAsListWithNull already defined!")
 }
-getStringMatrixAsListWithNull <- putStringMatrixAsListWithNull
+getStringMatrixAsListWithNull = putStringMatrixAsListWithNull
 print(typeof(getStringMatrixAsListWithNull))
 print(getStringMatrixAsListWithNull)
-if(typeof(getStringMatrixAsListWithNull) != "character"){
-	stop("getStringMatrixAsListWithNull not character!")
+if(typeof(getStringMatrixAsListWithNull) != String){
+	error("getStringMatrixAsListWithNull not String!")
 }
-if(!is.na(getStringMatrixAsListWithNull[1][1])){
-	stop("getStringMatrixAsListWithNull[1][1] not na!")
+if(!isnothing(getStringMatrixAsListWithNull[1][1])){
+	error("getStringMatrixAsListWithNull[1][1] not nothing!")
 }
-if(!is.na(getStringMatrixAsListWithNull[2][2])){
-	stop("getStringMatrixAsListWithNull[2][2] not na!")
+if(!isnothing(getStringMatrixAsListWithNull[2][2])){
+	error("getStringMatrixAsListWithNull[2][2] not nothing!")
 }
-if(!is.na(getStringMatrixAsListWithNull[3][3])){
-	stop("getStringMatrixAsListWithNull[3][3] not na!")
+if(!isnothing(getStringMatrixAsListWithNull[3][3])){
+	error("getStringMatrixAsListWithNull[3][3] not nothing!")
 }

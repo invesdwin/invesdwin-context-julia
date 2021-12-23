@@ -1,186 +1,186 @@
-getBooleanVector <- putBooleanVector
-if(!is.na(getBooleanVector)){
-	stop("getBooleanVector not na!")
+getBooleanVector = putBooleanVector
+if(!isnothing(getBooleanVector)){
+	error("getBooleanVector not nothing!")
 }
-getBooleanVectorAsList <- putBooleanVectorAsList
-if(!is.na(getBooleanVectorAsList)){
-	stop("getBooleanVectorAsList not na!")
+getBooleanVectorAsList = putBooleanVectorAsList
+if(!isnothing(getBooleanVectorAsList)){
+	error("getBooleanVectorAsList not nothing!")
 }
-getBooleanMatrix <- putBooleanMatrix
-if(!is.na(getBooleanMatrix)){
-	stop("getBooleanMatrix not na!")
+getBooleanMatrix = putBooleanMatrix
+if(!isnothing(getBooleanMatrix)){
+	error("getBooleanMatrix not nothing!")
 }
-getBooleanMatrixAsList <- putBooleanMatrixAsList
-if(!is.na(getBooleanMatrixAsList)){
-	stop("getBooleanMatrixAsList not na!")
-}
-
-getByteVector <- putByteVector
-if(!is.na(getByteVector)){
-	stop("getByteVector not na!")
-}
-getByteVectorAsList <- putByteVectorAsList
-if(!is.na(getByteVectorAsList)){
-	stop("getByteVectorAsList not na!")
-}
-getByteMatrix <- putByteMatrix
-if(!is.na(getByteMatrix)){
-	stop("getByteMatrix not na!")
-}
-getByteMatrixAsList <- putByteMatrixAsList
-if(!is.na(getByteMatrixAsList)){
-	stop("getByteMatrixAsList not na!")
+getBooleanMatrixAsList = putBooleanMatrixAsList
+if(!isnothing(getBooleanMatrixAsList)){
+	error("getBooleanMatrixAsList not nothing!")
 }
 
-getCharacterVector <- putCharacterVector
-if(!is.na(getCharacterVector)){
-	stop("getCharacterVector not na!")
+getByteVector = putByteVector
+if(!isnothing(getByteVector)){
+	error("getByteVector not nothing!")
 }
-getCharacterVectorAsList <- putCharacterVectorAsList
-if(!is.na(getCharacterVectorAsList)){
-	stop("getCharacterVectorAsList not na!")
+getByteVectorAsList = putByteVectorAsList
+if(!isnothing(getByteVectorAsList)){
+	error("getByteVectorAsList not nothing!")
 }
-getCharacterMatrix <- putCharacterMatrix
-if(!is.na(getCharacterMatrix)){
-	stop("getCharacterMatrix not na!")
+getByteMatrix = putByteMatrix
+if(!isnothing(getByteMatrix)){
+	error("getByteMatrix not nothing!")
 }
-getCharacterMatrixAsList <- putCharacterMatrixAsList
-if(!is.na(getCharacterMatrixAsList)){
-	stop("getCharacterMatrixAsList not na!")
-}
-
-getDecimalVector <- putDecimalVector
-if(!is.na(getDecimalVector)){
-	stop("getDecimalVector not na!")
-}
-getDecimalVectorAsList <- putDecimalVectorAsList
-if(!is.na(getDecimalVectorAsList)){
-	stop("getDecimalVectorAsList not na!")
-}
-getDecimalMatrix <- putDecimalMatrix
-if(!is.na(getDecimalMatrix)){
-	stop("getDecimalMatrix not na!")
-}
-getDecimalMatrixAsList <- putDecimalMatrixAsList
-if(!is.na(getDecimalMatrixAsList)){
-	stop("getDecimalMatrixAsList not na!")
+getByteMatrixAsList = putByteMatrixAsList
+if(!isnothing(getByteMatrixAsList)){
+	error("getByteMatrixAsList not nothing!")
 }
 
-getDoubleVector <- putDoubleVector
-if(!is.na(getDoubleVector)){
-	stop("getDoubleVector not na!")
+getCharacterVector = putCharacterVector
+if(!isnothing(getCharacterVector)){
+	error("getCharacterVector not nothing!")
 }
-getDoubleVectorAsList <- putDoubleVectorAsList
-if(!is.na(getDoubleVectorAsList)){
-	stop("getDoubleVectorAsList not na!")
+getCharacterVectorAsList = putCharacterVectorAsList
+if(!isnothing(getCharacterVectorAsList)){
+	error("getCharacterVectorAsList not nothing!")
 }
-getDoubleMatrix <- putDoubleMatrix
-if(!is.na(getDoubleMatrix)){
-	stop("getDoubleMatrix not na!")
+getCharacterMatrix = putCharacterMatrix
+if(!isnothing(getCharacterMatrix)){
+	error("getCharacterMatrix not nothing!")
 }
-getDoubleMatrixAsList <- putDoubleMatrixAsList
-if(!is.na(getDoubleMatrixAsList)){
-	stop("getDoubleMatrixAsList not na!")
-}
-
-getFloatVector <- putFloatVector
-if(!is.na(getFloatVector)){
-	stop("getFloatVector not na!")
-}
-getFloatVectorAsList <- putFloatVectorAsList
-if(!is.na(getFloatVectorAsList)){
-	stop("getFloatVectorAsList not na!")
-}
-getFloatMatrix <- putFloatMatrix
-if(!is.na(getFloatMatrix)){
-	stop("getFloatMatrix not na!")
-}
-getFloatMatrixAsList <- putFloatMatrixAsList
-if(!is.na(getFloatMatrixAsList)){
-	stop("getFloatMatrixAsList not na!")
+getCharacterMatrixAsList = putCharacterMatrixAsList
+if(!isnothing(getCharacterMatrixAsList)){
+	error("getCharacterMatrixAsList not nothing!")
 }
 
-getIntegerVector <- putIntegerVector
-if(!is.na(getIntegerVector)){
-	stop("getIntegerVector not na!")
+getDecimalVector = putDecimalVector
+if(!isnothing(getDecimalVector)){
+	error("getDecimalVector not nothing!")
 }
-getIntegerVectorAsList <- putIntegerVectorAsList
-if(!is.na(getIntegerVectorAsList)){
-	stop("getIntegerVectorAsList not na!")
+getDecimalVectorAsList = putDecimalVectorAsList
+if(!isnothing(getDecimalVectorAsList)){
+	error("getDecimalVectorAsList not nothing!")
 }
-getIntegerMatrix <- putIntegerMatrix
-if(!is.na(getIntegerMatrix)){
-	stop("getIntegerMatrix not na!")
+getDecimalMatrix = putDecimalMatrix
+if(!isnothing(getDecimalMatrix)){
+	error("getDecimalMatrix not nothing!")
 }
-getIntegerMatrixAsList <- putIntegerMatrixAsList
-if(!is.na(getIntegerMatrixAsList)){
-	stop("getIntegerMatrixAsList not na!")
-}
-
-getLongVector <- putLongVector
-if(!is.na(getLongVector)){
-	stop("getLongVector not na!")
-}
-getLongVectorAsList <- putLongVectorAsList
-if(!is.na(getLongVectorAsList)){
-	stop("getLongVectorAsList not na!")
-}
-getLongMatrix <- putLongMatrix
-if(!is.na(getLongMatrix)){
-	stop("getLongMatrix not na!")
-}
-getLongMatrixAsList <- putLongMatrixAsList
-if(!is.na(getLongMatrixAsList)){
-	stop("getLongMatrixAsList not na!")
+getDecimalMatrixAsList = putDecimalMatrixAsList
+if(!isnothing(getDecimalMatrixAsList)){
+	error("getDecimalMatrixAsList not nothing!")
 }
 
-getPercentVector <- putPercentVector
-if(!is.na(getPercentVector)){
-	stop("getPercentVector not na!")
+getDoubleVector = putDoubleVector
+if(!isnothing(getDoubleVector)){
+	error("getDoubleVector not nothing!")
 }
-getPercentVectorAsList <- putPercentVectorAsList
-if(!is.na(getPercentVectorAsList)){
-	stop("getPercentVectorAsList not na!")
+getDoubleVectorAsList = putDoubleVectorAsList
+if(!isnothing(getDoubleVectorAsList)){
+	error("getDoubleVectorAsList not nothing!")
 }
-getPercentMatrix <- putPercentMatrix
-if(!is.na(getPercentMatrix)){
-	stop("getPercentMatrix not na!")
+getDoubleMatrix = putDoubleMatrix
+if(!isnothing(getDoubleMatrix)){
+	error("getDoubleMatrix not nothing!")
 }
-getPercentMatrixAsList <- putPercentMatrixAsList
-if(!is.na(getPercentMatrixAsList)){
-	stop("getPercentMatrixAsList not na!")
-}
-
-getShortVector <- putShortVector
-if(!is.na(getShortVector)){
-	stop("getShortVector not na!")
-}
-getShortVectorAsList <- putShortVectorAsList
-if(!is.na(getShortVectorAsList)){
-	stop("getShortVectorAsList not na!")
-}
-getShortMatrix <- putShortMatrix
-if(!is.na(getShortMatrix)){
-	stop("getShortMatrix not na!")
-}
-getShortMatrixAsList <- putShortMatrixAsList
-if(!is.na(getShortMatrixAsList)){
-	stop("getShortMatrixAsList not na!")
+getDoubleMatrixAsList = putDoubleMatrixAsList
+if(!isnothing(getDoubleMatrixAsList)){
+	error("getDoubleMatrixAsList not nothing!")
 }
 
-getStringVector <- putStringVector
-if(!is.na(getStringVector)){
-	stop("getStringVector not na!")
+getFloatVector = putFloatVector
+if(!isnothing(getFloatVector)){
+	error("getFloatVector not nothing!")
 }
-getStringVectorAsList <- putStringVectorAsList
-if(!is.na(getStringVectorAsList)){
-	stop("getStringVectorAsList not na!")
+getFloatVectorAsList = putFloatVectorAsList
+if(!isnothing(getFloatVectorAsList)){
+	error("getFloatVectorAsList not nothing!")
 }
-getStringMatrix <- putStringMatrix
-if(!is.na(getStringMatrix)){
-	stop("getStringMatrix not na!")
+getFloatMatrix = putFloatMatrix
+if(!isnothing(getFloatMatrix)){
+	error("getFloatMatrix not nothing!")
 }
-getStringMatrixAsList <- putStringMatrixAsList
-if(!is.na(getStringMatrixAsList)){
-	stop("getStringMatrixAsList not na!")
+getFloatMatrixAsList = putFloatMatrixAsList
+if(!isnothing(getFloatMatrixAsList)){
+	error("getFloatMatrixAsList not nothing!")
+}
+
+getIntegerVector = putIntegerVector
+if(!isnothing(getIntegerVector)){
+	error("getIntegerVector not nothing!")
+}
+getIntegerVectorAsList = putIntegerVectorAsList
+if(!isnothing(getIntegerVectorAsList)){
+	error("getIntegerVectorAsList not nothing!")
+}
+getIntegerMatrix = putIntegerMatrix
+if(!isnothing(getIntegerMatrix)){
+	error("getIntegerMatrix not nothing!")
+}
+getIntegerMatrixAsList = putIntegerMatrixAsList
+if(!isnothing(getIntegerMatrixAsList)){
+	error("getIntegerMatrixAsList not nothing!")
+}
+
+getLongVector = putLongVector
+if(!isnothing(getLongVector)){
+	error("getLongVector not nothing!")
+}
+getLongVectorAsList = putLongVectorAsList
+if(!isnothing(getLongVectorAsList)){
+	error("getLongVectorAsList not nothing!")
+}
+getLongMatrix = putLongMatrix
+if(!isnothing(getLongMatrix)){
+	error("getLongMatrix not nothing!")
+}
+getLongMatrixAsList = putLongMatrixAsList
+if(!isnothing(getLongMatrixAsList)){
+	error("getLongMatrixAsList not nothing!")
+}
+
+getPercentVector = putPercentVector
+if(!isnothing(getPercentVector)){
+	error("getPercentVector not nothing!")
+}
+getPercentVectorAsList = putPercentVectorAsList
+if(!isnothing(getPercentVectorAsList)){
+	error("getPercentVectorAsList not nothing!")
+}
+getPercentMatrix = putPercentMatrix
+if(!isnothing(getPercentMatrix)){
+	error("getPercentMatrix not nothing!")
+}
+getPercentMatrixAsList = putPercentMatrixAsList
+if(!isnothing(getPercentMatrixAsList)){
+	error("getPercentMatrixAsList not nothing!")
+}
+
+getShortVector = putShortVector
+if(!isnothing(getShortVector)){
+	error("getShortVector not nothing!")
+}
+getShortVectorAsList = putShortVectorAsList
+if(!isnothing(getShortVectorAsList)){
+	error("getShortVectorAsList not nothing!")
+}
+getShortMatrix = putShortMatrix
+if(!isnothing(getShortMatrix)){
+	error("getShortMatrix not nothing!")
+}
+getShortMatrixAsList = putShortMatrixAsList
+if(!isnothing(getShortMatrixAsList)){
+	error("getShortMatrixAsList not nothing!")
+}
+
+getStringVector = putStringVector
+if(!isnothing(getStringVector)){
+	error("getStringVector not nothing!")
+}
+getStringVectorAsList = putStringVectorAsList
+if(!isnothing(getStringVectorAsList)){
+	error("getStringVectorAsList not nothing!")
+}
+getStringMatrix = putStringMatrix
+if(!isnothing(getStringMatrix)){
+	error("getStringMatrix not nothing!")
+}
+getStringMatrixAsList = putStringMatrixAsList
+if(!isnothing(getStringMatrixAsList)){
+	error("getStringMatrixAsList not nothing!")
 }

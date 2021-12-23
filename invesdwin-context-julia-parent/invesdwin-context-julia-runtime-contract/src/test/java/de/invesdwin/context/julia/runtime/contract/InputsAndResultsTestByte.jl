@@ -1,54 +1,54 @@
 print("getByte")
-if(exists("getByte")){
-	stop("getByte already defined!")
+if(isdefined(Main, :getByte) && !isnothing(getByte)){
+	error("getByte already defined!")
 }
-getByte <- putByte
+getByte = putByte
 print(typeof(getByte))
 print(getByte)
-if(typeof(getByte) != "integer"){
-	stop("getByte not integer!")
+if(typeof(getByte) != Int8){
+	error("getByte not Int8!")
 }
 
 print("getByteVector")
-if(exists("getByteVector")){
-	stop("getByteVector already defined!")
+if(isdefined(Main, :getByteVector) && !isnothing(getByteVector)){
+	error("getByteVector already defined!")
 }
-getByteVector <- putByteVector
+getByteVector = putByteVector
 print(typeof(getByteVector))
 print(getByteVector)
-if(typeof(getByteVector) != "integer"){
-	stop("getByteVector not integer!")
+if(typeof(getByteVector) != Int8){
+	error("getByteVector not Int8!")
 }
 
 print("getByteVectorAsList")
-if(exists("getByteVectorAsList")){
-	stop("getByteVectorAsList already defined!")
+if(isdefined(Main, :getByteVectorAsList) && !isnothing(getByteVectorAsList)){
+	error("getByteVectorAsList already defined!")
 }
-getByteVectorAsList <- putByteVectorAsList
+getByteVectorAsList = putByteVectorAsList
 print(typeof(getByteVectorAsList))
 print(getByteVectorAsList)
-if(typeof(getByteVectorAsList) != "integer"){
-	stop("getByteVectorAsList not integer!")
+if(typeof(getByteVectorAsList) != Int8){
+	error("getByteVectorAsList not Int8!")
 }
 
 print("getByteMatrix")
-if(exists("getByteMatrix")){
-	stop("getByteMatrix already defined!")
+if(isdefined(Main, :getByteMatrix) && !isnothing(getByteMatrix)){
+	error("getByteMatrix already defined!")
 }
-getByteMatrix <- putByteMatrix
+getByteMatrix = putByteMatrix
 print(typeof(getByteMatrix))
 print(getByteMatrix)
-if(typeof(getByteMatrix) != "integer"){
-	stop("getByteMatrix not integer!")
+if(typeof(getByteMatrix) != Int8){
+	error("getByteMatrix not Int8!")
 }
 
 print("getByteMatrixAsList")
-if(exists("getByteMatrixAsList")){
-	stop("getByteMatrixAsList already defined!")
+if(isdefined(Main, :getByteMatrixAsList) && !isnothing(getByteMatrixAsList)){
+	error("getByteMatrixAsList already defined!")
 }
-getByteMatrixAsList <- putByteMatrixAsList
+getByteMatrixAsList = putByteMatrixAsList
 print(typeof(getByteMatrixAsList))
 print(getByteMatrixAsList)
-if(typeof(getByteMatrixAsList) != "integer"){
-	stop("getByteMatrixAsList not integer!")
+if(typeof(getByteMatrixAsList) != Int8){
+	error("getByteMatrixAsList not Int8!")
 }

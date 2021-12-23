@@ -1,54 +1,54 @@
 print("getLong")
-if(exists("getLong")){
-	stop("getLong already defined!")
+if(isdefined(Main, :getLong) && !isnothing(getLong)){
+	error("getLong already defined!")
 }
-getLong <- putLong
+getLong = putLong
 print(typeof(getLong))
 print(getLong)
-if(typeof(getLong) != "double"){
-	stop("getLong not double!")
+if(typeof(getLong) != Float64){
+	error("getLong not Float64!")
 }
 
 print("getLongVector")
-if(exists("getLongVector")){
-	stop("getLongVector already defined!")
+if(isdefined(Main, :getLongVector) && !isnothing(getLongVector)){
+	error("getLongVector already defined!")
 }
-getLongVector <- putLongVector
+getLongVector = putLongVector
 print(typeof(getLongVector))
 print(getLongVector)
-if(typeof(getLongVector) != "double"){
-	stop("getLongVector not double!")
+if(typeof(getLongVector) != Float64){
+	error("getLongVector not Float64!")
 }
 
 print("getLongVectorAsList")
-if(exists("getLongVectorAsList")){
-	stop("getLongVectorAsList already defined!")
+if(isdefined(Main, :getLongVectorAsList) && !isnothing(getLongVectorAsList)){
+	error("getLongVectorAsList already defined!")
 }
-getLongVectorAsList <- putLongVectorAsList
+getLongVectorAsList = putLongVectorAsList
 print(typeof(getLongVectorAsList))
 print(getLongVectorAsList)
-if(typeof(getLongVectorAsList) != "double"){
-	stop("getLongVectorAsList not double!")
+if(typeof(getLongVectorAsList) != Float64){
+	error("getLongVectorAsList not Float64!")
 }
 
 print("getLongMatrix")
-if(exists("getLongMatrix")){
-	stop("getLongMatrix already defined!")
+if(isdefined(Main, :getLongMatrix) && !isnothing(getLongMatrix)){
+	error("getLongMatrix already defined!")
 }
-getLongMatrix <- putLongMatrix
+getLongMatrix = putLongMatrix
 print(typeof(getLongMatrix))
 print(getLongMatrix)
-if(typeof(getLongMatrix) != "double"){
-	stop("getLongMatrix not double!")
+if(typeof(getLongMatrix) != Float64){
+	error("getLongMatrix not Float64!")
 }
 
 print("getLongMatrixAsList")
-if(exists("getLongMatrixAsList")){
-	stop("getLongMatrixAsList already defined!")
+if(isdefined(Main, :getLongMatrixAsList) && !isnothing(getLongMatrixAsList)){
+	error("getLongMatrixAsList already defined!")
 }
-getLongMatrixAsList <- putLongMatrixAsList
+getLongMatrixAsList = putLongMatrixAsList
 print(typeof(getLongMatrixAsList))
 print(getLongMatrixAsList)
-if(typeof(getLongMatrixAsList) != "double"){
-	stop("getLongMatrixAsList not double!")
+if(typeof(getLongMatrixAsList) != Float64){
+	error("getLongMatrixAsList not Float64!")
 }
