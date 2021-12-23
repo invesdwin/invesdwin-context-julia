@@ -14,21 +14,19 @@ public class ExtendedJuliaBridge extends JuliaBridge {
 
     private final JuliaResetContext resetContext;
 
-    public ExtendedJuliaBridge(final String pathToJulia, final int port) {
-        super(pathToJulia, port);
+    public ExtendedJuliaBridge() {
+        super();
         this.resetContext = new JuliaResetContext(new JajubScriptTaskEngineJulia(this));
     }
 
     @Override
-    public void connect() throws IOException {
-        super.connect();
+    public void open(final long timeout) throws IOException, InterruptedException {
+        super.open(timeout);
         resetContext.init();
     }
 
     public void reset() throws IOException {
-        getWatcher().clearLog();
         resetContext.reset();
-        getWatcher().clearLog();
     }
 
 }
