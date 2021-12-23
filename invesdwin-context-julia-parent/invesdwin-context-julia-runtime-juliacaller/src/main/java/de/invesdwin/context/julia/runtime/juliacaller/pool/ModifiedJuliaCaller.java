@@ -33,7 +33,7 @@ public class ModifiedJuliaCaller {
     private ModifiedJuliaErrorConsoleWatcher watcher;
     private Process process;
 
-    public ModifiedJuliaCaller(final String pathToJulia, final int port, final boolean debug) {
+    public ModifiedJuliaCaller(final String pathToJulia, final int port) {
         this.pathToJulia = pathToJulia;
         this.port = port;
     }
