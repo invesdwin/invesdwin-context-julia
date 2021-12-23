@@ -5,6 +5,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
@@ -13,12 +14,14 @@ import de.invesdwin.context.log.error.Err;
 @ThreadSafe
 public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
 
-    private final StringBuilder errorMessage = new StringBuilder();
     private final BufferedReader errorReader;
     private final BufferedReader infoReader;
 
     private Thread errorThread;
     private Thread infoThread;
+
+    @GuardedBy("self")
+    private final StringBuilder errorMessage = new StringBuilder();
 
     public ModifiedJuliaErrorConsoleWatcher(final Process process) {
         this.errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -32,7 +35,9 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                 while (true) {
                     try {
                         final String s = errorReader.readLine();
-                        errorMessage.append(s);
+                        synchronized (errorMessage) {
+                            errorMessage.append(s);
+                        }
                         IScriptTaskRunnerJulia.LOG.warn(s);
                     } catch (final IOException e) {
                         throw Err.process(e);
@@ -58,22 +63,32 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
     }
 
     @Override
-    public synchronized void close() {
-        errorThread.interrupt();
-        infoThread.interrupt();
+    public void close() {
+        if (errorThread != null) {
+            errorThread.interrupt();
+            errorThread = null;
+        }
+        if (infoThread != null) {
+            infoThread.interrupt();
+            infoThread = null;
+        }
         clearLog();
     }
 
-    public synchronized void clearLog() {
-        errorMessage.setLength(0);
+    public void clearLog() {
+        synchronized (errorMessage) {
+            errorMessage.setLength(0);
+        }
     }
 
-    public synchronized String getErrorMessage() {
-        if (errorMessage.length() == 0) {
-            return null;
+    public String getErrorMessage() {
+        synchronized (errorMessage) {
+            if (errorMessage.length() == 0) {
+                return null;
+            }
+            final String str = String.valueOf(errorMessage).trim();
+            errorMessage.setLength(0);
+            return str;
         }
-        final String str = String.valueOf(errorMessage).trim();
-        errorMessage.setLength(0);
-        return str;
     }
 }
