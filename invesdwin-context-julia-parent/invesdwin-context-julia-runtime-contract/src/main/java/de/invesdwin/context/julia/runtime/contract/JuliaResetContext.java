@@ -38,7 +38,9 @@ public class JuliaResetContext {
         }
     }
 
+    //CHECKSTYLE:OFF
     public void reset() {
+        //CHECKSTYLE:ON
         final JsonNode varinfo = varinfo();
         Set<String> changed = null;
         for (int i = 0; i < varinfo.size(); i++) {
