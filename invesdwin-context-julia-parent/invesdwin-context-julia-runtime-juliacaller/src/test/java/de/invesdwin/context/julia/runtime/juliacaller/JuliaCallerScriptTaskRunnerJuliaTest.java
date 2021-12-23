@@ -5,8 +5,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerScriptTaskRunnerJulia;
-import de.invesdwin.context.r.runtime.contract.InputsAndResultsTests;
+import de.invesdwin.context.julia.runtime.contract.InputsAndResultsTests;
 import de.invesdwin.context.test.ATest;
 
 @NotThreadSafe

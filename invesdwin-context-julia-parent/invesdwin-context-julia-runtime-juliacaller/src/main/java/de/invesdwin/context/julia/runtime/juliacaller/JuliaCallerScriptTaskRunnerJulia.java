@@ -7,13 +7,14 @@ import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedRserveSession;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.RsessionObjectPool;
+import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedJuliaCaller;
+import de.invesdwin.context.julia.runtime.juliacaller.pool.JuliaCallerObjectPool;
 import de.invesdwin.util.error.Throwables;
 
 @Immutable
 @Named
-public final class JuliaCallerScriptTaskRunnerJulia implements IScriptTaskRunnerJulia, FactoryBean<JuliaCallerScriptTaskRunnerJulia> {
+public final class JuliaCallerScriptTaskRunnerJulia
+        implements IScriptTaskRunnerJulia, FactoryBean<JuliaCallerScriptTaskRunnerJulia> {
 
     public static final JuliaCallerScriptTaskRunnerJulia INSTANCE = new JuliaCallerScriptTaskRunnerJulia();
 
@@ -26,10 +27,10 @@ public final class JuliaCallerScriptTaskRunnerJulia implements IScriptTaskRunner
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
-        final ExtendedRserveSession rsession = RsessionObjectPool.INSTANCE.borrowObject();
+        final ExtendedJuliaCaller juliaCaller = JuliaCallerObjectPool.INSTANCE.borrowObject();
         try {
             //inputs
-            final JuliaCallerScriptTaskEngineJulia engine = new JuliaCallerScriptTaskEngineJulia(rsession);
+            final JuliaCallerScriptTaskEngineJulia engine = new JuliaCallerScriptTaskEngineJulia(juliaCaller);
             scriptTask.populateInputs(engine.getInputs());
 
             //execute
@@ -40,10 +41,10 @@ public final class JuliaCallerScriptTaskRunnerJulia implements IScriptTaskRunner
             engine.close();
 
             //return
-            RsessionObjectPool.INSTANCE.returnObject(rsession);
+            JuliaCallerObjectPool.INSTANCE.returnObject(juliaCaller);
             return result;
         } catch (final Throwable t) {
-            RsessionObjectPool.INSTANCE.destroyObject(rsession);
+            JuliaCallerObjectPool.INSTANCE.destroyObject(juliaCaller);
             throw Throwables.propagate(t);
         }
     }

@@ -1,35 +1,34 @@
 package de.invesdwin.context.julia.runtime.juliacaller;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.rosuda.REngine.REXP;
-
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedRserveSession;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.RsessionObjectPool;
+import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedJuliaCaller;
+import de.invesdwin.context.julia.runtime.juliacaller.pool.JuliaCallerObjectPool;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 
 @NotThreadSafe
 public class JuliaCallerScriptTaskEngineJulia implements IScriptTaskEngine {
 
-    private ExtendedRserveSession rsession;
+    private ExtendedJuliaCaller juliaCaller;
     private final JuliaCallerScriptTaskInputsJulia inputs;
     private final JuliaCallerScriptTaskResultsJulia results;
 
-    public JuliaCallerScriptTaskEngineJulia(final ExtendedRserveSession rsession) {
-        this.rsession = rsession;
+    public JuliaCallerScriptTaskEngineJulia(final ExtendedJuliaCaller juliaCaller) {
+        this.juliaCaller = juliaCaller;
         this.inputs = new JuliaCallerScriptTaskInputsJulia(this);
         this.results = new JuliaCallerScriptTaskResultsJulia(this);
     }
 
     @Override
     public void eval(final String expression) {
-        final REXP eval = rsession.rawEval(expression);
-        if (eval == null) {
-            throw new IllegalStateException(
-                    String.valueOf(de.invesdwin.context.julia.runtime.juliacaller.pool.internal.RsessionLogger.get(rsession)
-                            .getErrorMessage()));
+        try {
+            juliaCaller.execute(expression);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -45,12 +44,12 @@ public class JuliaCallerScriptTaskEngineJulia implements IScriptTaskEngine {
 
     @Override
     public void close() {
-        rsession = null;
+        juliaCaller = null;
     }
 
     @Override
-    public ExtendedRserveSession unwrap() {
-        return rsession;
+    public ExtendedJuliaCaller unwrap() {
+        return juliaCaller;
     }
 
     /**
@@ -62,12 +61,12 @@ public class JuliaCallerScriptTaskEngineJulia implements IScriptTaskEngine {
     }
 
     public static JuliaCallerScriptTaskEngineJulia newInstance() {
-        return new JuliaCallerScriptTaskEngineJulia(RsessionObjectPool.INSTANCE.borrowObject()) {
+        return new JuliaCallerScriptTaskEngineJulia(JuliaCallerObjectPool.INSTANCE.borrowObject()) {
             @Override
             public void close() {
-                final ExtendedRserveSession unwrap = unwrap();
+                final ExtendedJuliaCaller unwrap = unwrap();
                 if (unwrap != null) {
-                    RsessionObjectPool.INSTANCE.returnObject(unwrap);
+                    JuliaCallerObjectPool.INSTANCE.returnObject(unwrap);
                 }
                 super.close();
             }

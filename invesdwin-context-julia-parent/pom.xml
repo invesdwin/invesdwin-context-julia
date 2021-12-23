@@ -74,6 +74,12 @@
 				<groupId>org.expr</groupId>
 				<artifactId>juliacaller</artifactId>
 				<version>${version.juliacaller}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.json</groupId>
+						<artifactId>json</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
