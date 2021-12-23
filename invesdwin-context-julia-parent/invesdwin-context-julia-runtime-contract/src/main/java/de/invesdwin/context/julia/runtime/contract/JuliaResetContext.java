@@ -95,8 +95,8 @@ public class JuliaResetContext {
             final JsonNode row = varinfo.get(i);
             final String name = row.get(0).asText();
             if (changed.contains(name)) {
-                final String type = row.get(2).asText();
-                if (!"Nothing".equals(type)) {
+                final String summary = row.get(2).asText();
+                if (!"Nothing".equals(summary) && !"Module".equals(summary)) {
                     variable_size.remove(name);
                     protectedVariables.add(name);
                 } else {
