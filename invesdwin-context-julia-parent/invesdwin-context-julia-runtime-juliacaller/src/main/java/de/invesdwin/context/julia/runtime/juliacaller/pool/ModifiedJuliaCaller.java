@@ -33,7 +33,7 @@ public class ModifiedJuliaCaller {
     private ModifiedJuliaErrorConsoleWatcher watcher;
     private Process process;
 
-    public ModifiedJuliaCaller(final String pathToJulia, final int port) {
+    public ModifiedJuliaCaller(final String pathToJulia, final int port, final boolean debug) {
         this.pathToJulia = pathToJulia;
         this.port = port;
     }
@@ -58,7 +58,7 @@ public class ModifiedJuliaCaller {
                 break;
             }
             sb.append(line);
-            sb.append("\r\n");
+            sb.append("\n");
         }
         reader.close();
         is.close();
@@ -69,10 +69,15 @@ public class ModifiedJuliaCaller {
 
         bufferedWriterForJuliaConsole.write(sb.toString());
         bufferedWriterForJuliaConsole.newLine();
-        IScriptTaskRunnerJulia.LOG.trace("startServer: Sending serve(%s) request.", this.port);
-        bufferedWriterForJuliaConsole.write("serve(" + this.port + ")");
+        final boolean debug = isDebugOutputEnabled();
+        IScriptTaskRunnerJulia.LOG.trace("startServer: Sending serve(%s,%s) request.", this.port, debug);
+        bufferedWriterForJuliaConsole.write("serve(" + this.port + ", " + debug + ")");
         bufferedWriterForJuliaConsole.newLine();
         bufferedWriterForJuliaConsole.flush();
+    }
+
+    protected boolean isDebugOutputEnabled() {
+        return IScriptTaskRunnerJulia.LOG.isDebugEnabled();
     }
 
     public ModifiedJuliaErrorConsoleWatcher getWatcher() {

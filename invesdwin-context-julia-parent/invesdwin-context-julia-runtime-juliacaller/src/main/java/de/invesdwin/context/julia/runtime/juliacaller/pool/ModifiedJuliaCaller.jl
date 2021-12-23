@@ -19,7 +19,7 @@ using JSON
 
 function writeln(client, str)
 	write(client, str)
-	write(client, "\r\n")
+	write(client, "\n")
 end
 
 """
@@ -54,36 +54,36 @@ Examples:
 
 	(Result is {"numbers":[-1.1734648123994915,-0.5577848419508594,0.5628431386136749,0.42211832659070825,-0.4402667291521316]})
 """
-function handle_client(server, client)
+function handle_client(server, client, debug)
 	while true
 		# WORKAOUND: newlines need to be escaped over the wire, unescape here
 		__line__ = replace(readline(client), "\\n" => "\n")
-		println(__line__)
-			if startswith(__line__, "execute ")
-				__command__ = __line__[9:end]
-				try
-					@debug Evaling __command__
-					eval(Meta.parse(__command__))
-				catch mth_err
-					@error mth_err
-					close(client)
-					close(server)
-				end
-				# writeln(client, "eval okay")
-			elseif startswith(__line__, "get ")
-				__varname__ = __line__[5:end]
-				__D__ = Dict(__varname__ => eval(Meta.parse(__varname__)))
-				writeln(client, json(__D__))
-			elseif startswith(__line__, "exit")
-				break
-			elseif startswith(__line__, "install ")
-				__pkg__ = __line__[9:end]
-				Pkg.add(__Pkg__)
-			elseif startswith(__line__, "shutdown")
+		if debug
+			println(__line__)
+		end
+		if startswith(__line__, "execute ")
+			__command__ = __line__[9:end]
+			try
+				eval(Meta.parse(__command__))
+			catch mth_err
+				@error mth_err
 				close(client)
 				close(server)
-				break
 			end
+		elseif startswith(__line__, "get ")
+			__varname__ = __line__[5:end]
+			__D__ = Dict(__varname__ => eval(Meta.parse(__varname__)))
+			writeln(client, json(__D__))
+		elseif startswith(__line__, "exit")
+			break
+		elseif startswith(__line__, "install ")
+			__pkg__ = __line__[9:end]
+			Pkg.add(__Pkg__)
+		elseif startswith(__line__, "shutdown")
+			close(client)
+			close(server)
+			break
+		end
 	end
 	close(client)
 end
@@ -94,14 +94,14 @@ Creates a TCP server socket and listens on a given port.
 # Arguments
 - `PORT::Integer`: The port number for the server socket, default is 8000.
 """
-function serve(PORT=8000)
+function serve(PORT=8000, DEBUG=true)
 	server = listen(PORT)
 	println("Listening JuliaCaller on port $PORT")
 	while true
 		try
 			client = accept(server)
 			if (@isdefined client)
-				handle_client(server, client)
+				handle_client(server, client, DEBUG)
     			else
 				close(client)
 			end
