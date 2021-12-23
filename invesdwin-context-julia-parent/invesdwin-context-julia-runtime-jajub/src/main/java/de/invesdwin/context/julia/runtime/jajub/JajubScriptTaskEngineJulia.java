@@ -1,7 +1,5 @@
 package de.invesdwin.context.julia.runtime.jajub;
 
-import java.io.IOException;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.integration.script.IScriptTaskEngine;

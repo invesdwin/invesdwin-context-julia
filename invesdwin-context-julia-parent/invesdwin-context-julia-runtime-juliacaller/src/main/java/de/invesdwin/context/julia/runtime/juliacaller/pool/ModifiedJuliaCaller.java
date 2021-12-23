@@ -12,6 +12,7 @@ import java.net.Socket;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
@@ -25,6 +26,7 @@ import de.invesdwin.util.lang.Strings;
 public class ModifiedJuliaCaller {
 
     private final String pathToJulia;
+    private final ObjectMapper objectMapper;
     private Socket socket;
     private BufferedWriter bufferedWriterForJuliaConsole, bufferedWriterForSocket;
     private BufferedReader bufferedReaderForSocket;
@@ -36,6 +38,11 @@ public class ModifiedJuliaCaller {
     public ModifiedJuliaCaller(final String pathToJulia, final int port) {
         this.pathToJulia = pathToJulia;
         this.port = port;
+        this.objectMapper = getObjectMapper();
+    }
+
+    protected ObjectMapper getObjectMapper() {
+        return MarshallerJsonJackson.getInstance().getJsonMapper(false);
     }
 
     public void setMaximumTriesToConnect(final int tries) {
@@ -154,7 +161,7 @@ public class ModifiedJuliaCaller {
         bufferedWriterForSocket.flush();
         final String result = bufferedReaderForSocket.readLine();
         checkError();
-        final JsonNode node = MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(result).get(varname);
+        final JsonNode node = objectMapper.readTree(result).get(varname);
         if (node instanceof NullNode) {
             return null;
         } else {
