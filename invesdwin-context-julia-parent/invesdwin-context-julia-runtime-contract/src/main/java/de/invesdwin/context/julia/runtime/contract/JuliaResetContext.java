@@ -1,11 +1,13 @@
 package de.invesdwin.context.julia.runtime.contract;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
@@ -13,18 +15,20 @@ import de.invesdwin.context.integration.script.IScriptTaskEngine;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 
+@NotThreadSafe
 public class JuliaResetContext {
 
     private final IScriptTaskEngine engine;
 
     private Set<String> protectedVariables;
     private final Map<String, String> variable_size = new HashMap<>();
+    private final Set<String> blacklistedVariables = new HashSet<>();
 
     public JuliaResetContext(final IScriptTaskEngine engine) {
         this.engine = engine;
     }
 
-    public void init() throws IOException {
+    public void init() {
         final Set<String> names = new HashSet<>();
         engine.eval("use JSON");
         final String[] array = engine.getResults().getStringVector("names(Main)");
@@ -34,7 +38,7 @@ public class JuliaResetContext {
         }
     }
 
-    public void reset() throws IOException {
+    public void reset() {
         final JsonNode varinfo = varinfo();
         Set<String> changed = null;
         for (int i = 0; i < varinfo.size(); i++) {
@@ -61,10 +65,18 @@ public class JuliaResetContext {
                 continue;
             }
             if ("Module".equals(summary)) {
-                engine.eval("module " + name + " end");
+                try {
+                    engine.eval("module " + name + " end");
+                } catch (final Throwable t) {
+                    //ignore, might be an error due to a previous command
+                }
             } else {
-                //Variables, Arrays, Methods
-                engine.eval(name + " = nothing");
+                try {
+                    //Variables, Arrays, Methods
+                    engine.eval(name + " = nothing");
+                } catch (final Throwable t) {
+                    //ignore, might be an error due to a previous command
+                }
             }
             if (changed == null) {
                 changed = new HashSet<>();
@@ -76,14 +88,20 @@ public class JuliaResetContext {
         }
     }
 
-    private void updateSizeMap(final Set<String> changed) throws IOException {
+    private void updateSizeMap(final Set<String> changed) {
         final JsonNode varinfo = varinfo();
         for (int i = 0; i < varinfo.size(); i++) {
             final JsonNode row = varinfo.get(i);
             final String name = row.get(0).asText();
             if (changed.contains(name)) {
-                final String size = row.get(1).asText();
-                variable_size.put(name, size);
+                final String type = row.get(2).asText();
+                if (!"Nothing".equals(type)) {
+                    variable_size.remove(name);
+                    protectedVariables.add(name);
+                } else {
+                    final String size = row.get(1).asText();
+                    variable_size.put(name, size);
+                }
             }
         }
     }
@@ -93,11 +111,25 @@ public class JuliaResetContext {
      * 
      * Thus iterate from index 1 to access the actual values.
      */
-    public JsonNode varinfo() throws IOException {
-        final String json = engine.getResults().getString("JSON.json(varinfo())");
-        final JsonNode node = MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(json);
-        final JsonNode rows = node.get("content").get(0).get("rows");
-        return rows;
+    public JsonNode varinfo() {
+        String json;
+        try {
+            json = getVarinfo();
+        } catch (final Throwable t) {
+            //retry because an asynchronous error from a previous command might have been found which we want to ignore
+            json = getVarinfo();
+        }
+        try {
+            final JsonNode node = MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(json);
+            final JsonNode rows = node.get("content").get(0).get("rows");
+            return rows;
+        } catch (final JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getVarinfo() {
+        return engine.getResults().getString("JSON.json(varinfo())");
     }
 
 }
