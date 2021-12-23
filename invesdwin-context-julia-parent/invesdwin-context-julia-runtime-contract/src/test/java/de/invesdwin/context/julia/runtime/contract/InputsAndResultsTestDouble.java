@@ -69,7 +69,7 @@ public class InputsAndResultsTestDouble {
 
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
-                engine.eval(new ClassPathResource(InputsAndResultsTestDouble.class.getSimpleName() + ".R",
+                engine.eval(new ClassPathResource(InputsAndResultsTestDouble.class.getSimpleName() + ".jl",
                         InputsAndResultsTestDouble.class));
             }
 

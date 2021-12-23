@@ -69,7 +69,7 @@ public class InputsAndResultsTestBoolean {
 
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
-                engine.eval(new ClassPathResource(InputsAndResultsTestBoolean.class.getSimpleName() + ".R",
+                engine.eval(new ClassPathResource(InputsAndResultsTestBoolean.class.getSimpleName() + ".jl",
                         InputsAndResultsTestBoolean.class));
             }
 

@@ -69,7 +69,7 @@ public class InputsAndResultsTestFloat {
 
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
-                engine.eval(new ClassPathResource(InputsAndResultsTestFloat.class.getSimpleName() + ".R",
+                engine.eval(new ClassPathResource(InputsAndResultsTestFloat.class.getSimpleName() + ".jl",
                         InputsAndResultsTestFloat.class));
             }
 

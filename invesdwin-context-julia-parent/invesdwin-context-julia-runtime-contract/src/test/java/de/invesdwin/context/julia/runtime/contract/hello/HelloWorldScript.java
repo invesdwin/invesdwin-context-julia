@@ -32,9 +32,9 @@ public class HelloWorldScript extends ATest {
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
                 //execute this script inline:
-                //                engine.eval("world <- paste(\"Hello \", hello, \"!\", sep=\"\")");
+                //                engine.eval("world = \"Hello \" * hello * \"!\"");
                 //or run it from a file:
-                engine.eval(new ClassPathResource(HelloWorldScript.class.getSimpleName() + ".R", getClass()));
+                engine.eval(new ClassPathResource(HelloWorldScript.class.getSimpleName() + ".jl", getClass()));
             }
 
             @Override
