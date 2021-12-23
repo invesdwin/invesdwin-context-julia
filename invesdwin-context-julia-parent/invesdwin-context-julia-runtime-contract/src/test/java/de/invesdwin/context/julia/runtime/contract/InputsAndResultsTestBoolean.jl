@@ -1,54 +1,54 @@
-print("getBoolean")
+println("getBoolean")
 if isdefined(Main, :getBoolean) && !isnothing(getBoolean)
 	error("getBoolean already defined!")
 end
 getBoolean = putBoolean
-print(typeof(getBoolean))
-print(getBoolean)
+println(typeof(getBoolean))
+println(getBoolean)
 if typeof(getBoolean) != Bool
 	error("getBoolean not Bool!")
 end
 
-print("getBooleanVector")
+println("getBooleanVector")
 if isdefined(Main, :getBooleanVector) && !isnothing(getBooleanVector)
 	error("getBooleanVector already defined!")
 end
 getBooleanVector = putBooleanVector
-print(eltype(getBooleanVector))
-print(getBooleanVector)
+println(eltype(getBooleanVector))
+println(getBooleanVector)
 if eltype(getBooleanVector) != Bool 
 	error("getBooleanVector not Bool!")
 end
 
-print("getBooleanVectorAsList")
+println("getBooleanVectorAsList")
 if isdefined(Main, :getBooleanVectorAsList) && !isnothing(getBooleanVectorAsList)
 	error("getBooleanVectorAsList already defined!")
 end
 getBooleanVectorAsList = putBooleanVectorAsList
-print(eltype(getBooleanVectorAsList))
-print(getBooleanVectorAsList)
+println(eltype(getBooleanVectorAsList))
+println(getBooleanVectorAsList)
 if eltype(getBooleanVectorAsList) != Bool
 	error("getBooleanVectorAsList not Bool!")
 end
 
-print("getBooleanMatrix")
+println("getBooleanMatrix")
 if isdefined(Main, :getBooleanMatrix) && !isnothing(getBooleanMatrix)
 	error("getBooleanMatrix already defined!")
 end
 getBooleanMatrix = putBooleanMatrix
-print(eltype(getBooleanMatrix))
-print(getBooleanMatrix)
+println(eltype(getBooleanMatrix))
+println(getBooleanMatrix)
 if eltype(getBooleanMatrix) != Bool
 	error("getBooleanMatrix not Bool!")
 end
 
-print("getBooleanMatrixAsList")
+println("getBooleanMatrixAsList")
 if isdefined(Main, :getBooleanMatrixAsList) && !isnothing(getBooleanMatrixAsList)
 	error("getBooleanMatrixAsList already defined!")
 end
 getBooleanMatrixAsList = putBooleanMatrixAsList
-print(eltype(getBooleanMatrixAsList))
-print(getBooleanMatrixAsList)
+println(eltype(getBooleanMatrixAsList))
+println(getBooleanMatrixAsList)
 if eltype(getBooleanMatrixAsList) != Bool
 	error("getBooleanMatrixAsList not Bool!")
 end
