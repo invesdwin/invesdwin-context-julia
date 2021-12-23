@@ -1,22 +1,21 @@
 package de.invesdwin.context.julia.runtime.jajub.pool;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Named;
 
 import org.springframework.beans.factory.FactoryBean;
 
-import com.github.rcaller.rstuff.RCaller;
-
-import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.jajub.JajubScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.jajub.pool.internal.ModifiedRCaller;
+import de.invesdwin.context.integration.network.NetworkUtil;
 import de.invesdwin.util.concurrent.pool.timeout.ATimeoutObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 @Named
-public final class JajubObjectPool extends ATimeoutObjectPool<RCaller> implements FactoryBean<JajubObjectPool> {
+public final class JajubObjectPool extends ATimeoutObjectPool<ExtendedJuliaBridge>
+        implements FactoryBean<JajubObjectPool> {
 
     public static final JajubObjectPool INSTANCE = new JajubObjectPool();
 
@@ -25,26 +24,38 @@ public final class JajubObjectPool extends ATimeoutObjectPool<RCaller> implement
     }
 
     @Override
-    public void destroyObject(final RCaller obj) {
-        obj.StopRCallerOnline();
+    public void destroyObject(final ExtendedJuliaBridge obj) {
+        try {
+            obj.shutdownServer();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    protected RCaller newObject() {
-        return new ModifiedRCaller();
+    protected ExtendedJuliaBridge newObject() {
+        final int port = NetworkUtil.findAvailableTcpPort();
+        final ExtendedJuliaBridge session = new ExtendedJuliaBridge("julia", port);
+        try {
+            session.startServer();
+            session.connect();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        return session;
     }
 
     @Override
-    protected void passivateObject(final RCaller obj) {
-        obj.getRCode().clear();
-        obj.getRCode().getCode().insert(0, IScriptTaskRunnerJulia.CLEANUP_SCRIPT + "\n");
-        obj.getRCode().addRCode(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE + " <- c()");
-        obj.runAndReturnResultOnline(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE);
-        obj.deleteTempFiles();
+    protected void passivateObject(final ExtendedJuliaBridge obj) {
+        try {
+            obj.reset();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public JajubObjectPool getObject() {
+    public JajubObjectPool getObject() throws Exception {
         return INSTANCE;
     }
 

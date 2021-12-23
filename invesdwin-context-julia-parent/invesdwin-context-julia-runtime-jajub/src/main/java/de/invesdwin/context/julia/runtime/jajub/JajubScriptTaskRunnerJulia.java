@@ -5,10 +5,9 @@ import javax.inject.Named;
 
 import org.springframework.beans.factory.FactoryBean;
 
-import com.github.rcaller.rstuff.RCaller;
-
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
+import de.invesdwin.context.julia.runtime.jajub.pool.ExtendedJuliaBridge;
 import de.invesdwin.context.julia.runtime.jajub.pool.JajubObjectPool;
 import de.invesdwin.util.error.Throwables;
 
@@ -19,8 +18,6 @@ public final class JajubScriptTaskRunnerJulia
 
     public static final JajubScriptTaskRunnerJulia INSTANCE = new JajubScriptTaskRunnerJulia();
 
-    public static final String INTERNAL_RESULT_VARIABLE = JajubScriptTaskRunnerJulia.class.getSimpleName() + "_result";
-
     /**
      * public for ServiceLoader support
      */
@@ -30,11 +27,10 @@ public final class JajubScriptTaskRunnerJulia
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
-        final RCaller rcaller = JajubObjectPool.INSTANCE.borrowObject();
+        final ExtendedJuliaBridge juliaCaller = JajubObjectPool.INSTANCE.borrowObject();
         try {
             //inputs
-            rcaller.getRCode().clearOnline();
-            final JajubScriptTaskEngineJulia engine = new JajubScriptTaskEngineJulia(rcaller);
+            final JajubScriptTaskEngineJulia engine = new JajubScriptTaskEngineJulia(juliaCaller);
             scriptTask.populateInputs(engine.getInputs());
 
             //execute
@@ -45,10 +41,10 @@ public final class JajubScriptTaskRunnerJulia
             engine.close();
 
             //return
-            JajubObjectPool.INSTANCE.returnObject(rcaller);
+            JajubObjectPool.INSTANCE.returnObject(juliaCaller);
             return result;
         } catch (final Throwable t) {
-            JajubObjectPool.INSTANCE.destroyObject(rcaller);
+            JajubObjectPool.INSTANCE.destroyObject(juliaCaller);
             throw Throwables.propagate(t);
         }
     }

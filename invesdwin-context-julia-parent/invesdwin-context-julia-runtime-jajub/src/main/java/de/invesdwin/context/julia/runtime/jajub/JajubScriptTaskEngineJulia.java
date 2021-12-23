@@ -1,10 +1,11 @@
 package de.invesdwin.context.julia.runtime.jajub;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
-import com.github.rcaller.rstuff.RCaller;
-
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
+import de.invesdwin.context.julia.runtime.jajub.pool.ExtendedJuliaBridge;
 import de.invesdwin.context.julia.runtime.jajub.pool.JajubObjectPool;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
@@ -12,21 +13,23 @@ import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 @NotThreadSafe
 public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
 
-    private RCaller rcaller;
+    private ExtendedJuliaBridge juliaCaller;
     private final JajubScriptTaskInputsJulia inputs;
     private final JajubScriptTaskResultsJulia results;
 
-    public JajubScriptTaskEngineJulia(final RCaller rcaller) {
-        this.rcaller = rcaller;
+    public JajubScriptTaskEngineJulia(final ExtendedJuliaBridge juliaCaller) {
+        this.juliaCaller = juliaCaller;
         this.inputs = new JajubScriptTaskInputsJulia(this);
         this.results = new JajubScriptTaskResultsJulia(this);
     }
 
     @Override
     public void eval(final String expression) {
-        rcaller.getRCode().addRCode(expression);
-        rcaller.getRCode().addRCode(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE + " <- c()");
-        rcaller.runAndReturnResultOnline(JajubScriptTaskRunnerJulia.INTERNAL_RESULT_VARIABLE);
+        try {
+            juliaCaller.execute(expression);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -41,12 +44,12 @@ public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
 
     @Override
     public void close() {
-        rcaller = null;
+        juliaCaller = null;
     }
 
     @Override
-    public RCaller unwrap() {
-        return rcaller;
+    public ExtendedJuliaBridge unwrap() {
+        return juliaCaller;
     }
 
     /**
@@ -61,7 +64,7 @@ public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
         return new JajubScriptTaskEngineJulia(JajubObjectPool.INSTANCE.borrowObject()) {
             @Override
             public void close() {
-                final RCaller unwrap = unwrap();
+                final ExtendedJuliaBridge unwrap = unwrap();
                 if (unwrap != null) {
                     JajubObjectPool.INSTANCE.returnObject(unwrap);
                 }
