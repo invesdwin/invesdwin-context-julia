@@ -96,14 +96,14 @@ print(getStringMatrixWithNull)
 if eltype(getStringMatrixWithNull) != String
 	error("getStringMatrixWithNull not String!")
 end
-if !isempty(getStringMatrixWithNull[1][1])
-	error("getStringMatrixWithNull[1][1] not empty!")
+if !isempty(getStringMatrixWithNull[1,1])
+	error("getStringMatrixWithNull[1,1] not empty!")
 end
-if !isempty(getStringMatrixWithNull[2][2])
-	error("getStringMatrixWithNull[2][2] not empty!")
+if !isempty(getStringMatrixWithNull[2,2])
+	error("getStringMatrixWithNull[2,2] not empty!")
 end
-if !isempty(getStringMatrixWithNull[3][3])
-	error("getStringMatrixWithNull[3][3] not empty!")
+if !isempty(getStringMatrixWithNull[3,3])
+	error("getStringMatrixWithNull[3,3] not empty!")
 end
 
 print("getStringMatrixAsList")
@@ -127,12 +127,12 @@ print(getStringMatrixAsListWithNull)
 if eltype(getStringMatrixAsListWithNull) != String
 	error("getStringMatrixAsListWithNull not String!")
 end
-if !isempty(getStringMatrixAsListWithNull[1][1])
-	error("getStringMatrixAsListWithNull[1][1] not empty!")
+if !isempty(getStringMatrixAsListWithNull[1,1])
+	error("getStringMatrixAsListWithNull[1,1] not empty!")
 end
-if !isempty(getStringMatrixAsListWithNull[2][2])
-	error("getStringMatrixAsListWithNull[2][2] not empty!")
+if !isempty(getStringMatrixAsListWithNull[2,2])
+	error("getStringMatrixAsListWithNull[2,2] not empty!")
 end
-if !isempty(getStringMatrixAsListWithNull[3][3])
-	error("getStringMatrixAsListWithNull[3][3] not empty!")
+if !isempty(getStringMatrixAsListWithNull[3,3])
+	error("getStringMatrixAsListWithNull[3,3] not empty!")
 end

@@ -20,25 +20,29 @@ public class InputsAndResultsTestNull {
         new AScriptTaskJulia<Void>() {
 
             @Override
-            public void populateInputs(final IScriptTaskInputs inputs) {}
+            public void populateInputs(final IScriptTaskInputs inputs) {
+            }
 
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
-                Assertions.checkTrue(engine.getResults().isNotDefined("testVariable"));
-                Assertions.checkFalse(engine.getResults().isDefined("testVariable"));
+                final IScriptTaskResultsJulia cResults = (IScriptTaskResultsJulia) engine.getResults();
+                //the variable might have been defined by a previous run, thus allow null too
+                Assertions.checkTrue(cResults.isNotDefinedOrNull("testVariable"));
+                Assertions.checkFalse(cResults.isDefinedNotNull("testVariable"));
                 engine.getInputs().putNull("testVariable");
-                Assertions.checkFalse(engine.getResults().isNotDefined("testVariable"));
-                Assertions.checkTrue(engine.getResults().isDefined("testVariable"));
-                Assertions.checkTrue(engine.getResults().isNull("testVariable"));
-                Assertions.checkFalse(engine.getResults().isNotNull("testVariable"));
+                Assertions.checkFalse(cResults.isNotDefined("testVariable"));
+                Assertions.checkTrue(cResults.isDefined("testVariable"));
+                Assertions.checkTrue(cResults.isNull("testVariable"));
+                Assertions.checkFalse(cResults.isNotNull("testVariable"));
                 engine.getInputs().putString("testVariable", "value");
-                Assertions.checkFalse(engine.getResults().isNotDefined("testVariable"));
-                Assertions.checkTrue(engine.getResults().isDefined("testVariable"));
-                Assertions.checkFalse(engine.getResults().isNull("testVariable"));
-                Assertions.checkTrue(engine.getResults().isNotNull("testVariable"));
+                Assertions.checkFalse(cResults.isNotDefined("testVariable"));
+                Assertions.checkTrue(cResults.isDefined("testVariable"));
+                Assertions.checkFalse(cResults.isNull("testVariable"));
+                Assertions.checkTrue(cResults.isNotNull("testVariable"));
+                //there is no remove in julia, thus we have to check for null as well
                 engine.getInputs().remove("testVariable");
-                Assertions.checkTrue(engine.getResults().isNotDefined("testVariable"));
-                Assertions.checkFalse(engine.getResults().isDefined("testVariable"));
+                Assertions.checkTrue(cResults.isNotDefinedOrNull("testVariable"));
+                Assertions.checkFalse(cResults.isDefinedNotNull("testVariable"));
 
             }
 

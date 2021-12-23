@@ -32,7 +32,11 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public String getString(final String variable) {
         try {
-            final String str = engine.unwrap().getAsJsonNode(variable).asText();
+            final JsonNode node = engine.unwrap().getAsJsonNode(variable);
+            if (node == null) {
+                return null;
+            }
+            final String str = node.asText();
             if (Strings.isBlankOrNullText(str)) {
                 return null;
             } else {
@@ -47,6 +51,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     public String[] getStringVector(final String variable) {
         try {
             final JsonNode strs = engine.unwrap().getAsJsonNode(variable);
+            if (strs == null) {
+                return null;
+            }
             final String[] values = new String[strs.size()];
             for (int i = 0; i < values.length; i++) {
                 final String str = strs.get(i).asText();
@@ -67,11 +74,21 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
         try {
             //json returns the columns instead of rows
             final JsonNode strsMatrix = engine.unwrap().getAsJsonNode(variable);
+            if (strsMatrix == null) {
+                return null;
+            }
+            if (strsMatrix.size() == 0) {
+                //https://stackoverflow.com/questions/23079625/extract-array-dimensions-in-julia
+                final int[] dims = getIntegerVector("size(" + variable + ")");
+                final int rows = dims[0];
+                final String[][] emptyMatrix = new String[rows][];
+                for (int i = 0; i < rows; i++) {
+                    emptyMatrix[i] = Strings.EMPTY_ARRAY;
+                }
+                return emptyMatrix;
+            }
             //[11 12 13;21 22 23;31 32 33;41 42 43]
             //[[11,21,31,41],[12,22,32,42],[13,23,33,43]]
-            if (strsMatrix.size() == 0) {
-                return Strings.EMPTY_MATRIX;
-            }
             final int columns = strsMatrix.size();
             final int rows = strsMatrix.get(0).size();
             final String[][] valuesMatrix = new String[rows][];
@@ -106,6 +123,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public char[] getCharacterVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final char[] values = new char[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -121,6 +141,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public char[][] getCharacterMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final char[][] valuesMatrix = new char[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -151,6 +174,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public boolean[] getBooleanVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final boolean[] values = new boolean[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -166,6 +192,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public boolean[][] getBooleanMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final boolean[][] valuesMatrix = new boolean[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -196,6 +225,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public byte[] getByteVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final byte[] values = new byte[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -211,6 +243,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public byte[][] getByteMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final byte[][] valuesMatrix = new byte[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -241,6 +276,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public short[] getShortVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final short[] values = new short[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -256,6 +294,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public short[][] getShortMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final short[][] valuesMatrix = new short[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -286,6 +327,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public int[] getIntegerVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final int[] values = new int[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -301,6 +345,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public int[][] getIntegerMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final int[][] valuesMatrix = new int[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -331,6 +378,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public long[] getLongVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final long[] values = new long[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -346,6 +396,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public long[][] getLongMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final long[][] valuesMatrix = new long[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -376,6 +429,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public float[] getFloatVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final float[] values = new float[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -391,6 +447,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public float[][] getFloatMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final float[][] valuesMatrix = new float[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];
@@ -421,6 +480,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public double[] getDoubleVector(final String variable) {
         final String[] strs = getStringVector(variable);
+        if (strs == null) {
+            return null;
+        }
         final double[] values = new double[strs.length];
         for (int i = 0; i < strs.length; i++) {
             final String str = strs[i];
@@ -436,6 +498,9 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public double[][] getDoubleMatrix(final String variable) {
         final String[][] strsMatrix = getStringMatrix(variable);
+        if (strsMatrix == null) {
+            return null;
+        }
         final double[][] valuesMatrix = new double[strsMatrix.length][];
         for (int i = 0; i < strsMatrix.length; i++) {
             final String[] strs = strsMatrix[i];

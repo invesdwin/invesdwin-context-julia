@@ -6,7 +6,15 @@ public interface IScriptTaskResultsJulia extends IScriptTaskResults {
 
     @Override
     default boolean isDefined(final String variable) {
+        return getBoolean("isdefined(Main, :" + variable + ")");
+    }
+
+    default boolean isDefinedNotNull(final String variable) {
         return getBoolean("isdefined(Main, :" + variable + ") && !isnothing(" + variable + ")");
+    }
+
+    default boolean isNotDefinedOrNull(final String variable) {
+        return getBoolean("!isdefined(Main, :" + variable + ") || isnothing(" + variable + ")");
     }
 
     @Override

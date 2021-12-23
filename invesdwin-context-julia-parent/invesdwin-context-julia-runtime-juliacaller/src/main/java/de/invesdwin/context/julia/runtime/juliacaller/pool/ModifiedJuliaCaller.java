@@ -14,6 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.expr.juliacaller.MaximumTriesForConnectionException;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
@@ -145,7 +146,12 @@ public class ModifiedJuliaCaller {
         bufferedWriterForSocket.flush();
         final String result = bufferedReaderForSocket.readLine();
         checkError();
-        return MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(result).get(varname);
+        final JsonNode node = MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(result).get(varname);
+        if (node instanceof NullNode) {
+            return null;
+        } else {
+            return node;
+        }
     }
 
 }
