@@ -1,54 +1,54 @@
 print("getCharacter")
-if(isdefined(Main, :getCharacter) && !isnothing(getCharacter)){
+if isdefined(Main, :getCharacter) && !isnothing(getCharacter)
 	error("getCharacter already defined!")
-}
+end
 getCharacter = putCharacter
 print(typeof(getCharacter))
 print(getCharacter)
-if(typeof(getCharacter) != Char){
+if typeof(getCharacter) != Char
 	error("getCharacter not Char!")
-}
+end
 
 print("getCharacterVector")
-if(isdefined(Main, :getCharacterVector) && !isnothing(getCharacterVector)){
+if isdefined(Main, :getCharacterVector) && !isnothing(getCharacterVector)
 	error("getCharacterVector already defined!")
-}
+end
 getCharacterVector = putCharacterVector
-print(typeof(getCharacterVector))
+print(eltype(getCharacterVector))
 print(getCharacterVector)
-if(typeof(getCharacterVector) != Char){
+if eltype(getCharacterVector) != Char
 	error("getCharacterVector not Char!")
-}
+end
 
 print("getCharacterVectorAsList")
-if(isdefined(Main, :getCharacterVectorAsList) && !isnothing(getCharacterVectorAsList)){
+if isdefined(Main, :getCharacterVectorAsList) && !isnothing(getCharacterVectorAsList)
 	error("getCharacterVectorAsList already defined!")
-}
+end
 getCharacterVectorAsList = putCharacterVectorAsList
-print(typeof(getCharacterVectorAsList))
+print(eltype(getCharacterVectorAsList))
 print(getCharacterVectorAsList)
-if(typeof(getCharacterVectorAsList) != Char){
+if eltype(getCharacterVectorAsList) != Char
 	error("getCharacterVectorAsList not Char!")
-}
+end
 
 print("getCharacterMatrix")
-if(isdefined(Main, :getCharacterMatrix) && !isnothing(getCharacterMatrix)){
+if isdefined(Main, :getCharacterMatrix) && !isnothing(getCharacterMatrix)
 	error("getCharacterMatrix already defined!")
-}
+end
 getCharacterMatrix = putCharacterMatrix
-print(typeof(getCharacterMatrix))
+print(eltype(getCharacterMatrix))
 print(getCharacterMatrix)
-if(typeof(getCharacterMatrix) != Char){
+if eltype(getCharacterMatrix) != Char
 	error("getCharacterMatrix not Char!")
-}
+end
 
 print("getCharacterMatrixAsList")
-if(isdefined(Main, :getCharacterMatrixAsList) && !isnothing(getCharacterMatrixAsList)){
+if isdefined(Main, :getCharacterMatrixAsList) && !isnothing(getCharacterMatrixAsList)
 	error("getCharacterMatrixAsList already defined!")
-}
+end
 getCharacterMatrixAsList = putCharacterMatrixAsList
-print(typeof(getCharacterMatrixAsList))
+print(eltype(getCharacterMatrixAsList))
 print(getCharacterMatrixAsList)
-if(typeof(getCharacterMatrixAsList) != Char){
+if eltype(getCharacterMatrixAsList) != Char
 	error("getCharacterMatrixAsList not Char!")
-}
+end

@@ -2,8 +2,6 @@ package de.invesdwin.context.julia.runtime.juliacaller.pool;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,7 +13,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.expr.juliacaller.MaximumTriesForConnectionException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
+import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
 public class ModifiedJuliaCaller {
@@ -44,7 +46,8 @@ public class ModifiedJuliaCaller {
 
     public void startServer() throws IOException {
         process = Runtime.getRuntime().exec(pathToJulia);
-        final InputStream is = this.getClass().getResourceAsStream("juliacaller.jl");
+        final InputStream is = ModifiedJuliaCaller.class
+                .getResourceAsStream(ModifiedJuliaCaller.class.getSimpleName() + ".jl");
         final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         final StringBuilder sb = new StringBuilder();
         while (true) {
@@ -64,7 +67,7 @@ public class ModifiedJuliaCaller {
 
         bufferedWriterForJuliaConsole.write(sb.toString());
         bufferedWriterForJuliaConsole.newLine();
-        IScriptTaskRunnerJulia.LOG.debug("startServer: Sending serve(%s) request.", this.port);
+        IScriptTaskRunnerJulia.LOG.trace("startServer: Sending serve(%s) request.", this.port);
         bufferedWriterForJuliaConsole.write("serve(" + this.port + ")");
         bufferedWriterForJuliaConsole.newLine();
         bufferedWriterForJuliaConsole.flush();
@@ -86,11 +89,11 @@ public class ModifiedJuliaCaller {
             } catch (final ConnectException ce) {
                 numtries++;
                 try {
-                    IScriptTaskRunnerJulia.LOG.warn("Connect: retrying to connect: %s / %s", numtries,
+                    IScriptTaskRunnerJulia.LOG.trace("Connect: retrying to connect: %s / %s", numtries,
                             maximumTriesToConnect);
                     Thread.sleep(1000);
                 } catch (final InterruptedException ie) {
-
+                    throw new RuntimeException(ie);
                 }
             }
         }
@@ -109,8 +112,9 @@ public class ModifiedJuliaCaller {
     }
 
     public synchronized void execute(final String command) throws IOException {
-        IScriptTaskRunnerJulia.LOG.trace("Execute: Sending '%s'", command);
-        bufferedWriterForSocket.write("execute " + command);
+        IScriptTaskRunnerJulia.LOG.trace("execute: Sending '%s'", command);
+        bufferedWriterForSocket
+                .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n")) + " end");
         bufferedWriterForSocket.newLine();
         checkError();
     }
@@ -120,16 +124,6 @@ public class ModifiedJuliaCaller {
         if (error != null) {
             throw new IllegalStateException(error);
         }
-    }
-
-    public synchronized void executeDefineFunction(final String command) throws IOException {
-        IScriptTaskRunnerJulia.LOG.trace("Execute: Sending function definition");
-        final File tempfile = File.createTempFile("juliacaller-function-definition", "jl");
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(tempfile));
-        writer.write(command);
-        writer.flush();
-        writer.close();
-        execute("include(\"" + tempfile.getAbsolutePath() + "\")");
     }
 
     public void exitSession() throws IOException {
@@ -144,14 +138,14 @@ public class ModifiedJuliaCaller {
         bufferedWriterForSocket.newLine();
     }
 
-    public String getAsJSONString(final String varname) throws IOException {
-        IScriptTaskRunnerJulia.LOG.debug("GetAsJSONString: Requesting variable %s", varname);
+    public JsonNode getAsJsonNode(final String varname) throws IOException {
+        IScriptTaskRunnerJulia.LOG.trace("getAsJsonNode: Requesting variable %s", varname);
         bufferedWriterForSocket.write("get " + varname);
         bufferedWriterForSocket.newLine();
         bufferedWriterForSocket.flush();
         final String result = bufferedReaderForSocket.readLine();
         checkError();
-        return result;
+        return MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(result).get(varname);
     }
 
 }

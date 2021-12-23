@@ -1,54 +1,54 @@
 print("getShort")
-if(isdefined(Main, :getShort) && !isnothing(getShort)){
+if isdefined(Main, :getShort) && !isnothing(getShort)
 	error("getShort already defined!")
-}
+end
 getShort = putShort
 print(typeof(getShort))
 print(getShort)
-if(typeof(getShort) != Int16){
+if typeof(getShort) != Int16
 	error("getShort not Int16!")
-}
+end
 
 print("getShortVector")
-if(isdefined(Main, :getShortVector) && !isnothing(getShortVector)){
+if isdefined(Main, :getShortVector) && !isnothing(getShortVector)
 	error("getShortVector already defined!")
-}
+end
 getShortVector = putShortVector
-print(typeof(getShortVector))
+print(eltype(getShortVector))
 print(getShortVector)
-if(typeof(getShortVector) != Int16){
+if eltype(getShortVector) != Int16
 	error("getShortVector not Int16!")
-}
+end
 
 print("getShortVectorAsList")
-if(isdefined(Main, :getShortVectorAsList) && !isnothing(getShortVectorAsList)){
+if isdefined(Main, :getShortVectorAsList) && !isnothing(getShortVectorAsList)
 	error("getShortVectorAsList already defined!")
-}
+end
 getShortVectorAsList = putShortVectorAsList
-print(typeof(getShortVectorAsList))
+print(eltype(getShortVectorAsList))
 print(getShortVectorAsList)
-if(typeof(getShortVectorAsList) != Int16){
+if eltype(getShortVectorAsList) != Int16
 	error("getShortVectorAsList not Int16!")
-}
+end
 
 print("getShortMatrix")
-if(isdefined(Main, :getShortMatrix) && !isnothing(getShortMatrix)){
+if isdefined(Main, :getShortMatrix) && !isnothing(getShortMatrix)
 	error("getShortMatrix already defined!")
-}
+end
 getShortMatrix = putShortMatrix
-print(typeof(getShortMatrix))
+print(eltype(getShortMatrix))
 print(getShortMatrix)
-if(typeof(getShortMatrix) != Int16){
+if eltype(getShortMatrix) != Int16
 	error("getShortMatrix not Int16!")
-}
+end
 
 print("getShortMatrixAsList")
-if(isdefined(Main, :getShortMatrixAsList) && !isnothing(getShortMatrixAsList)){
+if isdefined(Main, :getShortMatrixAsList) && !isnothing(getShortMatrixAsList)
 	error("getShortMatrixAsList already defined!")
-}
+end
 getShortMatrixAsList = putShortMatrixAsList
-print(typeof(getShortMatrixAsList))
+print(eltype(getShortMatrixAsList))
 print(getShortMatrixAsList)
-if(typeof(getShortMatrixAsList) != Int16){
+if eltype(getShortMatrixAsList) != Int16
 	error("getShortMatrixAsList not Int16!")
-}
+end

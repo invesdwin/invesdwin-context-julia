@@ -1,54 +1,54 @@
 print("getLong")
-if(isdefined(Main, :getLong) && !isnothing(getLong)){
+if isdefined(Main, :getLong) && !isnothing(getLong)
 	error("getLong already defined!")
-}
+end
 getLong = putLong
 print(typeof(getLong))
 print(getLong)
-if(typeof(getLong) != Float64){
-	error("getLong not Float64!")
-}
+if typeof(getLong) != Int64
+	error("getLong not Int64!")
+end
 
 print("getLongVector")
-if(isdefined(Main, :getLongVector) && !isnothing(getLongVector)){
+if isdefined(Main, :getLongVector) && !isnothing(getLongVector)
 	error("getLongVector already defined!")
-}
+end
 getLongVector = putLongVector
-print(typeof(getLongVector))
+print(eltype(getLongVector))
 print(getLongVector)
-if(typeof(getLongVector) != Float64){
-	error("getLongVector not Float64!")
-}
+if eltype(getLongVector) != Int64
+	error("getLongVector not Int64!")
+end
 
 print("getLongVectorAsList")
-if(isdefined(Main, :getLongVectorAsList) && !isnothing(getLongVectorAsList)){
+if isdefined(Main, :getLongVectorAsList) && !isnothing(getLongVectorAsList)
 	error("getLongVectorAsList already defined!")
-}
+end
 getLongVectorAsList = putLongVectorAsList
-print(typeof(getLongVectorAsList))
+print(eltype(getLongVectorAsList))
 print(getLongVectorAsList)
-if(typeof(getLongVectorAsList) != Float64){
-	error("getLongVectorAsList not Float64!")
-}
+if eltype(getLongVectorAsList) != Int64
+	error("getLongVectorAsList not Int64!")
+end
 
 print("getLongMatrix")
-if(isdefined(Main, :getLongMatrix) && !isnothing(getLongMatrix)){
+if isdefined(Main, :getLongMatrix) && !isnothing(getLongMatrix)
 	error("getLongMatrix already defined!")
-}
+end
 getLongMatrix = putLongMatrix
-print(typeof(getLongMatrix))
+print(eltype(getLongMatrix))
 print(getLongMatrix)
-if(typeof(getLongMatrix) != Float64){
-	error("getLongMatrix not Float64!")
-}
+if eltype(getLongMatrix) != Int64
+	error("getLongMatrix not Int64!")
+end
 
 print("getLongMatrixAsList")
-if(isdefined(Main, :getLongMatrixAsList) && !isnothing(getLongMatrixAsList)){
+if isdefined(Main, :getLongMatrixAsList) && !isnothing(getLongMatrixAsList)
 	error("getLongMatrixAsList already defined!")
-}
+end
 getLongMatrixAsList = putLongMatrixAsList
-print(typeof(getLongMatrixAsList))
+print(eltype(getLongMatrixAsList))
 print(getLongMatrixAsList)
-if(typeof(getLongMatrixAsList) != Float64){
-	error("getLongMatrixAsList not Float64!")
-}
+if eltype(getLongMatrixAsList) != Int64
+	error("getLongMatrixAsList not Int64!")
+end

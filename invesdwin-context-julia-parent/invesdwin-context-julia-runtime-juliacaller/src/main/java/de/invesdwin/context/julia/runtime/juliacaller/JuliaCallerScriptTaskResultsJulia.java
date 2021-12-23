@@ -1,12 +1,19 @@
 package de.invesdwin.context.julia.runtime.juliacaller;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPMismatchException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskResultsJulia;
-import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Characters;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.math.Shorts;
 
 @NotThreadSafe
 public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJulia {
@@ -25,15 +32,13 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public String getString(final String variable) {
         try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            final boolean[] na = rexp.isNA();
-            Assertions.checkEquals(na.length, 1);
-            if (na[0]) {
+            final String str = engine.unwrap().getAsJsonNode(variable).asText();
+            if (Strings.isBlankOrNullText(str)) {
                 return null;
             } else {
-                return rexp.asString();
+                return str;
             }
-        } catch (final REXPMismatchException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -41,220 +46,411 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public String[] getStringVector(final String variable) {
         try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
-            } else {
-                return rexp.asStrings();
+            final JsonNode strs = engine.unwrap().getAsJsonNode(variable);
+            final String[] values = new String[strs.size()];
+            for (int i = 0; i < values.length; i++) {
+                final String str = strs.get(i).asText();
+                if (Strings.isBlankOrNullText(str)) {
+                    values[i] = null;
+                } else {
+                    values[i] = str;
+                }
             }
-        } catch (final REXPMismatchException e) {
+            return values;
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private boolean allIsNa(final REXP rexp) throws REXPMismatchException {
-        if (rexp == null) {
-            return true;
-        }
-        final boolean[] nas = rexp.isNA();
-        if (nas.length == 0) {
-            return false;
-        }
-        for (final boolean na : nas) {
-            if (!na) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
     public String[][] getStringMatrix(final String variable) {
         try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
+            //json returns the columns instead of rows
+            final JsonNode strsMatrix = engine.unwrap().getAsJsonNode(variable);
+            //[11 12 13;21 22 23;31 32 33;41 42 43]
+            //[[11,21,31,41],[12,22,32,42],[13,23,33,43]]
+            if (strsMatrix.size() == 0) {
+                return Strings.EMPTY_MATRIX;
+            }
+            final int columns = strsMatrix.size();
+            final int rows = strsMatrix.get(0).size();
+            final String[][] valuesMatrix = new String[rows][];
+            for (int r = 0; r < rows; r++) {
+                final String[] values = new String[columns];
+                valuesMatrix[r] = values;
+                for (int c = 0; c < columns; c++) {
+                    final String str = strsMatrix.get(c).get(r).asText();
+                    if (Strings.isBlankOrNullText(str)) {
+                        values[c] = null;
+                    } else {
+                        values[c] = str;
+                    }
+                }
+            }
+            return valuesMatrix;
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public char getCharacter(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Characters.DEFAULT_MISSING_VALUE;
+        } else {
+            return Characters.checkedCast(str);
+        }
+    }
+
+    @Override
+    public char[] getCharacterVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final char[] values = new char[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Characters.DEFAULT_MISSING_VALUE;
             } else {
-                return asStringMatrix(rexp);
-            }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String[][] asStringMatrix(final REXP rexp) throws REXPMismatchException {
-        final String[] ct = rexp.asStrings();
-        final REXP dim = rexp.getAttribute("dim");
-        if (dim == null) {
-            throw new REXPMismatchException(rexp, "matrix (dim attribute missing)");
-        }
-        final int[] ds = dim.asIntegers();
-        if (ds.length != 2) {
-            throw new REXPMismatchException(rexp, "matrix (wrong dimensionality)");
-        }
-        final int m = ds[0], n = ds[1];
-
-        final String[][] r = new String[m][n];
-        // R stores matrices as matrix(c(1,2,3,4),2,2) = col1:(1,2), col2:(3,4)
-        // we need to copy everything, since we create 2d array from 1d array
-        int k = 0;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                r[j][i] = ct[k++];
+                values[i] = Characters.checkedCast(str);
             }
         }
-        return r;
+        return values;
     }
 
     @Override
-    public double getDouble(final String variable) {
-        try {
-            return engine.unwrap().rawEval(variable).asDouble();
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public double[] getDoubleVector(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
-            } else {
-                return rexp.asDoubles();
-            }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public double[][] getDoubleMatrix(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
-            } else {
-                return rexp.asDoubleMatrix();
-            }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public int getInteger(final String variable) {
-        try {
-            return engine.unwrap().rawEval(variable).asInteger();
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public int[] getIntegerVector(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
-            } else {
-                return rexp.asIntegers();
-            }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public int[][] getIntegerMatrix(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
-            } else {
-                return asIntegerMatrix(rexp);
-            }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private int[][] asIntegerMatrix(final REXP rexp) throws REXPMismatchException {
-        final int[] ct = rexp.asIntegers();
-        final REXP dim = rexp.getAttribute("dim");
-        if (dim == null) {
-            throw new REXPMismatchException(rexp, "matrix (dim attribute missing)");
-        }
-        final int[] ds = dim.asIntegers();
-        if (ds.length != 2) {
-            throw new REXPMismatchException(rexp, "matrix (wrong dimensionality)");
-        }
-        final int m = ds[0], n = ds[1];
-
-        final int[][] r = new int[m][n];
-        // R stores matrices as matrix(c(1,2,3,4),2,2) = col1:(1,2), col2:(3,4)
-        // we need to copy everything, since we create 2d array from 1d array
-        int k = 0;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                r[j][i] = ct[k++];
+    public char[][] getCharacterMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final char[][] valuesMatrix = new char[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final char[] values = new char[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Characters.DEFAULT_MISSING_VALUE;
+                } else {
+                    values[j] = Characters.checkedCast(str);
+                }
             }
         }
-        return r;
+        return valuesMatrix;
     }
 
     @Override
     public boolean getBoolean(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            return rexp.asInteger() > 0;
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
+        final String str = getString(variable);
+        if (str == null) {
+            return Booleans.DEFAULT_MISSING_VALUE;
+        } else {
+            return Boolean.parseBoolean(str);
         }
     }
 
     @Override
     public boolean[] getBooleanVector(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
+        final String[] strs = getStringVector(variable);
+        final boolean[] values = new boolean[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Booleans.DEFAULT_MISSING_VALUE;
             } else {
-                final int[] ints = rexp.asIntegers();
-                final boolean[] booleanVector = new boolean[ints.length];
-                for (int i = 0; i < ints.length; i++) {
-                    booleanVector[i] = ints[i] > 0;
-                }
-                return booleanVector;
+                values[i] = Boolean.parseBoolean(str);
             }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
         }
+        return values;
     }
 
     @Override
     public boolean[][] getBooleanMatrix(final String variable) {
-        try {
-            final REXP rexp = engine.unwrap().rawEval(variable);
-            if (allIsNa(rexp)) {
-                return null;
-            } else {
-                final double[][] matrix = rexp.asDoubleMatrix();
-                final boolean[][] booleanMatrix = new boolean[matrix.length][];
-                for (int i = 0; i < matrix.length; i++) {
-                    final double[] vector = matrix[i];
-                    final boolean[] booleanVector = new boolean[vector.length];
-                    for (int j = 0; j < vector.length; j++) {
-                        booleanVector[j] = vector[j] > 0;
-                    }
-                    booleanMatrix[i] = booleanVector;
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final boolean[][] valuesMatrix = new boolean[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final boolean[] values = new boolean[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Booleans.DEFAULT_MISSING_VALUE;
+                } else {
+                    values[j] = Boolean.parseBoolean(str);
                 }
-                return booleanMatrix;
             }
-        } catch (final REXPMismatchException e) {
-            throw new RuntimeException(e);
         }
+        return valuesMatrix;
+    }
+
+    @Override
+    public byte getByte(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Bytes.DEFAULT_MISSING_VALUE;
+        } else {
+            return Byte.parseByte(str);
+        }
+    }
+
+    @Override
+    public byte[] getByteVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final byte[] values = new byte[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Bytes.DEFAULT_MISSING_VALUE;
+            } else {
+                values[i] = Byte.parseByte(str);
+            }
+        }
+        return values;
+    }
+
+    @Override
+    public byte[][] getByteMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final byte[][] valuesMatrix = new byte[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final byte[] values = new byte[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Bytes.DEFAULT_MISSING_VALUE;
+                } else {
+                    values[j] = Byte.parseByte(str);
+                }
+            }
+        }
+        return valuesMatrix;
+    }
+
+    @Override
+    public short getShort(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Shorts.DEFAULT_MISSING_VALUE;
+        } else {
+            return Short.parseShort(str);
+        }
+    }
+
+    @Override
+    public short[] getShortVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final short[] values = new short[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Shorts.DEFAULT_MISSING_VALUE;
+            } else {
+                values[i] = Short.parseShort(str);
+            }
+        }
+        return values;
+    }
+
+    @Override
+    public short[][] getShortMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final short[][] valuesMatrix = new short[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final short[] values = new short[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Shorts.DEFAULT_MISSING_VALUE;
+                } else {
+                    values[j] = Short.parseShort(str);
+                }
+            }
+        }
+        return valuesMatrix;
+    }
+
+    @Override
+    public int getInteger(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Integers.DEFAULT_MISSING_VALUE;
+        } else {
+            return Integer.parseInt(str);
+        }
+    }
+
+    @Override
+    public int[] getIntegerVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final int[] values = new int[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Integers.DEFAULT_MISSING_VALUE;
+            } else {
+                values[i] = Integer.parseInt(str);
+            }
+        }
+        return values;
+    }
+
+    @Override
+    public int[][] getIntegerMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final int[][] valuesMatrix = new int[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final int[] values = new int[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Integers.DEFAULT_MISSING_VALUE;
+                } else {
+                    values[j] = Integer.parseInt(str);
+                }
+            }
+        }
+        return valuesMatrix;
+    }
+
+    @Override
+    public long getLong(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Longs.DEFAULT_MISSING_VALUE;
+        } else {
+            return Long.parseLong(str);
+        }
+    }
+
+    @Override
+    public long[] getLongVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final long[] values = new long[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Longs.DEFAULT_MISSING_VALUE;
+            } else {
+                values[i] = Long.parseLong(str);
+            }
+        }
+        return values;
+    }
+
+    @Override
+    public long[][] getLongMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final long[][] valuesMatrix = new long[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final long[] values = new long[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Longs.DEFAULT_MISSING_VALUE;
+                } else {
+                    values[j] = Long.parseLong(str);
+                }
+            }
+        }
+        return valuesMatrix;
+    }
+
+    @Override
+    public float getFloat(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Float.NaN;
+        } else {
+            return Float.parseFloat(str);
+        }
+    }
+
+    @Override
+    public float[] getFloatVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final float[] values = new float[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Float.NaN;
+            } else {
+                values[i] = Float.parseFloat(str);
+            }
+        }
+        return values;
+    }
+
+    @Override
+    public float[][] getFloatMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final float[][] valuesMatrix = new float[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final float[] values = new float[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Float.NaN;
+                } else {
+                    values[j] = Float.parseFloat(str);
+                }
+            }
+        }
+        return valuesMatrix;
+    }
+
+    @Override
+    public double getDouble(final String variable) {
+        final String str = getString(variable);
+        if (str == null) {
+            return Double.NaN;
+        } else {
+            return Double.parseDouble(str);
+        }
+    }
+
+    @Override
+    public double[] getDoubleVector(final String variable) {
+        final String[] strs = getStringVector(variable);
+        final double[] values = new double[strs.length];
+        for (int i = 0; i < strs.length; i++) {
+            final String str = strs[i];
+            if (str == null) {
+                values[i] = Double.NaN;
+            } else {
+                values[i] = Double.parseDouble(str);
+            }
+        }
+        return values;
+    }
+
+    @Override
+    public double[][] getDoubleMatrix(final String variable) {
+        final String[][] strsMatrix = getStringMatrix(variable);
+        final double[][] valuesMatrix = new double[strsMatrix.length][];
+        for (int i = 0; i < strsMatrix.length; i++) {
+            final String[] strs = strsMatrix[i];
+            final double[] values = new double[strs.length];
+            valuesMatrix[i] = values;
+            for (int j = 0; j < strs.length; j++) {
+                final String str = strs[j];
+                if (str == null) {
+                    values[j] = Double.NaN;
+                } else {
+                    values[j] = Double.parseDouble(str);
+                }
+            }
+        }
+        return valuesMatrix;
     }
 
 }

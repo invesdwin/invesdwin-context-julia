@@ -31,7 +31,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Char}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append("'");
@@ -88,12 +88,17 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{String}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
-                sb.append("\"");
-                sb.append(value[i]);
-                sb.append("\"");
+                final String v = value[i];
+                if (v == null) {
+                    sb.append("\"\"");
+                } else {
+                    sb.append("\"");
+                    sb.append(v);
+                    sb.append("\"");
+                }
             }
             sb.append("])");
             putExpression(variable, sb.toString());
@@ -119,9 +124,14 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
                     if (col > 0) {
                         sb.append(" ");
                     }
-                    sb.append("\"");
-                    sb.append(value[row][col]);
-                    sb.append("\"");
+                    final String v = value[row][col];
+                    if (v == null) {
+                        sb.append("\"\"");
+                    } else {
+                        sb.append("\"");
+                        sb.append(v);
+                        sb.append("\"");
+                    }
                 }
             }
             sb.append("])");
@@ -141,7 +151,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Bool}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);
@@ -161,7 +171,6 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
             final int rows = value.length;
             final int cols = value[0].length;
             final StringBuilder sb = new StringBuilder("Array{Bool}([");
-            sb.append("[");
             for (int row = 0; row < rows; row++) {
                 Assertions.checkEquals(value[row].length, cols);
                 if (row > 0) {
@@ -191,7 +200,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Int8}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);
@@ -211,7 +220,6 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
             final int rows = value.length;
             final int cols = value[0].length;
             final StringBuilder sb = new StringBuilder("Array{Int8}([");
-            sb.append("[");
             for (int row = 0; row < rows; row++) {
                 Assertions.checkEquals(value[row].length, cols);
                 if (row > 0) {
@@ -241,7 +249,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Int16}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);
@@ -261,7 +269,6 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
             final int rows = value.length;
             final int cols = value[0].length;
             final StringBuilder sb = new StringBuilder("Array{Int16}([");
-            sb.append("[");
             for (int row = 0; row < rows; row++) {
                 Assertions.checkEquals(value[row].length, cols);
                 if (row > 0) {
@@ -291,7 +298,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Int32}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);
@@ -311,7 +318,6 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
             final int rows = value.length;
             final int cols = value[0].length;
             final StringBuilder sb = new StringBuilder("Array{Int32}([");
-            sb.append("[");
             for (int row = 0; row < rows; row++) {
                 Assertions.checkEquals(value[row].length, cols);
                 if (row > 0) {
@@ -341,7 +347,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Int64}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);
@@ -361,7 +367,6 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
             final int rows = value.length;
             final int cols = value[0].length;
             final StringBuilder sb = new StringBuilder("Array{Int64}([");
-            sb.append("[");
             for (int row = 0; row < rows; row++) {
                 Assertions.checkEquals(value[row].length, cols);
                 if (row > 0) {
@@ -391,7 +396,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Float32}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);
@@ -411,7 +416,6 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
             final int rows = value.length;
             final int cols = value[0].length;
             final StringBuilder sb = new StringBuilder("Array{Float32}([");
-            sb.append("[");
             for (int row = 0; row < rows; row++) {
                 Assertions.checkEquals(value[row].length, cols);
                 if (row > 0) {
@@ -441,7 +445,7 @@ public class JuliaCallerScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else {
             final StringBuilder sb = new StringBuilder("Array{Float64}([");
             for (int i = 0; i < value.length; i++) {
-                if (i < 0) {
+                if (i > 0) {
                     sb.append(",");
                 }
                 sb.append(value[i]);

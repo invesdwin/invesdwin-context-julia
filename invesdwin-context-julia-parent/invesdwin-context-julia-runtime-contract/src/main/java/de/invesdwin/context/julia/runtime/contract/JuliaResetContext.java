@@ -20,7 +20,7 @@ public class JuliaResetContext {
 
     private final IScriptTaskEngine engine;
 
-    private Set<String> protectedVariables;
+    private final Set<String> protectedVariables = new HashSet<>();
     private final Map<String, String> variable_size = new HashMap<>();
 
     public JuliaResetContext(final IScriptTaskEngine engine) {
@@ -28,12 +28,10 @@ public class JuliaResetContext {
     }
 
     public void init() {
-        final Set<String> names = new HashSet<>();
-        engine.eval("use JSON");
         final String[] array = engine.getResults().getStringVector("names(Main)");
         for (int i = 0; i < array.length; i++) {
             final String str = array[i];
-            names.add(Strings.removeStart(str.trim(), ":"));
+            protectedVariables.add(Strings.removeStart(str.trim(), ":"));
         }
     }
 
