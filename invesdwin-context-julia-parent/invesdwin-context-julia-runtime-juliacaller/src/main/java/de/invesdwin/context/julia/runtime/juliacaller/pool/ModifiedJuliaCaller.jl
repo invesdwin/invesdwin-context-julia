@@ -1,8 +1,5 @@
-#= 
-juliacaller:
-- Julia version: 1.4
-- Author: Mehmet Hakan Satman
-- Date: 2020-04-03 =#
+#disable repl output during initialization by wrapping everything in a begin ... end
+begin
 
 using Sockets
 using Pkg
@@ -10,10 +7,9 @@ using Pkg
 # https://discourse.julialang.org/t/how-to-use-pkg-dependencies-instead-of-pkg-installed/36416/10
 isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies()))
 
-if !isinstalled("JSON")
+if !isinstalled("JSON");
     Pkg.add("JSON")
 end
-
 
 using JSON
 
@@ -96,7 +92,9 @@ Creates a TCP server socket and listens on a given port.
 """
 function serve(PORT=8000, DEBUG=true)
 	server = listen(PORT)
-	println("Listening JuliaCaller on port $PORT")
+	if DEBUG
+		println("Listening JuliaCaller on port $PORT")
+	end
 	while true
 		try
 			client = accept(server)
@@ -114,6 +112,7 @@ function serve(PORT=8000, DEBUG=true)
 	end
 end
 
+end
 
 
 
