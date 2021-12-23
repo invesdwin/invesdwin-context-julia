@@ -18,6 +18,9 @@ import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.util.lang.Strings;
 
+/**
+ * Forked from here: https://github.com/jbytecode/juliacaller/issues/1
+ */
 @NotThreadSafe
 public class ModifiedJuliaCaller {
 
