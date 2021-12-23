@@ -70,7 +70,7 @@ The above configuration options for the invidiual runtimes can still be provided
 
 ## Recommended Editors
 
-For working with R we recommend using [StatET](http://www.walware.de/goto/statet) if you are mainly using Eclipse. The included editor suffices if you only run the scripts using `invesdwin-context-julia`. So no complicated R setup with eclipse is needed, just install the plugin from the marketplace and run your scripts with `invesdwin-context-julia-runtime-jajub` (add this module as a `test` scope dependency) during development to get Julia console output as you are used to from an interactive Julia shell (you also need to add a dependecy to the type `test-jar` for the log level to get activated, or alternatively change the log level of `de.invesdwin.context.r.runtime.contract.IScriptTaskRunnerR` to `DEBUG` on your own). The actual deployment distribution can choose a different runtime then as a hard dependency. For experimenting with Julia it might be interesting to use [Juno](https://junolab.org/) as a standalone development environment. It supports a nice variable viewer and has a nice integration of the Julia documentation, which helps a lot during Julia learning and development. It also comes with a comfortable debugger for Julia scripts.
+For experimenting with Julia it might be interesting to use [Juno](https://junolab.org/) or [Julia for Visual Studio Code](https://www.julia-vscode.org/) as a standalone development environment. It supports a nice variable viewer and has a nice integration of the Julia documentation, which helps a lot during Julia learning and development. It also comes with a comfortable debugger for Julia scripts.
 
 ## More Programming Languages
 
