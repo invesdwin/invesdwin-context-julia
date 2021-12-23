@@ -72,6 +72,8 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
         if (errorMessage.length() == 0) {
             return null;
         }
-        return String.valueOf(errorMessage).trim();
+        final String str = String.valueOf(errorMessage).trim();
+        errorMessage.setLength(0);
+        return str;
     }
 }
