@@ -43,11 +43,13 @@ public class ModifiedJuliaBridge {
 
     private static final String[] JULIA_EXEC = { "bin/julia", "bin/julia.exe" };
 
-    private static final String[] JULIA_ARGS = { "-iq", "--startup-file=no", "-e",
-            "using InteractiveUtils; versioninfo();" + "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};"
-                    + "__type__(a) = typeof(a);" + "Infinity = Inf;"
-                    + "isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;"
-                    + "" + "println(" + TERMINATOR + ");" };
+    private static final String[] JULIA_ARGS = { "-iq", "--startup-file=no", "-e", "using InteractiveUtils; "
+            + "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};" + "__type__(a) = typeof(a);"
+            + "Infinity = Inf;"
+            + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;"
+            + "" + "println(" + TERMINATOR + ");" };
+    private static final String TERMINATOR_SUFFIX = ";" + TERMINATOR;
+    private static final byte[] TERMINATOR_SUFFIX_BYTES = TERMINATOR_SUFFIX.getBytes();
 
     private final ProcessBuilder jbuilder;
     private Process julia = null;
@@ -186,7 +188,11 @@ public class ModifiedJuliaBridge {
         final List<String> rsp = new ArrayList<String>();
         try {
             flush();
-            write(jcode + "; " + TERMINATOR);
+            IScriptTaskRunnerJulia.LOG.debug("> " + jcode);
+            out.write(jcode.getBytes());
+            out.write(TERMINATOR_SUFFIX_BYTES);
+            out.write(CR);
+            out.flush();
             while (true) {
                 final String s = readline(timeout);
                 if (s == null || s.equals(TERMINATOR)) {
@@ -349,13 +355,13 @@ public class ModifiedJuliaBridge {
             return null;
         }
         try {
-            if ("String".equals(type)) {
-                rsp = exec("println(sizeof(" + varname + "))");
+            if ("String".equals(type) || "Char".equals(type)) {
+                rsp = exec("__ans__ = " + varname + "; println(sizeof(__ans__))");
                 if (rsp.size() < 1) {
                     throw new RuntimeException("Invalid response from Julia REPL");
                 }
                 final int n = Integer.parseInt(rsp.get(0));
-                write("write(stdout, " + varname + ")");
+                write("write(stdout, __ans__)");
                 final byte[] buf = new byte[n];
                 read(buf, TIMEOUT);
                 return new String(buf);
@@ -440,119 +446,8 @@ public class ModifiedJuliaBridge {
      *            expression to evaluate.
      * @return value of the expression.
      */
-    public Object eval(final String jcode) {
-        exec("__ans__ = ( " + jcode + " )");
-        final Object rv = get("__ans__");
-        set("__ans__", null);
-        return rv;
-    }
-
-    /**
-     * Evaluates an expression in Julia.
-     *
-     * @param jcode
-     *            expression to evaluate.
-     * @return value of the expression.
-     */
-    public Object eval(final JuliaExpr jcode) {
-        return eval(jcode.toString());
-    }
-
-    /**
-     * Calls a Julia function.
-     *
-     * @param func
-     *            name of function.
-     * @param args
-     *            arguments to pass to the function.
-     * @return return value of the function.
-     */
-    public Object call(final String func, final Object... args) {
-        final List<String> tmp = new ArrayList<String>();
-        final StringBuilder sb = new StringBuilder();
-        sb.append("__ans__ = ");
-        sb.append(func);
-        sb.append('(');
-        for (int i = 0; i < args.length; i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            final String s = jexpr(args[i]);
-            if (s != null) {
-                sb.append(s);
-            } else {
-                final String name = "__arg_" + i + "__";
-                tmp.add(name);
-                sb.append(name);
-                set(name, args[i]);
-            }
-        }
-        sb.append(')');
-        exec(sb.toString());
-        for (final String name : tmp) {
-            set(name, null);
-        }
-        final Object rv = get("__ans__");
-        set("__ans__", null);
-        return rv;
-    }
-
-    /**
-     * Creates a Julia expression. Convenience method, equivalent to <code>new JuliaExpr(...)</code>.
-     *
-     * @param jcode
-     *            Julia expression.
-     */
-    public static JuliaExpr expr(final String jcode) {
-        return new JuliaExpr(jcode);
-    }
-
-    /**
-     * Creates a Julia complex number.
-     *
-     * @param x
-     *            real part.
-     * @param y
-     *            imaginary part.
-     */
-    public static JuliaExpr complex(final double x, final double y) {
-        return new JuliaExpr("Complex{Float64}(" + x + " + " + y + "im)");
-    }
-
-    /**
-     * Creates a Julia complex number.
-     *
-     * @param x
-     *            real part.
-     * @param y
-     *            imaginary part.
-     */
-    public static JuliaExpr complex(final float x, final float y) {
-        return new JuliaExpr("Complex{Float32}(" + x + " + " + y + "im)");
-    }
-
-    /**
-     * Creates a Julia complex number.
-     *
-     * @param x
-     *            real part.
-     * @param y
-     *            imaginary part.
-     */
-    public static JuliaExpr complex(final long x, final long y) {
-        return new JuliaExpr("Complex{Int64}(" + x + " + " + y + "im)");
-    }
-
-    /**
-     * Creates a Julia complex number.
-     *
-     * @param x
-     *            real part.
-     * @param y
-     *            imaginary part.
-     */
-    public static JuliaExpr complex(final int x, final int y) {
-        return new JuliaExpr("Complex{Int32}(" + x + " + " + y + "im)");
+    public void eval(final String jcode) {
+        exec(jcode);
     }
 
     ////// private stuff
@@ -897,7 +792,9 @@ public class ModifiedJuliaBridge {
                 final int b = inp.read();
                 if (b == CR) {
                     final String s = sb.toString();
-                    IScriptTaskRunnerJulia.LOG.debug("< " + s);
+                    if (!TERMINATOR.equals(s)) {
+                        IScriptTaskRunnerJulia.LOG.debug("< " + s);
+                    }
                     return s;
                 }
                 sb.append((char) b);
