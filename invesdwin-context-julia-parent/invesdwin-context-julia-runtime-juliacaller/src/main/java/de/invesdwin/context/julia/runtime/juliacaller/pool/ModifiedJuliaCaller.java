@@ -109,10 +109,10 @@ public class ModifiedJuliaCaller {
     }
 
     public synchronized void execute(final String command) throws IOException {
-        checkError();
         IScriptTaskRunnerJulia.LOG.trace("Execute: Sending '%s'", command);
         bufferedWriterForSocket.write("execute " + command);
         bufferedWriterForSocket.newLine();
+        checkError();
     }
 
     public void checkError() {
@@ -145,12 +145,13 @@ public class ModifiedJuliaCaller {
     }
 
     public String getAsJSONString(final String varname) throws IOException {
-        checkError();
         IScriptTaskRunnerJulia.LOG.debug("GetAsJSONString: Requesting variable %s", varname);
         bufferedWriterForSocket.write("get " + varname);
         bufferedWriterForSocket.newLine();
         bufferedWriterForSocket.flush();
-        return bufferedReaderForSocket.readLine();
+        final String result = bufferedReaderForSocket.readLine();
+        checkError();
+        return result;
     }
 
 }
