@@ -25,11 +25,7 @@ public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
 
     @Override
     public void eval(final String expression) {
-        try {
-            juliaCaller.execute(expression);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+        juliaCaller.eval(expression);
     }
 
     @Override
