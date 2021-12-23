@@ -56,6 +56,7 @@ Examples:
 """
 function handle_client(server, client)
 	while true
+		# WORKAOUND: newlines need to be escaped over the wire, unescape here
 		__line__ = replace(readline(client), "\\n" => "\n")
 		println(__line__)
 			if startswith(__line__, "execute ")

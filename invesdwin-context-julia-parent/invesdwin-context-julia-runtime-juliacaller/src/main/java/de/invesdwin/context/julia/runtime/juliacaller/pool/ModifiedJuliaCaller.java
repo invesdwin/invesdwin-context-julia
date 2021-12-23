@@ -11,8 +11,6 @@ import java.net.Socket;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.expr.juliacaller.MaximumTriesForConnectionException;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
@@ -28,7 +26,7 @@ public class ModifiedJuliaCaller {
     private BufferedWriter bufferedWriterForJuliaConsole, bufferedWriterForSocket;
     private BufferedReader bufferedReaderForSocket;
     private final int port;
-    private int maximumTriesToConnect = 60;
+    private int maximumTriesToConnect = 300;
     private ModifiedJuliaErrorConsoleWatcher watcher;
     private Process process;
 
@@ -102,7 +100,7 @@ public class ModifiedJuliaCaller {
             bufferedWriterForSocket = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             bufferedReaderForSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } else {
-            throw new MaximumTriesForConnectionException(
+            throw new IllegalStateException(
                     "Socket cannot connect in maximum number of iterations defined as " + maximumTriesToConnect);
         }
     }
@@ -114,8 +112,10 @@ public class ModifiedJuliaCaller {
 
     public synchronized void execute(final String command) throws IOException {
         IScriptTaskRunnerJulia.LOG.trace("execute: Sending '%s'", command);
+        //WORKAROUND: begin/end make sure that multiple lines are executed together, also newlines need to be escaped
+        //without this we get: Error: Base.Meta.ParseError("extra token after end of expression")
         bufferedWriterForSocket
-                .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n")) + " end");
+                .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n") + " end"));
         bufferedWriterForSocket.newLine();
         checkError();
     }

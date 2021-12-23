@@ -21,11 +21,6 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.expr</groupId>
-			<artifactId>juliacaller</artifactId>
-		</dependency>
 	</dependencies>
 
 </project>

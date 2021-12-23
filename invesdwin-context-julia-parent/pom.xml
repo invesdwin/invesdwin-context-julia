@@ -32,7 +32,6 @@
 		<project.version.invesdwin-context-julia>${project.version}</project.version.invesdwin-context-julia>
 
 		<version.jajub>0.1.0</version.jajub>
-		<version.juliacaller>0.2.1-inv</version.juliacaller>
 	</properties>
 
 	<dependencyManagement>
@@ -69,17 +68,6 @@
 				<groupId>com.github.org-arl</groupId>
 				<artifactId>jajub</artifactId>
 				<version>${version.jajub}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.expr</groupId>
-				<artifactId>juliacaller</artifactId>
-				<version>${version.juliacaller}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.json</groupId>
-						<artifactId>json</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
