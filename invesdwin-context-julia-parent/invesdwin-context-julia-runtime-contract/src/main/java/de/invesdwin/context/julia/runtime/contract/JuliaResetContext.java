@@ -22,7 +22,6 @@ public class JuliaResetContext {
 
     private Set<String> protectedVariables;
     private final Map<String, String> variable_size = new HashMap<>();
-    private final Set<String> blacklistedVariables = new HashSet<>();
 
     public JuliaResetContext(final IScriptTaskEngine engine) {
         this.engine = engine;
