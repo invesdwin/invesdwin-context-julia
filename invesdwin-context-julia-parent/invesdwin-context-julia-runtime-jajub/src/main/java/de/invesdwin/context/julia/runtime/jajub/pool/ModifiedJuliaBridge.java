@@ -28,14 +28,7 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 /**
- * Java-Julia bridge.
- * <p>
- * This class allows Java applications to use Julia code to implement some of the functionality. Julia is assumed to be
- * installed and on the system path. Alternatively an environment variable "JULIA_HOME" may be set to aid location of
- * executable (assumed to be "bin/julia" under the JULIA_HOME folder). Julia is invoked as a separate process and data
- * is transferred to/fro over stdin/stdout between Java and Julia.
- * <p>
- * This class is not thread-safe.
+ * Fork of: https://github.com/org-arl/jajub/issues/2
  */
 @NotThreadSafe
 public class ModifiedJuliaBridge {
