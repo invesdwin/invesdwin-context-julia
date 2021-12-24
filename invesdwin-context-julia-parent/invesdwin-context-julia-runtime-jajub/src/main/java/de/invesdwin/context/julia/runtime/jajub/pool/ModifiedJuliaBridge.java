@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.arl.jajub.ByteArray;
 import org.arl.jajub.DoubleArray;
 import org.arl.jajub.FloatArray;
@@ -22,6 +23,9 @@ import org.arl.jajub.LongArray;
 import org.arl.jajub.ShortArray;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
+import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.duration.Duration;
 
 /**
  * Java-Julia bridge.
@@ -37,9 +41,9 @@ import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 public class ModifiedJuliaBridge {
 
     private static final int CR = 10;
-    private static final long TIMEOUT = 10000;
-    private static final long POLL_DELAY = 10;
-    private static final String TERMINATOR = "\"__##@@##__\"";
+    private static final Duration TIMEOUT = new Duration(10000, FTimeUnit.MILLISECONDS);
+    private static final String TERMINATOR_RAW = "__##@@##__";
+    private static final String TERMINATOR = "\"" + TERMINATOR_RAW + "\"";
 
     private static final String[] JULIA_EXEC = { "bin/julia", "bin/julia.exe" };
 
@@ -119,7 +123,7 @@ public class ModifiedJuliaBridge {
      * @param timeout
      *            timeout in milliseconds for process to start.
      */
-    public void open(final long timeout) throws IOException, InterruptedException {
+    public void open(final Duration timeout) throws IOException, InterruptedException {
         if (isOpen()) {
             return;
         }
@@ -183,7 +187,7 @@ public class ModifiedJuliaBridge {
      *            timeout in milliseconds.
      * @return output (stdout + stderr).
      */
-    public List<String> exec(final String jcode, final long timeout) {
+    public List<String> exec(final String jcode, final Duration timeout) {
         openIfNecessary();
         final List<String> rsp = new ArrayList<String>();
         try {
@@ -195,7 +199,11 @@ public class ModifiedJuliaBridge {
             out.flush();
             while (true) {
                 final String s = readline(timeout);
-                if (s == null || s.equals(TERMINATOR)) {
+                if (s == null) {
+                    //retry, we were a bit too fast as it seems
+                    continue;
+                }
+                if (s.equals(TERMINATOR)) {
                     return rsp;
                 }
                 rsp.add(s);
@@ -217,7 +225,7 @@ public class ModifiedJuliaBridge {
      *            timeout in milliseconds.
      * @return output (stdout + stderr).
      */
-    public List<String> exec(final JuliaExpr jcode, final long timeout) {
+    public List<String> exec(final JuliaExpr jcode, final Duration timeout) {
         return exec(jcode.toString(), timeout);
     }
 
@@ -230,7 +238,7 @@ public class ModifiedJuliaBridge {
      *            timeout in milliseconds.
      * @return output (stdout + stderr).
      */
-    public List<String> exec(final InputStream istream, final long timeout) throws IOException {
+    public List<String> exec(final InputStream istream, final Duration timeout) throws IOException {
         final StringBuilder sb = new StringBuilder();
         final BufferedReader reader = new BufferedReader(new InputStreamReader(istream));
         while (true) {
@@ -340,11 +348,12 @@ public class ModifiedJuliaBridge {
     //CHECKSTYLE:OFF
     public Object get(final String varname) {
         //CHECKSTYLE:ON
-        List<String> rsp = exec("println(__type__(" + varname + "))");
+        List<String> rsp = exec("__ans__ = " + varname + "; println(__type__(__ans__))");
         if (rsp.size() < 1) {
-            throw new RuntimeException("Invalid response from Julia REPL");
+            throw new RuntimeException("Invalid response from Julia REPL: " + rsp);
         }
-        String type = rsp.get(0);
+        //WORKAROUND: always extract the last output as the type because the executed code might have printed another line
+        String type = rsp.get(rsp.size() - 1);
         if (type.contains("ERROR: UndefVarError")) {
             return null;
         }
@@ -356,7 +365,7 @@ public class ModifiedJuliaBridge {
         }
         try {
             if ("String".equals(type) || "Char".equals(type)) {
-                rsp = exec("__ans__ = " + varname + "; println(sizeof(__ans__))");
+                rsp = exec("println(sizeof(__ans__))");
                 if (rsp.size() < 1) {
                     throw new RuntimeException("Invalid response from Julia REPL");
                 }
@@ -430,7 +439,7 @@ public class ModifiedJuliaBridge {
             if ("Complex{Float32}".equals(type)) {
                 return readNumeric(4, true, dims, true);
             }
-            throw new RuntimeException("Unsupported type: " + type);
+            throw new RuntimeException("Unsupported type " + type);
         } catch (final InterruptedException ex) {
             Thread.currentThread().interrupt();
         } catch (final IOException ex) {
@@ -764,48 +773,74 @@ public class ModifiedJuliaBridge {
         }
     }
 
-    private int read(final byte[] buf, final long timeout) throws IOException, InterruptedException {
-        final long t = System.currentTimeMillis() + timeout;
-        int ofs = 0;
-        do {
-            int n = inp.available();
-            while (n > 0 && !Thread.interrupted()) {
-                final int m = buf.length - ofs;
-                ofs += inp.read(buf, ofs, n > m ? m : n);
-                if (ofs == buf.length) {
-                    IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
-                    return ofs;
+    private int read(final byte[] buf, final Duration timeout) throws IOException, InterruptedException {
+        final MutableInt ofs = new MutableInt(0);
+        //WORKAROUND: sleeping 10 ms between messages is way too slow
+        final ASpinWait spinWait = new ASpinWait() {
+            @Override
+            public boolean isConditionFulfilled() throws Exception {
+                int n = inp.available();
+                while (n > 0 && !Thread.interrupted()) {
+                    final int m = buf.length - ofs.intValue();
+                    ofs.add(inp.read(buf, ofs.intValue(), n > m ? m : n));
+                    if (ofs.intValue() == buf.length) {
+                        IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
+                        return true;
+                    }
+                    n = inp.available();
                 }
-                n = inp.available();
+                return false;
             }
-            Thread.sleep(POLL_DELAY);
-        } while (System.currentTimeMillis() < t);
+
+            @Override
+            protected boolean isSpinAllowed(final long waitingSinceNanos) {
+                //spinning not needed, wastes cpu cycles that julia could use
+                return false;
+            }
+        };
+        try {
+            spinWait.awaitFulfill(System.nanoTime(), timeout);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
         IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
-        return ofs;
+        return ofs.intValue();
     }
 
-    private String readline(final long timeout) throws IOException, InterruptedException {
-        final long t = System.currentTimeMillis() + timeout;
+    private String readline(final Duration timeout) throws IOException, InterruptedException {
         final StringBuilder sb = new StringBuilder();
-        do {
-            while (inp.available() > 0 && !Thread.interrupted()) {
-                final int b = inp.read();
-                if (b == CR) {
-                    final String s = sb.toString();
-                    if (!TERMINATOR.equals(s)) {
-                        IScriptTaskRunnerJulia.LOG.debug("< " + s);
+        //WORKAROUND: sleeping 10 ms between messages is way too slow
+        final ASpinWait spinWait = new ASpinWait() {
+            @Override
+            public boolean isConditionFulfilled() throws Exception {
+                while (inp.available() > 0 && !Thread.interrupted()) {
+                    final int b = inp.read();
+                    if (b == CR) {
+                        return true;
                     }
-                    return s;
+                    sb.append((char) b);
                 }
-                sb.append((char) b);
+                return false;
             }
-            Thread.sleep(POLL_DELAY);
-        } while (System.currentTimeMillis() < t);
+
+            @Override
+            protected boolean isSpinAllowed(final long waitingSinceNanos) {
+                //spinning not needed, wastes cpu cycles that julia could use
+                return false;
+            }
+        };
+        try {
+            spinWait.awaitFulfill(System.nanoTime(), timeout);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
         if (sb.length() == 0) {
             return null;
         }
         final String s = sb.toString();
-        IScriptTaskRunnerJulia.LOG.debug("< " + s);
+        if (!TERMINATOR_RAW.equals(s) && !TERMINATOR.equals(s)) {
+            IScriptTaskRunnerJulia.LOG.debug("< " + s);
+        }
         return s;
     }
 

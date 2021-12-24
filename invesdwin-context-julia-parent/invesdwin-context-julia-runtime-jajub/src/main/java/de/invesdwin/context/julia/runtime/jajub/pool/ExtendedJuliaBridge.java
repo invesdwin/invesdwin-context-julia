@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
 import de.invesdwin.context.julia.runtime.jajub.JajubScriptTaskEngineJulia;
+import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class ExtendedJuliaBridge extends ModifiedJuliaBridge {
@@ -26,7 +27,7 @@ public class ExtendedJuliaBridge extends ModifiedJuliaBridge {
     }
 
     @Override
-    public void open(final long timeout) throws IOException, InterruptedException {
+    public void open(final Duration timeout) throws IOException, InterruptedException {
         super.open(timeout);
         resetContext.init();
     }
