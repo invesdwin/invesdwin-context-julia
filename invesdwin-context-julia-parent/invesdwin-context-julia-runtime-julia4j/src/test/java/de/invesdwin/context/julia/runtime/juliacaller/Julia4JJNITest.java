@@ -16,6 +16,7 @@ import de.invesdwin.instrument.DynamicInstrumentationReflections;
  */
 public class Julia4JJNITest {
     static {
+        //the same as -Djava.library.path=/usr/lib/x86_64-linux-gnu/julia
         DynamicInstrumentationReflections.addPathToJavaLibraryPath(Julia4jProperties.JULIA_LIBRARY_PATH);
         try {
             NativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("libjulia4j"));
