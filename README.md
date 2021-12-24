@@ -56,7 +56,7 @@ final String result = script.run(); //optionally pass a specific runner as an ar
 Assertions.assertThat(result).isEqualTo("Hello World!");
 ```
 
-For more elaborate examples of the R script integration, have a look at the test cases in `invesdwin-context-julia-runtime-contract` which are executed in each individual runtime module test suite.
+For more elaborate examples of the Julia script integration, have a look at the test cases in `invesdwin-context-julia-runtime-contract` which are executed in each individual runtime module test suite.
 
 ## Avoiding Bootstrap
 
