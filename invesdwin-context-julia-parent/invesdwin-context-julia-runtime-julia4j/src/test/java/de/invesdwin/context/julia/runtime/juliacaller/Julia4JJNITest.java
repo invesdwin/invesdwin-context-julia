@@ -2,6 +2,8 @@ package de.invesdwin.context.julia.runtime.juliacaller;
 
 import java.io.IOException;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.julia.jni.NativeUtils;
 import org.julia.jni.swig.Julia4J;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import de.invesdwin.instrument.DynamicInstrumentationReflections;
  *
  * Created by rss on 25/08/2018
  */
+@NotThreadSafe
 public class Julia4JJNITest {
     static {
         //the same as -Djava.library.path=/usr/lib/x86_64-linux-gnu/julia
@@ -21,7 +24,9 @@ public class Julia4JJNITest {
         try {
             NativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("libjulia4j"));
         } catch (final IOException e) {
+            //CHECKSTYLE:OFF
             e.printStackTrace();
+            //CHECKSTYLE:ON
         }
     }
 

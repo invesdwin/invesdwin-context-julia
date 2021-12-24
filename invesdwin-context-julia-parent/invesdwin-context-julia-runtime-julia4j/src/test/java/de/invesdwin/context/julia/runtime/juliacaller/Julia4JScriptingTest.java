@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Created by rss on 25/08/2018
  */
+@NotThreadSafe
 @SuppressWarnings("WeakerAccess")
 public class Julia4JScriptingTest {
 
@@ -40,12 +42,14 @@ public class Julia4JScriptingTest {
         final ScriptEngineManager mgr = new ScriptEngineManager();
         for (final ScriptEngineFactory factory : mgr.getEngineFactories()) {
             result.add(factory.getEngineName());
+            //CHECKSTYLE:OFF
             System.out.println("ScriptEngineFactory Info");
             System.out.printf("\tScript Engine: %s (%s)\n", factory.getEngineName(), factory.getEngineVersion());
             System.out.printf("\tLanguage: %s (%s)\n", factory.getLanguageName(), factory.getLanguageVersion());
             for (final String name : factory.getNames()) {
                 System.out.printf("\tEngine Alias: %s\n", name);
             }
+            //CHECKSTYLE:ON
         }
         return result;
     }
