@@ -36,6 +36,7 @@
 		<version.jajub>0.1.0</version.jajub>
 		<version.julia4j>0.0.2-inv</version.julia4j>
 		<version.libjulia-clj>1.000-beta-3</version.libjulia-clj>
+		<version.dtype-next>8.053</version.dtype-next>
 	</properties>
 
 	<dependencyManagement>
@@ -92,6 +93,11 @@
 				<groupId>com.cnuernber</groupId>
 				<artifactId>libjulia-clj</artifactId>
 				<version>${version.libjulia-clj}</version>
+			</dependency>
+			<dependency>
+				<groupId>cnuernber</groupId>
+				<artifactId>dtype-next</artifactId>
+				<version>${version.dtype-next}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
