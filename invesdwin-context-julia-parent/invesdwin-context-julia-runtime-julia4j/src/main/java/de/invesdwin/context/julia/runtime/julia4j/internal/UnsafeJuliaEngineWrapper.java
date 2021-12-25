@@ -68,39 +68,51 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (Julia4J.jl_is_initialized() == 0) {
             Julia4J.jl_init();
         }
+        try {
+            Files.touch(outputFile);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
         eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
         initialized = true;
     }
 
     @Override
-    public void eval(final String command) {
-        final String adjCommand = command + "; true";
-        IScriptTaskRunnerJulia.LOG.debug("> eval %s", command);
-        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
-        assertResponseNotNull(adjCommand, value);
-        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        assertResponseSuccess(adjCommand, success);
+    public void eval(final String eval) {
+        final String command = "open(\"" + outputFilePath
+                + "\", \"w\") do io; redirect_stderr(io) do; eval(Meta.parse(\""
+                + eval.replace("\"", "\\\"").replace("\n", "\\n") + "\")) end; end; true";
+        IScriptTaskRunnerJulia.LOG.debug("> eval %s", eval);
+        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
+        try {
+            assertResponseNotNull(eval, value);
+            final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+            assertResponseSuccess(eval, success);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private void assertResponseNotNull(final String adjCommand, final SWIGTYPE_p_jl_value_t value) {
+    private void assertResponseNotNull(final String command, final SWIGTYPE_p_jl_value_t value) throws IOException {
         if (value == null) {
-            throw new IllegalStateException(
-                    "Command returned null response which might be caused by a parser error:" + adjCommand);
+            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
+            throw new IllegalStateException("Command [" + command
+                    + "] returned null response which might be caused by a parser error:" + error);
         }
     }
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "try; open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
-                + ")) end; catch err; write(io, sprint(showerror, err, catch_backtrace())) end; true";
+        final String command = "open(\"" + outputFilePath
+                + "\", \"w\") do io; redirect_stderr(io) do; write(io, JSON.json(" + variable + ")) end; end; true";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
-        assertResponseNotNull(command, value);
-        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
-        assertResponseSuccess(command, success);
         try {
+            assertResponseNotNull(variable, value);
+            final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+            //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+            assertResponseSuccess(variable, success);
             final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
             final JsonNode node = mapper.readTree(result);
             if (node instanceof NullNode) {
@@ -113,9 +125,10 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         }
     }
 
-    private void assertResponseSuccess(final String command, final boolean success) {
+    private void assertResponseSuccess(final String command, final boolean success) throws IOException {
         if (!success) {
-            throw new IllegalStateException("Command returned a false response: " + command);
+            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
+            throw new IllegalStateException("Command [" + command + "] returned a false response: " + error);
         }
     }
 
