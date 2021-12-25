@@ -22,13 +22,15 @@ Dependency declaration:
 We have a few options available for integrating Julia:
 - **invesdwin-context-julia-runtime-juliacaller**: This uses a forked version of [JuliaCaller](https://github.com/jbytecode/juliacaller/issues/1) to fix some compatibility issues. It talks to the julia process via a local socket. Errors are detected by parsing stderr for messages. Though this has the drawback of giving false errors for deprecation warnings.
 - **invesdwin-context-julia-runtime-jajub**: This uses a modified version of [Jajub](https://github.com/org-arl/jajub/issues/2) to make it significantly faster. It talks to the julia process via pipes. Errors are detected by checking for specific protocol messages. This makes it robust against deprecation warnings, but might require debug logging to see the actual errors.
-- **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It is not yet useable due to memory access violations and and error handling not working.
+- **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It is not yet useable due to memory access violations and missing error handling.
 
 You are free to choose which integration method you prefer by selecting the appropriate runtime module as a dependency for your application. The `invesdwin-context-julia-runtime-contract` module defines interfaces for integrating your Julia scripts in a way that works with all of the above runtime modules. So you have the benefit of being able to write your Julia scripts once and easily test against different runtimes in order to: 
 - to measure the performance impact of the different runtime solutions
 - to gain flexibility in various deployment scenarios
 
-See here for a discussion about potential other integration modules: https://discourse.julialang.org/t/running-julia-from-java-what-is-crazier/31662/39?u=subes
+See here for a discussion about potential other integration modules: 
+- https://discourse.julialang.org/t/running-julia-from-java-what-is-crazier/31662/39?u=subes
+- https://github.com/cnuernber/libjulia-clj/issues/3
 
 ## Example Code
 
