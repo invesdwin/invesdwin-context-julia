@@ -26,6 +26,7 @@
 		<module>invesdwin-context-julia-runtime-jajub</module>
 		<module>invesdwin-context-julia-runtime-juliacaller</module>
 		<module>invesdwin-context-julia-runtime-julia4j</module>
+		<module>invesdwin-context-julia-runtime-libjuliaclj</module>
 	</modules>
 
 	<properties>
@@ -34,6 +35,7 @@
 
 		<version.jajub>0.1.0</version.jajub>
 		<version.julia4j>0.0.2-inv</version.julia4j>
+		<version.libjulia-clj>1.000-beta-3</version.libjulia-clj>
 	</properties>
 
 	<dependencyManagement>
@@ -70,6 +72,11 @@
 				<artifactId>invesdwin-context-julia-runtime-julia4j</artifactId>
 				<version>${project.version.invesdwin-context-julia}</version>
 			</dependency>
+			<dependency>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-context-julia-runtime-libjuliaclj</artifactId>
+				<version>${project.version.invesdwin-context-julia}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>com.github.org-arl</groupId>
@@ -80,6 +87,11 @@
 				<groupId>com.github.rssdev10</groupId>
 				<artifactId>julia4j</artifactId>
 				<version>${version.julia4j}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.cnuernber</groupId>
+				<artifactId>libjulia-clj</artifactId>
+				<version>${version.libjulia-clj}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

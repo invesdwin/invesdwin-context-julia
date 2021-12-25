@@ -7,7 +7,7 @@
 		<artifactId>invesdwin-context-julia-parent</artifactId>
 		<version>1.0.4-SNAPSHOT</version>
 	</parent>
-	<artifactId>invesdwin-context-julia-runtime-julia4j</artifactId>
+	<artifactId>invesdwin-context-julia-runtime-libjuliaclj</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencies>
@@ -22,8 +22,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.rssdev10</groupId>
-			<artifactId>julia4j</artifactId>
+			<groupId>com.cnuernber</groupId>
+			<artifactId>libjulia-clj</artifactId>
 		</dependency>
 	</dependencies>
 
