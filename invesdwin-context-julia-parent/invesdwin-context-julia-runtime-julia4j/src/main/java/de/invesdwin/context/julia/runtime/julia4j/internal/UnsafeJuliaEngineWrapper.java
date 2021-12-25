@@ -76,14 +76,14 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     @Override
     public void eval(final String command) {
         final String adjCommand = command + "; true";
-        IScriptTaskRunnerJulia.LOG.debug("> %s", adjCommand);
+        IScriptTaskRunnerJulia.LOG.debug("> %s", command);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
         if (value == null) {
             throw new IllegalStateException(
                     "Command returned null response which might be caused by a parser error:" + adjCommand);
         }
         final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
         if (!success) {
             throw new IllegalStateException("Command returned a false response: " + adjCommand);
         }
@@ -93,14 +93,14 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     public JsonNode getAsJsonNode(final String variable) {
         final String command = "try; open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
                 + ")) end; catch err; write(io, sprint(showerror, err, catch_backtrace())) end; true";
-        IScriptTaskRunnerJulia.LOG.debug("> %s", command);
+        IScriptTaskRunnerJulia.LOG.debug("> %s", "get " + variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         if (value == null) {
             throw new IllegalStateException(
                     "Command returned null response which might be caused by a parser error:" + command);
         }
         final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
         if (!success) {
             throw new IllegalStateException("Command returned a false response: " + command);
         }
