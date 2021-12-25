@@ -26,7 +26,7 @@ import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.math.Booleans;
 
 /**
- * Always acquire the lock first before accessing the rengine instance.
+ * Always acquire the lock first before accessing the julia engine instance.
  */
 @NotThreadSafe
 public final class JuliaEngineWrapper {
