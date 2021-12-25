@@ -73,16 +73,14 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        eval("using InteractiveUtils; using Pkg;a isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
         initialized = true;
     }
 
     @Override
     public void eval(final String eval) {
-        final String command = "open(\"" + outputFilePath
-                + "\", \"w\") do io; redirect_stderr(io) do; eval(Meta.parse(\""
-                + eval.replace("\"", "\\\"").replace("\n", "\\n") + "\")) end; end; true";
+        final String command = eval + "; true";
         IScriptTaskRunnerJulia.LOG.debug("> eval %s", eval);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
@@ -96,9 +94,8 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     private void assertResponseNotNull(final String command, final SWIGTYPE_p_jl_value_t value) throws IOException {
         if (value == null) {
-            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
-            throw new IllegalStateException("Command [" + command
-                    + "] returned null response which might be caused by a parser error:" + error);
+            throw new IllegalStateException(
+                    "Command [" + command + "] returned null response which might be caused by a parser error");
         }
     }
 
@@ -127,8 +124,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     private void assertResponseSuccess(final String command, final boolean success) throws IOException {
         if (!success) {
-            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
-            throw new IllegalStateException("Command [" + command + "] returned a false response: " + error);
+            throw new IllegalStateException("Command [" + command + "] returned a false response");
         }
     }
 
