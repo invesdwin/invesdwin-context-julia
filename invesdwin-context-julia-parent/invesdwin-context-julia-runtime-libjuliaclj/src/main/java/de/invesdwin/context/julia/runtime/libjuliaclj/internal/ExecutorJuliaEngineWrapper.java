@@ -6,7 +6,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import de.invesdwin.context.julia.runtime.julia4j.Julia4jScriptTaskRunnerJulia;
+import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
