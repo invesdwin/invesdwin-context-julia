@@ -1,11 +1,11 @@
-package de.invesdwin.context.julia.runtime.juliacaller.pool;
+package de.invesdwin.context.julia.runtime.julia4j.pool;
 
 import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
-import de.invesdwin.context.julia.runtime.juliacaller.Julia4jScriptTaskEngineJulia;
+import de.invesdwin.context.julia.runtime.julia4j.Julia4jScriptTaskEngineJulia;
 
 @NotThreadSafe
 public class ExtendedJuliaCaller extends ModifiedJuliaCaller {

@@ -1,4 +1,4 @@
-package de.invesdwin.context.julia.runtime.juliacaller;
+package de.invesdwin.context.julia.runtime.julia4j;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Named;
@@ -7,8 +7,8 @@ import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedJuliaCaller;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.Julia4jObjectPool;
+import de.invesdwin.context.julia.runtime.julia4j.pool.ExtendedJuliaCaller;
+import de.invesdwin.context.julia.runtime.julia4j.pool.Julia4jObjectPool;
 import de.invesdwin.util.error.Throwables;
 
 @Immutable

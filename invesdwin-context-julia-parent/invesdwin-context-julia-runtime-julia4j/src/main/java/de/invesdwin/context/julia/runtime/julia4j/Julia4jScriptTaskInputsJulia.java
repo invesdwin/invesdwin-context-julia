@@ -1,4 +1,4 @@
-package de.invesdwin.context.julia.runtime.juliacaller;
+package de.invesdwin.context.julia.runtime.julia4j;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

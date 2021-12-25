@@ -1,4 +1,4 @@
-package de.invesdwin.context.julia.runtime.juliacaller.pool;
+package de.invesdwin.context.julia.runtime.julia4j.pool;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

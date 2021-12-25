@@ -1,12 +1,12 @@
-package de.invesdwin.context.julia.runtime.juliacaller;
+package de.invesdwin.context.julia.runtime.julia4j;
 
 import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedJuliaCaller;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.Julia4jObjectPool;
+import de.invesdwin.context.julia.runtime.julia4j.pool.ExtendedJuliaCaller;
+import de.invesdwin.context.julia.runtime.julia4j.pool.Julia4jObjectPool;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 
