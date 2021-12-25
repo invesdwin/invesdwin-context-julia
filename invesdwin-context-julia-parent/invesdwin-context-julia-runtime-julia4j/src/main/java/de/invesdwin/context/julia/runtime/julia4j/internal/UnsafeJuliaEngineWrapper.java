@@ -76,16 +76,17 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     @Override
     public void eval(final String command) {
         final String adjCommand = command + "; true";
-        IScriptTaskRunnerJulia.LOG.debug("> %s", command);
+        IScriptTaskRunnerJulia.LOG.debug("> eval %s", command);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
+        assertResponseNotNull(adjCommand, value);
+        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+        assertResponseSuccess(adjCommand, success);
+    }
+
+    private void assertResponseNotNull(final String adjCommand, final SWIGTYPE_p_jl_value_t value) {
         if (value == null) {
             throw new IllegalStateException(
                     "Command returned null response which might be caused by a parser error:" + adjCommand);
-        }
-        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
-        if (!success) {
-            throw new IllegalStateException("Command returned a false response: " + adjCommand);
         }
     }
 
@@ -93,17 +94,12 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     public JsonNode getAsJsonNode(final String variable) {
         final String command = "try; open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
                 + ")) end; catch err; write(io, sprint(showerror, err, catch_backtrace())) end; true";
-        IScriptTaskRunnerJulia.LOG.debug("> %s", "get " + variable);
+        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
-        if (value == null) {
-            throw new IllegalStateException(
-                    "Command returned null response which might be caused by a parser error:" + command);
-        }
+        assertResponseNotNull(command, value);
         final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
         //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
-        if (!success) {
-            throw new IllegalStateException("Command returned a false response: " + command);
-        }
+        assertResponseSuccess(command, success);
         try {
             final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
             final JsonNode node = mapper.readTree(result);
@@ -114,6 +110,12 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
             }
         } catch (final Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void assertResponseSuccess(final String command, final boolean success) {
+        if (!success) {
+            throw new IllegalStateException("Command returned a false response: " + command);
         }
     }
 
