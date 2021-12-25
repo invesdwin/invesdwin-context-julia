@@ -75,7 +75,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        eval("using InteractiveUtils; using Pkg;a isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
         initialized = true;
     }
