@@ -29,6 +29,7 @@ You are free to choose which integration method you prefer by selecting the appr
 - to gain flexibility in various deployment scenarios
 
 See here for a discussion about potential other integration modules: https://discourse.julialang.org/t/running-julia-from-java-what-is-crazier/31662/39?u=subes
+https://github.com/cnuernber/libjulia-clj/issues/3
 
 ## Example Code
 
