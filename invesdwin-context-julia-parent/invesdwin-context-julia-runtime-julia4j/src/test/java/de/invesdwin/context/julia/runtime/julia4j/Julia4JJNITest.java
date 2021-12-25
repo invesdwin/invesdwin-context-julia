@@ -32,7 +32,7 @@ public class Julia4JJNITest {
 
     @Test
     public void juliaShouldWork() {
-        Julia4J.jl_init();
+        Julia4J.jl_init_with_image("/usr/bin/", null);
         Julia4J.jl_eval_string("dump(:(1 + 2x^2))");
         Julia4J.jl_atexit_hook(0);
     }

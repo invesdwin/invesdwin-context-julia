@@ -41,7 +41,8 @@ public class ModifiedJuliaBridge {
     private static final String[] JULIA_EXEC = { "bin/julia", "bin/julia.exe" };
 
     private static final String[] JULIA_ARGS = { "-iq", "--startup-file=no", "-e",
-            "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};" + "__type__(a) = typeof(a);"
+            "using InteractiveUtils;__type__(::AbstractArray{T,N}) where T where N = Array{T,N};"
+                    + "__type__(a) = typeof(a);"
                     + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;"
                     + "" + "println(" + TERMINATOR + ");" };
     private static final String TERMINATOR_SUFFIX = ";" + TERMINATOR;

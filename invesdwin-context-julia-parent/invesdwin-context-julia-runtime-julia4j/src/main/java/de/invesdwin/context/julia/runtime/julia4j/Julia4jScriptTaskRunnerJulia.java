@@ -7,8 +7,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.julia4j.pool.ExtendedJuliaCaller;
-import de.invesdwin.context.julia.runtime.julia4j.pool.Julia4jObjectPool;
+import de.invesdwin.context.julia.runtime.julia4j.internal.JuliaEngineWrapper;
 import de.invesdwin.util.error.Throwables;
 
 @Immutable
@@ -27,10 +26,10 @@ public final class Julia4jScriptTaskRunnerJulia
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
-        final ExtendedJuliaCaller juliaCaller = Julia4jObjectPool.INSTANCE.borrowObject();
+        final Julia4jScriptTaskEngineJulia engine = new Julia4jScriptTaskEngineJulia(JuliaEngineWrapper.INSTANCE);
+        engine.getSharedLock().lock();
         try {
             //inputs
-            final Julia4jScriptTaskEngineJulia engine = new Julia4jScriptTaskEngineJulia(juliaCaller);
             scriptTask.populateInputs(engine.getInputs());
 
             //execute
@@ -41,10 +40,10 @@ public final class Julia4jScriptTaskRunnerJulia
             engine.close();
 
             //return
-            Julia4jObjectPool.INSTANCE.returnObject(juliaCaller);
+            engine.getSharedLock().unlock();
             return result;
         } catch (final Throwable t) {
-            Julia4jObjectPool.INSTANCE.destroyObject(juliaCaller);
+            engine.getSharedLock().unlock();
             throw Throwables.propagate(t);
         }
     }

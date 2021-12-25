@@ -9,6 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
@@ -23,8 +24,11 @@ public class JuliaResetContext {
     private final Set<String> protectedVariables = new HashSet<>();
     private final Map<String, String> variable_size = new HashMap<>();
 
+    private final ObjectMapper mapper;
+
     public JuliaResetContext(final IScriptTaskEngine engine) {
         this.engine = engine;
+        this.mapper = MarshallerJsonJackson.getInstance().getJsonMapper(false);
     }
 
     public void init() {
@@ -119,7 +123,7 @@ public class JuliaResetContext {
             json = getVarinfo();
         }
         try {
-            final JsonNode node = MarshallerJsonJackson.getInstance().getJsonMapper(false).readTree(json);
+            final JsonNode node = mapper.readTree(json);
             final JsonNode rows = node.get("content").get(0).get("rows");
             return rows;
         } catch (final JsonProcessingException e) {
