@@ -3,17 +3,18 @@ package de.invesdwin.context.julia.runtime.libjuliaclj;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
-import de.invesdwin.context.julia.runtime.libjuliaclj.internal.JuliaEngineWrapper;
+import de.invesdwin.context.julia.runtime.libjuliaclj.internal.ExecutorJuliaEngineWrapper;
+import de.invesdwin.context.julia.runtime.libjuliaclj.internal.IJuliaEngineWrapper;
 import de.invesdwin.util.concurrent.lock.ILock;
 
 @NotThreadSafe
 public class LibjuliacljScriptTaskEngineJulia implements IScriptTaskEngine {
 
-    private JuliaEngineWrapper juliaEngine;
+    private IJuliaEngineWrapper juliaEngine;
     private final LibjuliacljScriptTaskInputsJulia inputs;
     private final LibjuliacljScriptTaskResultsJulia results;
 
-    public LibjuliacljScriptTaskEngineJulia(final JuliaEngineWrapper juliaEngine) {
+    public LibjuliacljScriptTaskEngineJulia(final IJuliaEngineWrapper juliaEngine) {
         this.juliaEngine = juliaEngine;
         this.inputs = new LibjuliacljScriptTaskInputsJulia(this);
         this.results = new LibjuliacljScriptTaskResultsJulia(this);
@@ -43,7 +44,7 @@ public class LibjuliacljScriptTaskEngineJulia implements IScriptTaskEngine {
     }
 
     @Override
-    public JuliaEngineWrapper unwrap() {
+    public IJuliaEngineWrapper unwrap() {
         return juliaEngine;
     }
 
@@ -56,7 +57,7 @@ public class LibjuliacljScriptTaskEngineJulia implements IScriptTaskEngine {
     }
 
     public static LibjuliacljScriptTaskEngineJulia newInstance() {
-        return new LibjuliacljScriptTaskEngineJulia(JuliaEngineWrapper.INSTANCE);
+        return new LibjuliacljScriptTaskEngineJulia(ExecutorJuliaEngineWrapper.INSTANCE);
     }
 
 }

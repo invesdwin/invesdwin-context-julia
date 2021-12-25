@@ -9,7 +9,6 @@ import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.julia4j.internal.ExecutorJuliaEngineWrapper;
 import de.invesdwin.context.julia.runtime.julia4j.internal.UnsafeJuliaEngineWrapper;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
@@ -34,7 +33,6 @@ public final class Julia4jScriptTaskRunnerJulia
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
-        final ExecutorJuliaEngineWrapper wrapper = ExecutorJuliaEngineWrapper.INSTANCE;
         final Future<T> future = EXECUTOR.submit(() -> {
             final Julia4jScriptTaskEngineJulia engine = new Julia4jScriptTaskEngineJulia(
                     UnsafeJuliaEngineWrapper.INSTANCE);
