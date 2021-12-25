@@ -75,7 +75,9 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies()));");
+        eval("if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        eval("if !isinstalled(\"Suppressor\"); Pkg.add(\"Suppressor\"); end; using Suppressor;");
         this.resetContext.init();
         initialized = true;
     }
@@ -103,8 +105,8 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "open(\"" + outputFilePath
-                + "\", \"w\") do io; redirect_stderr(io) do; write(io, JSON.json(" + variable + ")) end; end; true";
+        final String command = "open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
+                + ")) end; true";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
