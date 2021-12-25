@@ -31,6 +31,8 @@ import de.invesdwin.util.math.Booleans;
 /**
  * Always acquire the lock first before accessing the julia engine instance. Also make sure commands are only executed
  * from inside the EXECUTOR thread. Otherwise julia will throw errors due to being thread bound.
+ * 
+ * https://cnuernber.github.io/libjulia-clj/signals.html
  */
 @NotThreadSafe
 public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
