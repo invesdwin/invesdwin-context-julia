@@ -5,9 +5,6 @@ import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.julia.jni.swig.Julia4J;
-import org.julia.jni.swig.SWIGTYPE_p_jl_value_t;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -24,7 +21,6 @@ import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.Files;
-import de.invesdwin.util.math.Booleans;
 
 /**
  * Always acquire the lock first before accessing the julia engine instance. Also make sure commands are only executed
@@ -58,9 +54,9 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (initialized) {
             return;
         }
-        if (Julia4J.jl_is_initialized() == 0) {
-            Julia4J.jl_init();
-        }
+        //        if (Julia4J.jl_is_initialized() == 0) {
+        //            Julia4J.jl_init();
+        //        }
         eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
         initialized = true;
@@ -70,9 +66,9 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     public void eval(final String command) {
         final String adjCommand = command + "; true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", adjCommand);
-        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
-        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+        //        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
+        //        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
     }
 
     @Override
@@ -80,9 +76,9 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         final String command = "try; open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
                 + ")) end; catch err; write(io, sprint(showerror, err, catch_backtrace())) end; true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", command);
-        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
-        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+        //        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
+        //        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
         try {
             final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
             final JsonNode node = mapper.readTree(result);
