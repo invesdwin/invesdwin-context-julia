@@ -23,6 +23,7 @@ import de.invesdwin.context.julia.runtime.julia4j.Julia4jScriptTaskEngineJulia;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.math.Booleans;
 
 /**
  * Always acquire the lock first before accessing the rengine instance.
@@ -61,7 +62,8 @@ public final class JuliaEngineWrapper {
         final String adjCommand = command + "; true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", adjCommand);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
-        IScriptTaskRunnerJulia.LOG.debug("< %s", Julia4J.jl_unbox_bool(value));
+        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
     }
 
     public JsonNode getAsJsonNode(final String variable) {
@@ -69,7 +71,8 @@ public final class JuliaEngineWrapper {
                 + ")) end; catch err; write(io, sprint(showerror, err, catch_backtrace())) end; true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", command);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
-        IScriptTaskRunnerJulia.LOG.debug("< %s", value);
+        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
         try {
             final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
             final JsonNode node = mapper.readTree(result);
