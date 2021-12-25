@@ -49,8 +49,7 @@ public final class JuliaEngineWrapper {
         }
         if (Julia4J.jl_is_initialized() == 0) {
             Julia4J.jl_init();
-            Julia4J.jl_eval_string(
-                    "using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+            eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         }
         this.mapper = MarshallerJsonJackson.getInstance().getJsonMapper(false);
         this.lock = Locks.newReentrantLock(JuliaEngineWrapper.class.getSimpleName() + "_lock");
