@@ -2,14 +2,13 @@ package de.invesdwin.context.julia.runtime.julia4j.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.julia.jni.NativeUtils;
 import org.julia.jni.swig.Julia4J;
 import org.julia.jni.swig.SWIGTYPE_p_jl_value_t;
-import org.julia.jni.swig.SWIGTYPE_p_void;
-import org.julia.jni.swig.SwigAccessor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,8 +27,6 @@ import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.math.Booleans;
-import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
-import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
  * Always acquire the lock first before accessing the julia engine instance. Also make sure commands are only executed
@@ -40,7 +37,6 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @NotThreadSafe
 public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
-    private static final int MAX_STRING_LENGTH = 1024 * 1024;
     public static final WrappedExecutorService EXECUTOR = Executors
             .newFixedThreadPool(UnsafeJuliaEngineWrapper.class.getSimpleName(), 1);
     public static final UnsafeJuliaEngineWrapper INSTANCE = new UnsafeJuliaEngineWrapper();
@@ -79,7 +75,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        eval("using InteractiveUtils; using Pkg;a isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
         initialized = true;
     }
@@ -107,27 +103,16 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "__ans__ = JSON.json(" + variable + ")";
+        final String command = "open(\"" + outputFilePath
+                + "\", \"w\") do io; redirect_stderr(io) do; write(io, JSON.json(" + variable + ")) end; end; true";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
             assertResponseNotNull(variable, value);
-            final SWIGTYPE_p_void pointer = Julia4J.jl_unbox_voidpointer(value);
-            final long address = SwigAccessor.getPointer(pointer);
-            final IByteBuffer buffer = ByteBuffers.wrap(address, MAX_STRING_LENGTH);
-            final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < buffer.capacity(); i++) {
-                final char c = buffer.getChar(i);
-                if (c == '\0') {
-                    break;
-                } else {
-                    sb.append(c);
-                }
-            }
             final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
             //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
             assertResponseSuccess(variable, success);
-            final String result = sb.toString();
+            final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
             final JsonNode node = mapper.readTree(result);
             if (node instanceof NullNode) {
                 return null;
