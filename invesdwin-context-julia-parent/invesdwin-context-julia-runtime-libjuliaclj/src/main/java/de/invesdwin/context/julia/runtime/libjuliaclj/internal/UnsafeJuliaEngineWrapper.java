@@ -53,7 +53,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         final Map<String, Object> initParams = new HashMap<String, Object>();
         //        initParams.put("n-threads", 8);
         //        initParams.put("signals-enabled?", false);
-        initParams.put("JULIA_HOME", LibjuliacljProperties.JULIA_HOME);
+        initParams.put("julia-home", LibjuliacljProperties.JULIA_HOME.getAbsolutePath());
         final Object result = libjulia_clj.java_api.initialize(initParams);
         final String resultStr = String.valueOf(result);
         if (!":ok".equals(resultStr)) {
