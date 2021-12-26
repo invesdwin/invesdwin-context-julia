@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
@@ -15,6 +16,7 @@ import de.invesdwin.context.julia.runtime.julia4j.Julia4jScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerScriptTaskRunnerJulia;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
@@ -37,17 +39,18 @@ public class SfrontiersScriptTaskTest extends ATest {
     }
 
     private void run(final IScriptTaskRunnerJulia runner) {
-        final List<List<Double>> tradesPerStrategy = new ArrayList<>();
-        //        0.5,-0.3,0.4,-0.2
-        tradesPerStrategy.add(Arrays.asList(0.5, -0.3, 0.4, -0.2));
-        //        0.1,-0.15,0.4,-0.1
-        tradesPerStrategy.add(Arrays.asList(0.1, -0.15, 0.4, -0.1));
-        final List<Double> optimalFsRaw = new SfrontiersScriptTask(tradesPerStrategy).run(runner);
-        final List<Decimal> optimalFs = new ArrayList<Decimal>();
-        for (final Double optimalFStr : optimalFsRaw) {
-            optimalFs.add(new Decimal(optimalFStr).round(3));
+        //        y = [1,2,3,4,5,6,7,8,9,10]
+        final double[] y = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        //        x = [1.1 1.2 1.3;2.1 2.2 2.3;1.2 1.5 1.6;1.7 1.4 5.6;1.5 5.7 2.6;5.7 3.6 5.1;5.4 6.1 7.4;3.6 3.6 3.5;7.8 4.6 3.1;5.1 3.2 6.3]
+        final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
+                { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
+                { 5.1, 3.2, 6.3 } };
+        final double[] efficienciesRaw = new SfrontiersScriptTask(y, x).run(runner);
+        final List<Decimal> efficiencies = new ArrayList<Decimal>();
+        for (final double efficiency : efficienciesRaw) {
+            efficiencies.add(new Decimal(efficiency).round(8));
         }
-        Assertions.assertThat(optimalFs).isEqualTo(Arrays.asList(new Decimal("0.052"), new Decimal("0.213")));
+        Assertions.assertThat(efficiencies).isEqualTo(Arrays.asList(new Decimal("0.052"), new Decimal("0.213")));
     }
 
     @Test
@@ -58,6 +61,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         }
     }
 
+    @Disabled("requires signal chaining via LD_PRELOAD workaround")
     @Test
     public void testJulia4j() {
         for (int i = 0; i < ITERATIONS; i++) {
@@ -68,12 +72,22 @@ public class SfrontiersScriptTaskTest extends ATest {
 
     @Test
     public void testNegative() {
-        final List<List<Double>> tradesPerStrategy = new ArrayList<>();
-        //        0.5,-0.3,0.4,-0.2
-        tradesPerStrategy.add(Arrays.asList(-0.5, -0.3, -0.4, -0.2));
-        //        0.1,-0.15,0.4,-0.1
-        tradesPerStrategy.add(Arrays.asList(-0.1, -0.15, -0.4, -0.1));
-        final List<Double> optimalFsRaw = new SfrontiersScriptTask(tradesPerStrategy).run(juliaCallerScriptTaskRunner);
+        //      y = [1,2,3,4,5,6,7,8,9,10]
+        final double[] y = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        //        x = [1.1 1.2 1.3;2.1 2.2 2.3;1.2 1.5 1.6;1.7 1.4 5.6;1.5 5.7 2.6;5.7 3.6 5.1;5.4 6.1 7.4;3.6 3.6 3.5;7.8 4.6 3.1;5.1 3.2 6.3]
+        final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
+                { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
+                { 5.1, 3.2, 6.3 } };
+        for (int i = 0; i < y.length; i++) {
+            y[i] = -y[i];
+        }
+        for (int i = 0; i < x.length; i++) {
+            final double[] row = x[i];
+            for (final int j = 0; j < row.length; i++) {
+                row[j] = -row[j];
+            }
+        }
+        final double[] optimalFsRaw = new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
         final List<Decimal> optimalFs = new ArrayList<Decimal>();
         for (final Double optimalFStr : optimalFsRaw) {
             optimalFs.add(new Decimal(optimalFStr).round(3));
@@ -82,30 +96,60 @@ public class SfrontiersScriptTaskTest extends ATest {
     }
 
     @Test
-    public void testPositive() {
-        final List<List<Double>> tradesPerStrategy = new ArrayList<>();
-        //        0.5,-0.3,0.4,-0.2
-        tradesPerStrategy.add(Arrays.asList(0.5, 0.3, 0.4, 0.2));
-        //        0.1,-0.15,0.4,-0.1
-        tradesPerStrategy.add(Arrays.asList(0.1, 0.15, 0.4, 0.1));
+    public void testSingularException() {
+        final double[] y = { 1, 2, 3 };
+        final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 } };
+        for (int i = 0; i < y.length; i++) {
+            y[i] = -y[i];
+        }
+        for (int i = 0; i < x.length; i++) {
+            final double[] row = x[i];
+            for (final int j = 0; j < row.length; i++) {
+                row[j] = -row[j];
+            }
+        }
         try {
-            new SfrontiersScriptTask(tradesPerStrategy).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage())
-                    .contains("all 'events' columns must have at least one negative trade");
+            Assertions.assertThat(t.getMessage()).contains("No trades!");
         }
     }
 
     @Test
-    public void testEmptyTrades() {
-        final List<List<Double>> tradesPerStrategy = new ArrayList<>();
-        //        0.5,-0.3,0.4,-0.2
-        tradesPerStrategy.add(Arrays.asList());
-        //        0.1,-0.15,0.4,-0.1
-        tradesPerStrategy.add(Arrays.asList());
+    public void testDomainError() {
+        final double[] y = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 }, { 4.1, 4.2, 4.3 },
+                { 5.1, 5.2, 5.3 }, { 6.1, 6.2, 6.3 }, { 7.1, 7.2, 7.3 }, { 8.1, 8.2, 8.3 }, { 9.1, 9.2, 9.3 },
+                { 10.1, 10.2, 10.3 } };
+        for (int i = 0; i < y.length; i++) {
+            y[i] = -y[i];
+        }
+        for (int i = 0; i < x.length; i++) {
+            final double[] row = x[i];
+            for (final int j = 0; j < row.length; i++) {
+                row[j] = -row[j];
+            }
+        }
         try {
-            new SfrontiersScriptTask(tradesPerStrategy).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            Assertions.failExceptionExpected();
+        } catch (final Throwable t) {
+            Assertions.assertThat(t.getMessage()).contains("No trades!");
+        }
+    }
+
+    @Test
+    public void testEmptyInputs() {
+        //      y = [1,2,3,4,5,6,7,8,9,10]
+        final double[] y = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        //        x = [1.1 1.2 1.3;2.1 2.2 2.3;1.2 1.5 1.6;1.7 1.4 5.6;1.5 5.7 2.6;5.7 3.6 5.1;5.4 6.1 7.4;3.6 3.6 3.5;7.8 4.6 3.1;5.1 3.2 6.3]
+        final double[][] x = new double[y.length][];
+        for (int i = 0; i < x.length; i++) {
+            x[i] = Doubles.EMPTY_ARRAY;
+        }
+        try {
+            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage())
@@ -115,9 +159,10 @@ public class SfrontiersScriptTaskTest extends ATest {
 
     @Test
     public void testEmptyStrategies() {
-        final List<List<Double>> tradesPerStrategy = new ArrayList<>();
         try {
-            new SfrontiersScriptTask(tradesPerStrategy).run(juliaCallerScriptTaskRunner);
+            final double[] y = Doubles.EMPTY_ARRAY;
+            final double[][] x = Doubles.EMPTY_MATRIX;
+            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage()).contains("No trades!");

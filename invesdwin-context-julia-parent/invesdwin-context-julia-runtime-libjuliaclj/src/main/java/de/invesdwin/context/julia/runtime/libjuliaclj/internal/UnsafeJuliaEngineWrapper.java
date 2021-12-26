@@ -1,7 +1,6 @@
 package de.invesdwin.context.julia.runtime.libjuliaclj.internal;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import java.util.HashMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -9,18 +8,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 
-import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
-import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljProperties;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskEngineJulia;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.math.Booleans;
 
 /**
  * Always acquire the lock first before accessing the julia engine instance. Also make sure commands are only executed
@@ -38,14 +35,11 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     private final IReentrantLock lock;
     private final JuliaResetContext resetContext;
     private final ObjectMapper mapper;
-    private final File outputFile = new File(ContextProperties.TEMP_DIRECTORY,
-            UnsafeJuliaEngineWrapper.class.getSimpleName() + ".out");
-    private final String outputFilePath = outputFile.getAbsolutePath();
     private boolean initialized = false;
 
     private UnsafeJuliaEngineWrapper() {
-        final String path = new File(LibjuliacljProperties.JULIA_LIBRARY_PATH, "libjulia.so").getAbsolutePath();
-        System.load(path);
+        //        final String path = new File(LibjuliacljProperties.JULIA_LIBRARY_PATH, "libjulia.so").getAbsolutePath();
+        //        System.load(path);
         this.mapper = MarshallerJsonJackson.getInstance().getJsonMapper(false);
         this.lock = Locks.newReentrantLock(UnsafeJuliaEngineWrapper.class.getSimpleName() + "_lock");
         this.resetContext = new JuliaResetContext(new LibjuliacljScriptTaskEngineJulia(this));
@@ -56,9 +50,14 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (initialized) {
             return;
         }
-        //        if (Julia4J.jl_is_initialized() == 0) {
-        //            Julia4J.jl_init();
-        //        }
+        final HashMap<String, Object> initParams = new HashMap<String, Object>();
+        //        initParams.put("n-threads", 8);
+        //        initParams.put("signals-enabled?", false);
+        final Object result = libjulia_clj.java_api__init.const__3.invoke(initParams);
+        final String resultStr = String.valueOf(result);
+        if (!":ok".equals(resultStr)) {
+            throw new IllegalStateException("Initialization failed: " + resultStr);
+        }
         eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
         initialized = true;
@@ -67,23 +66,21 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     @Override
     public void eval(final String command) {
         final String adjCommand = command + "; true";
-        IScriptTaskRunnerJulia.LOG.debug("> %s", adjCommand);
-        //        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(adjCommand);
-        //        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+        IScriptTaskRunnerJulia.LOG.debug("> %s", command);
+        final Object result = libjulia_clj.java_api__init.const__13.invoke(adjCommand);
+        IScriptTaskRunnerJulia.LOG.debug("< %s", result);
+        if (!(result instanceof Boolean) || !Booleans.checkedCast(result)) {
+            throw new IllegalStateException("Command [" + command + "] failed: " + result);
+        }
     }
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "try; open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
-                + ")) end; catch err; write(io, sprint(showerror, err, catch_backtrace())) end; true";
-        IScriptTaskRunnerJulia.LOG.debug("> %s", command);
-        //        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
-        //        final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-        //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
+        final String command = "__ans__ = JSON.json(" + variable + ")";
+        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
+        final Object result = libjulia_clj.java_api__init.const__13.invoke(command);
         try {
-            final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
-            final JsonNode node = mapper.readTree(result);
+            final JsonNode node = mapper.readTree(String.valueOf(result));
             if (node instanceof NullNode) {
                 return null;
             } else {
