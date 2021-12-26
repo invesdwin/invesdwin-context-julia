@@ -76,7 +76,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "__ans__ = JSON.json(" + variable + ")";
+        final String command = "JSON.json(" + variable + ")";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final Object result = libjulia_clj.java_api__init.const__13.invoke(command);
         try {
