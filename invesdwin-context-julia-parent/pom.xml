@@ -36,7 +36,7 @@
 
 		<version.jajub>0.1.0</version.jajub>
 		<version.julia4j>0.0.2-inv</version.julia4j>
-		<version.libjulia-clj>1.000-aot-beta-3</version.libjulia-clj>
+		<version.libjulia-clj>1.000-aot-beta-4</version.libjulia-clj>
 		<version.dtype-next>8.053</version.dtype-next>
 	</properties>
 

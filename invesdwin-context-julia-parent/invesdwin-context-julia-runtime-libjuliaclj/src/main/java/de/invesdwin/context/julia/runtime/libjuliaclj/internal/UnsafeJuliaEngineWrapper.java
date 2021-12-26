@@ -1,6 +1,7 @@
 package de.invesdwin.context.julia.runtime.libjuliaclj.internal;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
+import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljProperties;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskEngineJulia;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
@@ -48,10 +50,11 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (initialized) {
             return;
         }
-        final HashMap<String, Object> initParams = new HashMap<String, Object>();
+        final Map<String, Object> initParams = new HashMap<String, Object>();
         //        initParams.put("n-threads", 8);
         //        initParams.put("signals-enabled?", false);
-        final Object result = libjulia_clj.java_api__init.const__3.invoke(initParams);
+        initParams.put("JULIA_HOME", LibjuliacljProperties.JULIA_HOME);
+        final Object result = libjulia_clj.java_api.initialize(initParams);
         final String resultStr = String.valueOf(result);
         if (!":ok".equals(resultStr)) {
             throw new IllegalStateException("Initialization failed: " + resultStr);
@@ -65,7 +68,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     public void eval(final String command) {
         final String adjCommand = command + "; true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", command);
-        final Object result = libjulia_clj.java_api__init.const__13.invoke(adjCommand);
+        final Object result = libjulia_clj.java_api.runString(adjCommand);
         IScriptTaskRunnerJulia.LOG.debug("< %s", result);
         if (!(result instanceof Boolean) || !Booleans.checkedCast(result)) {
             throw new IllegalStateException("Command [" + command + "] failed: " + result);
@@ -76,7 +79,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     public JsonNode getAsJsonNode(final String variable) {
         final String command = "JSON.json(" + variable + ")";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
-        final Object result = libjulia_clj.java_api__init.const__13.invoke(command);
+        final Object result = libjulia_clj.java_api.runString(command);
         try {
             final JsonNode node = mapper.readTree(String.valueOf(result));
             if (node instanceof NullNode) {
