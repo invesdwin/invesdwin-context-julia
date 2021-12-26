@@ -27,6 +27,7 @@
 		<module>invesdwin-context-julia-runtime-juliacaller</module>
 		<module>invesdwin-context-julia-runtime-julia4j</module>
 		<module>invesdwin-context-julia-runtime-libjuliaclj</module>
+		<module>invesdwin-context-julia-sfrontiers</module>
 	</modules>
 
 	<properties>
@@ -76,6 +77,11 @@
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-julia-runtime-libjuliaclj</artifactId>
+				<version>${project.version.invesdwin-context-julia}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-context-julia-sfrontiers</artifactId>
 				<version>${project.version.invesdwin-context-julia}</version>
 			</dependency>
 
