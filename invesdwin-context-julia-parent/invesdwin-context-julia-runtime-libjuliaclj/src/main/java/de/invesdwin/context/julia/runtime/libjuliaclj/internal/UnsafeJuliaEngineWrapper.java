@@ -38,8 +38,6 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     private boolean initialized = false;
 
     private UnsafeJuliaEngineWrapper() {
-        //        final String path = new File(LibjuliacljProperties.JULIA_LIBRARY_PATH, "libjulia.so").getAbsolutePath();
-        //        System.load(path);
         this.mapper = MarshallerJsonJackson.getInstance().getJsonMapper(false);
         this.lock = Locks.newReentrantLock(UnsafeJuliaEngineWrapper.class.getSimpleName() + "_lock");
         this.resetContext = new JuliaResetContext(new LibjuliacljScriptTaskEngineJulia(this));
