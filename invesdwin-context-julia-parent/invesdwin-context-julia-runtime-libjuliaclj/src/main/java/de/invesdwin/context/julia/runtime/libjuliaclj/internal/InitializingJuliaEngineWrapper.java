@@ -73,10 +73,7 @@ public final class InitializingJuliaEngineWrapper implements IJuliaEngineWrapper
     }
 
     public static IJuliaEngineWrapper getInstance() {
-        if (INSTANCE.initialized) {
-            return UncheckedJuliaEngineWrapper.INSTANCE;
-        } else {
-            return INSTANCE;
-        }
+        INSTANCE.maybeInit();
+        return UncheckedJuliaEngineWrapper.INSTANCE;
     }
 }
