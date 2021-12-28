@@ -9,7 +9,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.julia.runtime.libjuliaclj.internal.UnsafeJuliaEngineWrapper;
+import de.invesdwin.context.julia.runtime.libjuliaclj.internal.InitializingJuliaEngineWrapper;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.error.Throwables;
@@ -31,7 +31,7 @@ public final class LibjuliacljScriptTaskRunnerJulia
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
         final LibjuliacljScriptTaskEngineJulia engine = new LibjuliacljScriptTaskEngineJulia(
-                UnsafeJuliaEngineWrapper.INSTANCE);
+                InitializingJuliaEngineWrapper.getInstance());
         final Future<T> future = engine.getSharedExecutor().submit(() -> {
             final ILock lock = engine.getSharedLock();
             lock.lock();

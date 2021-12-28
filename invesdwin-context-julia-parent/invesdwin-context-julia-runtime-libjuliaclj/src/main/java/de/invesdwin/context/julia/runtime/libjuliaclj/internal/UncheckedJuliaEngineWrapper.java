@@ -16,7 +16,6 @@ import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljProperties;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskEngineJulia;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
-import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.math.Booleans;
@@ -28,45 +27,23 @@ import de.invesdwin.util.math.Booleans;
  * https://cnuernber.github.io/libjulia-clj/signals.html
  */
 @NotThreadSafe
-public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
+public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     public static final WrappedExecutorService EXECUTOR = Executors
-            .newFixedThreadPool(UnsafeJuliaEngineWrapper.class.getSimpleName(), 1);
-    public static final UnsafeJuliaEngineWrapper INSTANCE = new UnsafeJuliaEngineWrapper();
+            .newFixedThreadPool(InitializingJuliaEngineWrapper.class.getSimpleName(), 1);
+    public static final UncheckedJuliaEngineWrapper INSTANCE = new UncheckedJuliaEngineWrapper();
 
     private final IReentrantLock lock;
     private final JuliaResetContext resetContext;
     private final ObjectMapper mapper;
-    private boolean initialized = false;
 
-    private UnsafeJuliaEngineWrapper() {
+    private UncheckedJuliaEngineWrapper() {
         this.mapper = MarshallerJsonJackson.getInstance().getJsonMapper(false);
-        this.lock = Locks.newReentrantLock(UnsafeJuliaEngineWrapper.class.getSimpleName() + "_lock");
+        this.lock = Locks.newReentrantLock(UncheckedJuliaEngineWrapper.class.getSimpleName() + "_lock");
         this.resetContext = new JuliaResetContext(new LibjuliacljScriptTaskEngineJulia(this));
     }
 
-    private void maybeInit() {
-        if (initialized) {
-            return;
-        }
-        synchronized (this) {
-            if (initialized) {
-                return;
-            }
-            if (EXECUTOR.isExecutorThread()) {
-                init();
-            } else {
-                if (EXECUTOR.getPendingCount() > 0) {
-                    throw new IllegalStateException(
-                            "Initialization should already be taking place, would deadlock if another thread tried it!");
-                }
-                Futures.waitNoInterrupt(EXECUTOR.submit(this::init));
-            }
-        }
-
-    }
-
-    private void init() {
+    public void init() {
         final Map<String, Object> initParams = new HashMap<String, Object>();
         //        initParams.put("n-threads", 8);
         //        initParams.put("signals-enabled?", false);
@@ -76,19 +53,12 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (!":ok".equals(resultStr)) {
             throw new IllegalStateException("Initialization failed: " + resultStr);
         }
-        evalUnchecked(
-                "using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
-        initialized = true;
+        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         this.resetContext.init();
     }
 
     @Override
     public void eval(final String command) {
-        maybeInit();
-        evalUnchecked(command);
-    }
-
-    private void evalUnchecked(final String command) {
         final String adjCommand = command + "; true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", command);
         final Object result = libjulia_clj.java_api.runString(adjCommand);
@@ -100,7 +70,6 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        maybeInit();
         final String command = "JSON.json(" + variable + ")";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final Object result = libjulia_clj.java_api.runString(command);
@@ -118,7 +87,6 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void reset() {
-        maybeInit();
         resetContext.reset();
     }
 

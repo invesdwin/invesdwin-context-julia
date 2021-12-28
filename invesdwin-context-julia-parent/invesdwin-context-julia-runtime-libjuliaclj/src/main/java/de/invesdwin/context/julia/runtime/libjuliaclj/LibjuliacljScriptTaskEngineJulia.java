@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
 import de.invesdwin.context.julia.runtime.libjuliaclj.internal.ExecutorJuliaEngineWrapper;
 import de.invesdwin.context.julia.runtime.libjuliaclj.internal.IJuliaEngineWrapper;
+import de.invesdwin.context.julia.runtime.libjuliaclj.internal.UncheckedJuliaEngineWrapper;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.ILock;
 
@@ -59,11 +60,11 @@ public class LibjuliacljScriptTaskEngineJulia implements IScriptTaskEngine {
 
     @Override
     public WrappedExecutorService getSharedExecutor() {
-        return ExecutorJuliaEngineWrapper.INSTANCE.getExecutor();
+        return UncheckedJuliaEngineWrapper.EXECUTOR;
     }
 
     public static LibjuliacljScriptTaskEngineJulia newInstance() {
-        return new LibjuliacljScriptTaskEngineJulia(ExecutorJuliaEngineWrapper.INSTANCE);
+        return new LibjuliacljScriptTaskEngineJulia(ExecutorJuliaEngineWrapper.getInstance());
     }
 
 }

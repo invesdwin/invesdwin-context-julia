@@ -13,16 +13,18 @@ import de.invesdwin.util.concurrent.lock.IReentrantLock;
 @ThreadSafe
 public final class ExecutorJuliaEngineWrapper implements IJuliaEngineWrapper {
 
-    public static final ExecutorJuliaEngineWrapper INSTANCE = new ExecutorJuliaEngineWrapper();
-    private final UnsafeJuliaEngineWrapper delegate;
+    private static final ExecutorJuliaEngineWrapper UNCHECKED = new ExecutorJuliaEngineWrapper(
+            UncheckedJuliaEngineWrapper.INSTANCE);
+
+    private final IJuliaEngineWrapper delegate;
     private final WrappedExecutorService executor;
 
-    private ExecutorJuliaEngineWrapper() {
-        this.delegate = UnsafeJuliaEngineWrapper.INSTANCE;
-        this.executor = UnsafeJuliaEngineWrapper.EXECUTOR;
+    private ExecutorJuliaEngineWrapper(final IJuliaEngineWrapper delegate) {
+        this.delegate = InitializingJuliaEngineWrapper.getInstance();
+        this.executor = UncheckedJuliaEngineWrapper.EXECUTOR;
     }
 
-    public UnsafeJuliaEngineWrapper getDelegate() {
+    public IJuliaEngineWrapper getDelegate() {
         return delegate;
     }
 
@@ -51,6 +53,14 @@ public final class ExecutorJuliaEngineWrapper implements IJuliaEngineWrapper {
     @Override
     public IReentrantLock getLock() {
         return delegate.getLock();
+    }
+
+    public static ExecutorJuliaEngineWrapper getInstance() {
+        if (InitializingJuliaEngineWrapper.isInitialized()) {
+            return UNCHECKED;
+        } else {
+            return new ExecutorJuliaEngineWrapper(InitializingJuliaEngineWrapper.getInstance());
+        }
     }
 
 }
