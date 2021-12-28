@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
 import de.invesdwin.context.julia.runtime.jajub.pool.ExtendedJuliaBridge;
 import de.invesdwin.context.julia.runtime.jajub.pool.JajubObjectPool;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 
@@ -52,6 +53,14 @@ public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
     @Override
     public ILock getSharedLock() {
         return DisabledLock.INSTANCE;
+    }
+
+    /**
+     * No executor needed.
+     */
+    @Override
+    public WrappedExecutorService getSharedExecutor() {
+        return null;
     }
 
     public static JajubScriptTaskEngineJulia newInstance() {

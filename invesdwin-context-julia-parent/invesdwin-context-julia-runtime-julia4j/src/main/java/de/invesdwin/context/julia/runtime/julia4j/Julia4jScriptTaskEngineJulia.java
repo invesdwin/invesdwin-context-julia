@@ -3,8 +3,9 @@ package de.invesdwin.context.julia.runtime.julia4j;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
-import de.invesdwin.context.julia.runtime.julia4j.internal.IJuliaEngineWrapper;
 import de.invesdwin.context.julia.runtime.julia4j.internal.ExecutorJuliaEngineWrapper;
+import de.invesdwin.context.julia.runtime.julia4j.internal.IJuliaEngineWrapper;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.ILock;
 
 @NotThreadSafe
@@ -49,11 +50,19 @@ public class Julia4jScriptTaskEngineJulia implements IScriptTaskEngine {
     }
 
     /**
-     * Each instance has its own engine, so no shared locking required.
+     * Locking is needed.
      */
     @Override
     public ILock getSharedLock() {
         return juliaEngine.getLock();
+    }
+
+    /**
+     * No executor needed.
+     */
+    @Override
+    public WrappedExecutorService getSharedExecutor() {
+        return ExecutorJuliaEngineWrapper.INSTANCE.getExecutor();
     }
 
     public static Julia4jScriptTaskEngineJulia newInstance() {

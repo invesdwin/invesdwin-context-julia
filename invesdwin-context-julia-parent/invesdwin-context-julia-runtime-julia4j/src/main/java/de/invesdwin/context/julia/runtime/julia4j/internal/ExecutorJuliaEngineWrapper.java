@@ -6,7 +6,6 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import de.invesdwin.context.julia.runtime.julia4j.Julia4jScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
@@ -33,20 +32,19 @@ public final class ExecutorJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void eval(final String command) {
-        final Future<?> future = Julia4jScriptTaskRunnerJulia.EXECUTOR.submit(() -> delegate.eval(command));
+        final Future<?> future = executor.submit(() -> delegate.eval(command));
         Futures.waitNoInterrupt(future);
     }
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final Future<JsonNode> future = Julia4jScriptTaskRunnerJulia.EXECUTOR
-                .submit(() -> delegate.getAsJsonNode(variable));
+        final Future<JsonNode> future = executor.submit(() -> delegate.getAsJsonNode(variable));
         return Futures.getNoInterrupt(future);
     }
 
     @Override
     public void reset() {
-        final Future<?> future = Julia4jScriptTaskRunnerJulia.EXECUTOR.submit(() -> delegate.reset());
+        final Future<?> future = executor.submit(() -> delegate.reset());
         Futures.waitNoInterrupt(future);
     }
 

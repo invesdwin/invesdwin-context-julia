@@ -10,7 +10,6 @@ import org.springframework.beans.factory.FactoryBean;
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.libjuliaclj.internal.UnsafeJuliaEngineWrapper;
-import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.error.Throwables;
@@ -19,8 +18,6 @@ import de.invesdwin.util.error.Throwables;
 @Named
 public final class LibjuliacljScriptTaskRunnerJulia
         implements IScriptTaskRunnerJulia, FactoryBean<LibjuliacljScriptTaskRunnerJulia> {
-
-    public static final WrappedExecutorService EXECUTOR = UnsafeJuliaEngineWrapper.EXECUTOR;
 
     public static final LibjuliacljScriptTaskRunnerJulia INSTANCE = new LibjuliacljScriptTaskRunnerJulia();
 
@@ -33,9 +30,9 @@ public final class LibjuliacljScriptTaskRunnerJulia
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
-        final Future<T> future = EXECUTOR.submit(() -> {
-            final LibjuliacljScriptTaskEngineJulia engine = new LibjuliacljScriptTaskEngineJulia(
-                    UnsafeJuliaEngineWrapper.INSTANCE);
+        final LibjuliacljScriptTaskEngineJulia engine = new LibjuliacljScriptTaskEngineJulia(
+                UnsafeJuliaEngineWrapper.INSTANCE);
+        final Future<T> future = engine.getSharedExecutor().submit(() -> {
             final ILock lock = engine.getSharedLock();
             lock.lock();
             try {
@@ -50,11 +47,11 @@ public final class LibjuliacljScriptTaskRunnerJulia
                 engine.close();
 
                 //return
-                lock.unlock();
                 return result;
             } catch (final Throwable t) {
-                lock.unlock();
                 throw Throwables.propagate(t);
+            } finally {
+                lock.unlock();
             }
         });
         return Futures.getNoInterrupt(future);

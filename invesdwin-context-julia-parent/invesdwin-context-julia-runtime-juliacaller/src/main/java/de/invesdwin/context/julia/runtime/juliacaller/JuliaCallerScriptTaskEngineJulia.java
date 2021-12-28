@@ -7,6 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
 import de.invesdwin.context.julia.runtime.juliacaller.pool.ExtendedJuliaCaller;
 import de.invesdwin.context.julia.runtime.juliacaller.pool.JuliaCallerObjectPool;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 
@@ -58,6 +59,11 @@ public class JuliaCallerScriptTaskEngineJulia implements IScriptTaskEngine {
     @Override
     public ILock getSharedLock() {
         return DisabledLock.INSTANCE;
+    }
+
+    @Override
+    public WrappedExecutorService getSharedExecutor() {
+        return null;
     }
 
     public static JuliaCallerScriptTaskEngineJulia newInstance() {
