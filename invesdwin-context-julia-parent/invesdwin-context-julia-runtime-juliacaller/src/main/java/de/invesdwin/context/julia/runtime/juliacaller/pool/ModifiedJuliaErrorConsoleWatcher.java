@@ -39,6 +39,9 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                         final String s = errorReader.readLine();
                         if (Strings.isNotBlank(s)) {
                             synchronized (errorMessage) {
+                                if (errorMessage.length() > 0) {
+                                    errorMessage.append("\n");
+                                }
                                 errorMessage.append(s);
                             }
                             IScriptTaskRunnerJulia.LOG.warn(s);

@@ -54,6 +54,11 @@
 			<artifactId>invesdwin-context-julia-runtime-julia4j</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>de.invesdwin</groupId>
+			<artifactId>invesdwin-context-julia-runtime-libjuliaclj</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>

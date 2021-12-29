@@ -127,20 +127,14 @@ public class SfrontiersScriptTaskTest extends ATest {
         final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 }, { 4.1, 4.2, 4.3 },
                 { 5.1, 5.2, 5.3 }, { 6.1, 6.2, 6.3 }, { 7.1, 7.2, 7.3 }, { 8.1, 8.2, 8.3 }, { 9.1, 9.2, 9.3 },
                 { 10.1, 10.2, 10.3 } };
-        for (int i = 0; i < y.length; i++) {
-            y[i] = -y[i];
-        }
-        for (int i = 0; i < x.length; i++) {
-            final double[] row = x[i];
-            for (int j = 0; j < row.length; j++) {
-                row[j] = -row[j];
-            }
-        }
         try {
             new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("No trades!");
+            Assertions.assertThat(t.getMessage())
+                    .contains("DomainError(")
+                    .contains(
+                            "sqrt will only return a complex result if called with a complex argument. Try sqrt(Complex(x)).");
         }
     }
 
@@ -158,12 +152,13 @@ public class SfrontiersScriptTaskTest extends ATest {
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage())
-                    .contains("all 'events' columns must have at least one negative trade");
+                    .contains(
+                            "Error: DimensionMismatch(\"diagonal matrix is 0 by 0 but right hand side has 10 rows\")");
         }
     }
 
     @Test
-    public void testEmptyStrategies() {
+    public void testEmptyInputsAndOutputs() {
         try {
             final double[] y = Doubles.EMPTY_ARRAY;
             final double[][] x = Doubles.EMPTY_MATRIX;
@@ -171,6 +166,20 @@ public class SfrontiersScriptTaskTest extends ATest {
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage()).contains("No trades!");
+        }
+    }
+
+    @Test
+    public void testEmptyOutputs() {
+        try {
+            final double[] y = Doubles.EMPTY_ARRAY;
+            final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
+                    { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
+                    { 5.1, 3.2, 6.3 } };
+            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            Assertions.failExceptionExpected();
+        } catch (final Throwable t) {
+            Assertions.assertThat(t.getMessage()).contains("Error: BoundsError(Float64[], (1,))");
         }
     }
 

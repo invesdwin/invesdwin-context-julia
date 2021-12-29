@@ -41,7 +41,7 @@ public class ModifiedJuliaBridge {
 
     private static final String[] JULIA_EXEC = { "bin/julia", "bin/julia.exe" };
 
-    private static final String[] JULIA_ARGS = { "-iq", "--startup-file=no",
+    private static final String[] JULIA_ARGS = { "-iq", "--depwarn=no", "--startup-file=no",
             "--threads=" + Executors.getCpuThreadPoolCount(), "-e", "using InteractiveUtils;" //
                     + "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};" //
                     + "__type__(a) = typeof(a);" //

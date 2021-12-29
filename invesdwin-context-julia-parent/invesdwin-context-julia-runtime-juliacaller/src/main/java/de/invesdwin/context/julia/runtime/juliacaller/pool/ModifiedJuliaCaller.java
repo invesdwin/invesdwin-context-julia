@@ -19,6 +19,7 @@ import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 /**
  * Forked from here: https://github.com/jbytecode/juliacaller/issues/1
@@ -56,7 +57,8 @@ public class ModifiedJuliaCaller {
 
     public void startServer() throws IOException {
         process = Runtime.getRuntime()
-                .exec(pathToJulia + " -iq --startup-file=no --threads=" + Executors.getCpuThreadPoolCount());
+                .exec(pathToJulia + " -iq --depwarn=no --startup-file=no --threads="
+                        + Executors.getCpuThreadPoolCount());
         final InputStream is = ModifiedJuliaCaller.class
                 .getResourceAsStream(ModifiedJuliaCaller.class.getSimpleName() + ".jl");
         final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -163,12 +165,30 @@ public class ModifiedJuliaCaller {
         bufferedWriterForSocket.flush();
         final String result = bufferedReaderForSocket.readLine();
         checkError();
-        final JsonNode node = objectMapper.readTree(result).get(varname);
-        if (node instanceof NullNode) {
-            return null;
-        } else {
-            return node;
+        if (result == null) {
+            readErrorDelayed();
         }
+        try {
+            final JsonNode node = objectMapper.readTree(result).get(varname);
+            if (node instanceof NullNode) {
+                return null;
+            } else {
+                return node;
+            }
+        } catch (final Throwable t) {
+            readErrorDelayed();
+            throw t;
+        }
+    }
+
+    private void readErrorDelayed() {
+        //give a bit of time to read the actual error
+        try {
+            FTimeUnit.MILLISECONDS.sleep(10);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        checkError();
     }
 
 }
