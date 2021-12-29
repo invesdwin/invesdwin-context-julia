@@ -37,7 +37,7 @@ public class SfrontiersScriptTaskTest extends ATest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mainRunner = juliaCallerScriptTaskRunner;
+        mainRunner = jajubScriptTaskRunner;
     }
 
     @Disabled
