@@ -19,7 +19,8 @@ public final class JajubObjectPool extends ATimeoutObjectPool<ExtendedJuliaBridg
     public static final JajubObjectPool INSTANCE = new JajubObjectPool();
 
     private JajubObjectPool() {
-        super(Duration.ONE_MINUTE, new Duration(10, FTimeUnit.SECONDS));
+        //julia compilation is a lot of overhead, thus keep instances open longer
+        super(new Duration(10, FTimeUnit.MINUTES), new Duration(10, FTimeUnit.SECONDS));
     }
 
     @Override

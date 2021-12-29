@@ -21,7 +21,8 @@ public final class JuliaCallerObjectPool extends ATimeoutObjectPool<ExtendedJuli
     public static final JuliaCallerObjectPool INSTANCE = new JuliaCallerObjectPool();
 
     private JuliaCallerObjectPool() {
-        super(Duration.ONE_MINUTE, new Duration(10, FTimeUnit.SECONDS));
+        //julia compilation is a lot of overhead, thus keep instances open longer
+        super(new Duration(10, FTimeUnit.MINUTES), new Duration(10, FTimeUnit.SECONDS));
     }
 
     @Override
