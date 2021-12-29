@@ -14,6 +14,7 @@ import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.JajubScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.julia4j.Julia4jScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerScriptTaskRunnerJulia;
+import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskRunnerJulia;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Doubles;
@@ -29,6 +30,15 @@ public class SfrontiersScriptTaskTest extends ATest {
     private JajubScriptTaskRunnerJulia jajubScriptTaskRunner;
     @Inject
     private Julia4jScriptTaskRunnerJulia julia4jScriptTaskRunner;
+    @Inject
+    private LibjuliacljScriptTaskRunnerJulia libjuliacljScriptTaskRunner;
+    private IScriptTaskRunnerJulia mainRunner;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mainRunner = juliaCallerScriptTaskRunner;
+    }
 
     @Disabled
     @Test
@@ -76,6 +86,15 @@ public class SfrontiersScriptTaskTest extends ATest {
         }
     }
 
+    @Disabled("requires signal chaining via LD_PRELOAD workaround")
+    @Test
+    public void testLibjuliaclj() {
+        for (int i = 0; i < ITERATIONS; i++) {
+            run(libjuliacljScriptTaskRunner);
+            log.info("------------------------");
+        }
+    }
+
     @Test
     public void testNegative() {
         //      y = [1,2,3,4,5,6,7,8,9,10]
@@ -93,7 +112,7 @@ public class SfrontiersScriptTaskTest extends ATest {
                 row[j] = -row[j];
             }
         }
-        final double[] optimalFsRaw = new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
+        final double[] optimalFsRaw = new SfrontiersScriptTask(y, x).run(mainRunner);
         final List<Decimal> optimalFs = new ArrayList<Decimal>();
         for (final Double optimalFStr : optimalFsRaw) {
             optimalFs.add(new Decimal(optimalFStr).round(3));
@@ -109,7 +128,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         final double[] y = { 1, 2, 3 };
         final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 } };
         try {
-            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage()).contains("LinearAlgebra.SingularException(3)");
@@ -123,7 +142,7 @@ public class SfrontiersScriptTaskTest extends ATest {
                 { 5.1, 5.2, 5.3 }, { 6.1, 6.2, 6.3 }, { 7.1, 7.2, 7.3 }, { 8.1, 8.2, 8.3 }, { 9.1, 9.2, 9.3 },
                 { 10.1, 10.2, 10.3 } };
         try {
-            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage())
@@ -143,7 +162,7 @@ public class SfrontiersScriptTaskTest extends ATest {
             x[i] = Doubles.EMPTY_ARRAY;
         }
         try {
-            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage()).contains("diagonal matrix is 0 by 0 but right hand side has 10 rows");
@@ -155,7 +174,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         try {
             final double[] y = Doubles.EMPTY_ARRAY;
             final double[][] x = Doubles.EMPTY_MATRIX;
-            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage())
@@ -171,7 +190,7 @@ public class SfrontiersScriptTaskTest extends ATest {
             final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
                     { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
                     { 5.1, 3.2, 6.3 } };
-            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage()).contains("number of rows of each array must match (got (0, 10))");
