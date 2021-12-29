@@ -40,7 +40,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         mainRunner = jajubScriptTaskRunner;
     }
 
-    @Disabled
+    //    @Disabled
     @Test
     public void testJuliaCaller() {
         for (int i = 0; i < ITERATIONS; i++) {
@@ -49,26 +49,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         }
     }
 
-    private void run(final IScriptTaskRunnerJulia runner) {
-        //        y = [1,2,3,4,5,6,7,8,9,10]
-        final double[] y = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        //        x = [1.1 1.2 1.3;2.1 2.2 2.3;1.2 1.5 1.6;1.7 1.4 5.6;1.5 5.7 2.6;5.7 3.6 5.1;5.4 6.1 7.4;3.6 3.6 3.5;7.8 4.6 3.1;5.1 3.2 6.3]
-        final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
-                { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
-                { 5.1, 3.2, 6.3 } };
-        final double[] efficienciesRaw = new SfrontiersScriptTask(y, x).run(runner);
-        final List<Decimal> efficiencies = new ArrayList<Decimal>();
-        for (final double efficiency : efficienciesRaw) {
-            efficiencies.add(new Decimal(efficiency));
-        }
-        Assertions.assertThat(efficiencies)
-                .isEqualTo(Arrays.asList(new Decimal("0.9999999999990773"), new Decimal("0.9999999999990772"),
-                        new Decimal("0.9999999999990774"), new Decimal("0.9999999999990773"),
-                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990774"),
-                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990773"),
-                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990773")));
-    }
-
+    //    @Disabled
     @Test
     public void testJajub() {
         for (int i = 0; i < ITERATIONS; i++) {
@@ -93,6 +74,26 @@ public class SfrontiersScriptTaskTest extends ATest {
             run(libjuliacljScriptTaskRunner);
             log.info("------------------------");
         }
+    }
+
+    private void run(final IScriptTaskRunnerJulia runner) {
+        //        y = [1,2,3,4,5,6,7,8,9,10]
+        final double[] y = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        //        x = [1.1 1.2 1.3;2.1 2.2 2.3;1.2 1.5 1.6;1.7 1.4 5.6;1.5 5.7 2.6;5.7 3.6 5.1;5.4 6.1 7.4;3.6 3.6 3.5;7.8 4.6 3.1;5.1 3.2 6.3]
+        final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
+                { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
+                { 5.1, 3.2, 6.3 } };
+        final double[] efficienciesRaw = new SfrontiersScriptTask(y, x).run(runner);
+        final List<Decimal> efficiencies = new ArrayList<Decimal>();
+        for (final double efficiency : efficienciesRaw) {
+            efficiencies.add(new Decimal(efficiency));
+        }
+        Assertions.assertThat(efficiencies)
+                .isEqualTo(Arrays.asList(new Decimal("0.9999999999990773"), new Decimal("0.9999999999990772"),
+                        new Decimal("0.9999999999990774"), new Decimal("0.9999999999990773"),
+                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990774"),
+                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990773"),
+                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990773")));
     }
 
     @Test
@@ -179,7 +180,8 @@ public class SfrontiersScriptTaskTest extends ATest {
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage())
                     .containsAnyOf("BoundsError(Float64[], (1,))",
-                            "attempt to access 0-element Array{Float64,1} at index [1]");
+                            "attempt to access 0-element Array{Float64,1} at index [1]",
+                            "attempt to access 0-element Vector{Float64} at index [1]");
         }
     }
 
