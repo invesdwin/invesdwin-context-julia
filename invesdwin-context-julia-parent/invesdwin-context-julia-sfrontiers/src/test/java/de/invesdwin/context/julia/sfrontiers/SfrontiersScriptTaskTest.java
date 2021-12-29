@@ -88,7 +88,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         }
         for (int i = 0; i < x.length; i++) {
             final double[] row = x[i];
-            for (final int j = 0; j < row.length; i++) {
+            for (int j = 0; j < row.length; j++) {
                 row[j] = -row[j];
             }
         }
@@ -104,15 +104,6 @@ public class SfrontiersScriptTaskTest extends ATest {
     public void testSingularException() {
         final double[] y = { 1, 2, 3 };
         final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 } };
-        for (int i = 0; i < y.length; i++) {
-            y[i] = -y[i];
-        }
-        for (int i = 0; i < x.length; i++) {
-            final double[] row = x[i];
-            for (final int j = 0; j < row.length; i++) {
-                row[j] = -row[j];
-            }
-        }
         try {
             new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
