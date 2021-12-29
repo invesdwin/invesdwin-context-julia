@@ -8,7 +8,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -49,11 +48,8 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                             FTimeUnit.MILLISECONDS.sleep(1);
                         }
                     }
-                } catch (final Exception e) {
-                    if (errorThread == null) {
-                        return;
-                    }
-                    throw Err.process(e);
+                } catch (final Throwable e) {
+                    //ignore
                 }
             }
         });
