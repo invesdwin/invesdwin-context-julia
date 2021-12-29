@@ -26,6 +26,7 @@ import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Booleans;
 
 /**
@@ -75,14 +76,34 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        eval("using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        evalUnchecked(
+                "using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
+        evalUnchecked("function j4j_exec(cmd) open(\"" + outputFilePath
+                + "\", \"w\") do io; try eval(Meta.parse(cmd)) catch err @error err; showerror(io, err); end; end; end");
+        evalUnchecked("function j4j_get(cmd) open(\"" + outputFilePath
+                + "\", \"w\") do io; try __ans__ = eval(Meta.parse(cmd)); write(io, JSON.json(__ans__)); catch err @error err; showerror(io, err); end; end; end;");
         this.resetContext.init();
         initialized = true;
     }
 
     @Override
-    public void eval(final String eval) {
-        final String command = eval + ";\ntrue";
+    public void exec(final String eval) {
+        final String command = "j4j_exec(\"begin "
+                + Strings.normalizeNewlines(eval.trim()).replace("\n", "\\n").replace("\"", "\\\"")
+                + "\\nend\");\ntrue";
+        IScriptTaskRunnerJulia.LOG.debug("> exec %s", eval);
+        final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
+        try {
+            assertResponseNotNull(eval, value);
+            final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
+            assertResponseSuccess(eval, success);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void evalUnchecked(final String eval) {
+        final String command = eval + "; true";
         IScriptTaskRunnerJulia.LOG.debug("> eval %s", eval);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
@@ -94,17 +115,9 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         }
     }
 
-    private void assertResponseNotNull(final String command, final SWIGTYPE_p_jl_value_t value) throws IOException {
-        if (value == null) {
-            throw new IllegalStateException(
-                    "Command [" + command + "] returned null response which might be caused by a parser error");
-        }
-    }
-
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "open(\"" + outputFilePath + "\", \"w\") do io; write(io, JSON.json(" + variable
-                + ")) end; true";
+        final String command = "j4j_get(\"" + variable + "\"); true";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
@@ -124,9 +137,18 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         }
     }
 
+    private void assertResponseNotNull(final String command, final SWIGTYPE_p_jl_value_t value) throws IOException {
+        if (value == null) {
+            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
+            throw new IllegalStateException("Command [" + command
+                    + "] returned null response which might be caused by a parser error: " + error);
+        }
+    }
+
     private void assertResponseSuccess(final String command, final boolean success) throws IOException {
         if (!success) {
-            throw new IllegalStateException("Command [" + command + "] returned a false response");
+            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
+            throw new IllegalStateException("Command [" + command + "] returned a false response: " + error);
         }
     }
 

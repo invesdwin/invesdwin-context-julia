@@ -6,7 +6,7 @@ import de.invesdwin.util.concurrent.lock.IReentrantLock;
 
 public interface IJuliaEngineWrapper {
 
-    void eval(String command);
+    void exec(String command);
 
     JsonNode getAsJsonNode(String variable);
 

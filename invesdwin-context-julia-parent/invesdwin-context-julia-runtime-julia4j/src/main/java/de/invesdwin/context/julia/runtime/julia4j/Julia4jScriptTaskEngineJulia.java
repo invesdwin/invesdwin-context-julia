@@ -23,7 +23,7 @@ public class Julia4jScriptTaskEngineJulia implements IScriptTaskEngine {
 
     @Override
     public void eval(final String expression) {
-        juliaEngine.eval(expression);
+        juliaEngine.exec(expression);
     }
 
     @Override

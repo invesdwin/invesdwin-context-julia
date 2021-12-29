@@ -31,8 +31,8 @@ public final class ExecutorJuliaEngineWrapper implements IJuliaEngineWrapper {
     }
 
     @Override
-    public void eval(final String command) {
-        final Future<?> future = executor.submit(() -> delegate.eval(command));
+    public void exec(final String command) {
+        final Future<?> future = executor.submit(() -> delegate.exec(command));
         Futures.waitNoInterrupt(future);
     }
 
