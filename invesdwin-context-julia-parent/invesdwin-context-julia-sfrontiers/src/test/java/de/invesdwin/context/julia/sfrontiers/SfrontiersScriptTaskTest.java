@@ -97,7 +97,10 @@ public class SfrontiersScriptTaskTest extends ATest {
         for (final Double optimalFStr : optimalFsRaw) {
             optimalFs.add(new Decimal(optimalFStr).round(3));
         }
-        Assertions.assertThat(optimalFs).isEqualTo(Arrays.asList(Decimal.ZERO, Decimal.ZERO));
+        Assertions.assertThat(optimalFs)
+                .isEqualTo(Arrays.asList(new Decimal("0.637"), new Decimal("0.654"), new Decimal("0.315"),
+                        new Decimal("0.31"), new Decimal("0.206"), new Decimal("0.57"), new Decimal("0.527"),
+                        new Decimal("0.045"), new Decimal("0.277"), new Decimal("0.028")));
     }
 
     @Test
@@ -108,7 +111,7 @@ public class SfrontiersScriptTaskTest extends ATest {
             new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("No trades!");
+            Assertions.assertThat(t.getMessage()).contains("Error: LinearAlgebra.SingularException(3)");
         }
     }
 
@@ -156,7 +159,7 @@ public class SfrontiersScriptTaskTest extends ATest {
             new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("No trades!");
+            Assertions.assertThat(t.getMessage()).contains("Error: BoundsError(Float64[], (1,))");
         }
     }
 
