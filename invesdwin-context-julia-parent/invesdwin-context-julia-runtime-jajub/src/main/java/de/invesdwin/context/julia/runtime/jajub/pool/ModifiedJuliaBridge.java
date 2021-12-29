@@ -1,6 +1,5 @@
 package de.invesdwin.context.julia.runtime.jajub.pool;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,6 +12,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
+import de.invesdwin.context.julia.runtime.jajub.JajubProperties;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.lang.Closeables;
@@ -57,7 +57,7 @@ public class ModifiedJuliaBridge {
      */
     public ModifiedJuliaBridge() {
         final List<String> j = new ArrayList<String>();
-        j.add(getJuliaExec());
+        j.add(JajubProperties.JULIA_COMMAND);
         j.addAll(Arrays.asList(JULIA_ARGS));
         jbuilder = new ProcessBuilder(j);
     }
@@ -297,23 +297,6 @@ public class ModifiedJuliaBridge {
         } else {
             return "raw\"" + value.replace("\"", "\\\"") + "\"";
         }
-    }
-
-    private String getJuliaExec() {
-        final String jhome = System.getenv("JULIA_HOME");
-        if (jhome != null) {
-            try {
-                for (final String name : JULIA_EXEC) {
-                    final File f = new File(jhome, name);
-                    if (f.canExecute()) {
-                        return f.getCanonicalPath();
-                    }
-                }
-            } catch (final IOException ex) {
-                // do nothing
-            }
-        }
-        return "julia";
     }
 
     private void write(final String s) throws IOException {

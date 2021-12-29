@@ -8,6 +8,7 @@ import javax.inject.Named;
 import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.integration.network.NetworkUtil;
+import de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerProperties;
 import de.invesdwin.util.concurrent.pool.timeout.ATimeoutObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
@@ -35,7 +36,7 @@ public final class JuliaCallerObjectPool extends ATimeoutObjectPool<ExtendedJuli
     @Override
     protected ExtendedJuliaCaller newObject() {
         final int port = NetworkUtil.findAvailableTcpPort();
-        final ExtendedJuliaCaller session = new ExtendedJuliaCaller("julia", port);
+        final ExtendedJuliaCaller session = new ExtendedJuliaCaller(JuliaCallerProperties.JULIA_COMMAND, port);
         try {
             session.startServer();
             session.connect();
