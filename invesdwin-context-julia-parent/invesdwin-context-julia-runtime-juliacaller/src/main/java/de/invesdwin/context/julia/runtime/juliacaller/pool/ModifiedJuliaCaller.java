@@ -135,12 +135,14 @@ public class ModifiedJuliaCaller {
         bufferedWriterForSocket
                 .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n") + "\\nend"));
         bufferedWriterForSocket.newLine();
+        bufferedWriterForSocket.flush();
         checkError();
     }
 
     public void exitSession() throws IOException {
         bufferedWriterForSocket.write("exit");
         bufferedWriterForSocket.newLine();
+        bufferedWriterForSocket.flush();
     }
 
     public void shutdownServer() throws IOException {
@@ -148,6 +150,7 @@ public class ModifiedJuliaCaller {
         watcher = null;
         bufferedWriterForSocket.write("shutdown");
         bufferedWriterForSocket.newLine();
+        bufferedWriterForSocket.flush();
     }
 
     public JsonNode getAsJsonNode(final String varname) throws IOException {
