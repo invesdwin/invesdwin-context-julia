@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -22,7 +21,6 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 /**
@@ -35,8 +33,7 @@ public class ModifiedJuliaCaller {
     private final String pathToJulia;
     private final ObjectMapper objectMapper;
     private Socket socket;
-    private BufferedWriter bufferedWriterForJuliaConsole;
-    private OutputStream writerForSocket;
+    private BufferedWriter bufferedWriterForJuliaConsole, bufferedWriterForSocket;
     private InputStream readerForSocket;
     private final int port;
     private int maximumTriesToConnect = 300;
@@ -123,7 +120,7 @@ public class ModifiedJuliaCaller {
             }
         }
         if (connected) {
-            writerForSocket = socket.getOutputStream();
+            bufferedWriterForSocket = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             readerForSocket = socket.getInputStream();
         } else {
             throw new IllegalStateException(
@@ -135,30 +132,29 @@ public class ModifiedJuliaCaller {
         IScriptTaskRunnerJulia.LOG.trace("execute: Sending '%s'", command);
         //WORKAROUND: begin/end make sure that multiple lines are executed together, also newlines need to be escaped
         //without this we get: Error: Base.Meta.ParseError("extra token after end of expression")
-        final StringBuilder msg = new StringBuilder("execute begin ");
-        msg.append(Strings.normalizeNewlines(command.replace("\n", "\\n")));
-        msg.append("\\nend");
-        OutputStreams.writeUTF(writerForSocket, msg.toString());
+        bufferedWriterForSocket
+                .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n") + "\\nend"));
+        bufferedWriterForSocket.newLine();
         checkError();
     }
 
     public void exitSession() throws IOException {
-        writerForSocket.write("exit\n".getBytes());
+        bufferedWriterForSocket.write("exit");
+        bufferedWriterForSocket.newLine();
     }
 
     public void shutdownServer() throws IOException {
         watcher.close();
         watcher = null;
-        OutputStreams.writeUTF(writerForSocket, "shutdown\n");
+        bufferedWriterForSocket.write("shutdown");
+        bufferedWriterForSocket.newLine();
     }
 
     public JsonNode getAsJsonNode(final String varname) throws IOException {
         IScriptTaskRunnerJulia.LOG.trace("getAsJsonNode: Requesting variable %s", varname);
-        final StringBuilder msg = new StringBuilder("get ");
-        msg.append(varname);
-        msg.append("\n");
-        OutputStreams.writeUTF(writerForSocket, msg.toString());
-        writerForSocket.flush();
+        bufferedWriterForSocket.write("get " + varname);
+        bufferedWriterForSocket.newLine();
+        bufferedWriterForSocket.flush();
         final String result = readLine();
         checkError();
         if (result == null) {

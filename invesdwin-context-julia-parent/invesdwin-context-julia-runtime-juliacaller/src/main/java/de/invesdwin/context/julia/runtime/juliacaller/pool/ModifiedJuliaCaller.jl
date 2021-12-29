@@ -78,6 +78,9 @@ begin
 				close(client)
 				close(server)
 				break
+			else
+				# sleep 1 ms to not use too much cpu
+				sleep(0.001)
 			end
 		end
 		close(client)
@@ -108,6 +111,8 @@ begin
 				writeln("Closed connection and server, exiting")
 				break
 			end
+			# sleep 1 ms to not use too much cpu
+			sleep(0.001)
 		end
 	end
 
