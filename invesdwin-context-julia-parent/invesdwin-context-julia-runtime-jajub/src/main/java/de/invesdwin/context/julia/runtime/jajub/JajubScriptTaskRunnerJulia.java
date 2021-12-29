@@ -44,7 +44,8 @@ public final class JajubScriptTaskRunnerJulia
             JajubObjectPool.INSTANCE.returnObject(juliaCaller);
             return result;
         } catch (final Throwable t) {
-            JajubObjectPool.INSTANCE.destroyObject(juliaCaller);
+            //don't destroy instances because of normal validation errors, julia compilation is too much overhead
+            JajubObjectPool.INSTANCE.returnObject(juliaCaller);
             throw Throwables.propagate(t);
         }
     }
