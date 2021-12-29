@@ -48,6 +48,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         //        initParams.put("n-threads", 8);
         //        initParams.put("signals-enabled?", false);
         initParams.put("julia-home", LibjuliacljProperties.JULIA_HOME.getAbsolutePath());
+        initParams.put("n-threads", Executors.getCpuThreadPoolCount());
         final Object result = libjulia_clj.java_api.initialize(initParams);
         final String resultStr = String.valueOf(result);
         if (!":ok".equals(resultStr)) {
