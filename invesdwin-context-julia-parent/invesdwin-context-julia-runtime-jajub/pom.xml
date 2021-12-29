@@ -21,11 +21,6 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>com.github.org-arl</groupId>
-			<artifactId>jajub</artifactId>
-		</dependency>
 	</dependencies>
 
 </project>

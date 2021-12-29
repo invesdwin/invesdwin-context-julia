@@ -139,13 +139,6 @@ public class ModifiedJuliaCaller {
         checkError();
     }
 
-    public void checkError() {
-        final String error = getWatcher().getErrorMessage();
-        if (error != null) {
-            throw new IllegalStateException(error);
-        }
-    }
-
     public void exitSession() throws IOException {
         bufferedWriterForSocket.write("exit");
         bufferedWriterForSocket.newLine();
@@ -166,7 +159,7 @@ public class ModifiedJuliaCaller {
         final String result = bufferedReaderForSocket.readLine();
         checkError();
         if (result == null) {
-            readErrorDelayed();
+            checkErrorDelayed();
         }
         try {
             final JsonNode node = objectMapper.readTree(result).get(varname);
@@ -176,12 +169,12 @@ public class ModifiedJuliaCaller {
                 return node;
             }
         } catch (final Throwable t) {
-            readErrorDelayed();
+            checkErrorDelayed();
             throw t;
         }
     }
 
-    private void readErrorDelayed() {
+    private void checkErrorDelayed() {
         //give a bit of time to read the actual error
         try {
             FTimeUnit.MILLISECONDS.sleep(10);
@@ -189,6 +182,13 @@ public class ModifiedJuliaCaller {
             throw new RuntimeException(e);
         }
         checkError();
+    }
+
+    private void checkError() {
+        final String error = getWatcher().getErrorMessage();
+        if (error != null) {
+            throw new IllegalStateException(error);
+        }
     }
 
 }

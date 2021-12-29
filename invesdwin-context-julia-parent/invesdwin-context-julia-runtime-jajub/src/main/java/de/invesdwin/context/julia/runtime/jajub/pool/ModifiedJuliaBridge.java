@@ -1,12 +1,9 @@
 package de.invesdwin.context.julia.runtime.jajub.pool;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,13 +11,6 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.arl.jajub.ByteArray;
-import org.arl.jajub.DoubleArray;
-import org.arl.jajub.FloatArray;
-import org.arl.jajub.IntegerArray;
-import org.arl.jajub.JuliaExpr;
-import org.arl.jajub.LongArray;
-import org.arl.jajub.ShortArray;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.Executors;
@@ -54,9 +44,11 @@ public class ModifiedJuliaBridge {
     private final ProcessBuilder jbuilder;
     private Process julia = null;
     private InputStream inp = null;
-    private InputStream err = null;
+    private ModifiedJuliaErrorConsoleWatcher errWatcher = null;
     private OutputStream out = null;
     private String ver = null;
+
+    private final List<String> rsp = new ArrayList<>();
 
     ////// public API
 
@@ -84,6 +76,10 @@ public class ModifiedJuliaBridge {
         return julia != null;
     }
 
+    public ModifiedJuliaErrorConsoleWatcher getErrWatcher() {
+        return errWatcher;
+    }
+
     /**
      * Starts the Julia process.
      *
@@ -96,7 +92,8 @@ public class ModifiedJuliaBridge {
         }
         julia = jbuilder.start();
         inp = julia.getInputStream();
-        err = julia.getErrorStream();
+        errWatcher = new ModifiedJuliaErrorConsoleWatcher(julia);
+        errWatcher.startWatching();
         out = julia.getOutputStream();
         while (true) {
             final String s = readline(timeout);
@@ -134,8 +131,8 @@ public class ModifiedJuliaBridge {
         julia = null;
         Closeables.closeQuietly(inp);
         inp = null;
-        Closeables.closeQuietly(err);
-        err = null;
+        Closeables.closeQuietly(errWatcher);
+        errWatcher = null;
         Closeables.closeQuietly(out);
         out = null;
         ver = null;
@@ -157,8 +154,8 @@ public class ModifiedJuliaBridge {
      *            timeout in milliseconds.
      * @return output (stdout + stderr).
      */
-    public List<String> exec(final String jcode, final Duration timeout) {
-        final List<String> rsp = new ArrayList<String>();
+    public void exec(final String jcode, final Duration timeout) {
+        rsp.clear();
         try {
             flush();
             IScriptTaskRunnerJulia.LOG.debug("> " + jcode);
@@ -173,7 +170,7 @@ public class ModifiedJuliaBridge {
                     continue;
                 }
                 if (s.equals(TERMINATOR)) {
-                    return rsp;
+                    return;
                 }
                 rsp.add(s);
             }
@@ -182,43 +179,6 @@ public class ModifiedJuliaBridge {
         } catch (final IOException ex) {
             throw new RuntimeException("JuliaBridge connection broken", ex);
         }
-        return rsp;
-    }
-
-    /**
-     * Executes Julia code and returns the output.
-     *
-     * @param jcode
-     *            Julia code to run.
-     * @param timeout
-     *            timeout in milliseconds.
-     * @return output (stdout + stderr).
-     */
-    public List<String> exec(final JuliaExpr jcode, final Duration timeout) {
-        return exec(jcode.toString(), timeout);
-    }
-
-    /**
-     * Executes Julia code and returns the output.
-     *
-     * @param istream
-     *            input stream to read Julia code from.
-     * @param timeout
-     *            timeout in milliseconds.
-     * @return output (stdout + stderr).
-     */
-    public List<String> exec(final InputStream istream, final Duration timeout) throws IOException {
-        final StringBuilder sb = new StringBuilder();
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(istream));
-        while (true) {
-            final String s = reader.readLine();
-            if (s == null) {
-                break;
-            }
-            sb.append(s);
-            sb.append('\n');
-        }
-        return exec(sb.toString(), timeout);
     }
 
     /**
@@ -228,30 +188,8 @@ public class ModifiedJuliaBridge {
      *            Julia code to run
      * @return output (stdout + stderr).
      */
-    public List<String> exec(final String jcode) {
-        return exec(jcode, TIMEOUT);
-    }
-
-    /**
-     * Executes Julia code and returns the output.
-     *
-     * @param jcode
-     *            Julia code to run
-     * @return output (stdout + stderr).
-     */
-    public List<String> exec(final JuliaExpr jcode) {
-        return exec(jcode.toString(), TIMEOUT);
-    }
-
-    /**
-     * Executes Julia code and returns the output.
-     *
-     * @param istream
-     *            input stream to read Julia code from.
-     * @return output (stdout + stderr).
-     */
-    public List<String> exec(final InputStream istream) throws IOException {
-        return exec(istream, TIMEOUT);
+    public void exec(final String jcode) {
+        exec(jcode, TIMEOUT);
     }
 
     /**
@@ -262,49 +200,9 @@ public class ModifiedJuliaBridge {
      * @param value
      *            value to bind to the variable.
      */
-    public void set(final String varname, final Object value) {
-        try {
-            final String s = jexpr(value);
-            if (s != null) {
-                exec(varname + " = " + s);
-            } else if (value instanceof LongArray) {
-                writeNumeric(varname, ((LongArray) value).data, ((LongArray) value).dims,
-                        ((LongArray) value).isComplex);
-            } else if (value instanceof IntegerArray) {
-                writeNumeric(varname, ((IntegerArray) value).data, ((IntegerArray) value).dims,
-                        ((IntegerArray) value).isComplex);
-            } else if (value instanceof ShortArray) {
-                writeNumeric(varname, ((ShortArray) value).data, ((ShortArray) value).dims,
-                        ((ShortArray) value).isComplex);
-            } else if (value instanceof ByteArray) {
-                writeNumeric(varname, ((ByteArray) value).data, ((ByteArray) value).dims,
-                        ((ByteArray) value).isComplex);
-            } else if (value instanceof DoubleArray) {
-                writeNumeric(varname, ((DoubleArray) value).data, ((DoubleArray) value).dims,
-                        ((DoubleArray) value).isComplex);
-            } else if (value instanceof FloatArray) {
-                writeNumeric(varname, ((FloatArray) value).data, ((FloatArray) value).dims,
-                        ((FloatArray) value).isComplex);
-            } else if (value instanceof long[]) {
-                writeNumeric(varname, (long[]) value, new int[] { ((long[]) value).length }, false);
-            } else if (value instanceof int[]) {
-                writeNumeric(varname, (int[]) value, new int[] { ((int[]) value).length }, false);
-            } else if (value instanceof short[]) {
-                writeNumeric(varname, (short[]) value, new int[] { ((short[]) value).length }, false);
-            } else if (value instanceof byte[]) {
-                writeNumeric(varname, (byte[]) value, new int[] { ((byte[]) value).length }, false);
-            } else if (value instanceof double[]) {
-                writeNumeric(varname, (double[]) value, new int[] { ((double[]) value).length }, false);
-            } else if (value instanceof float[]) {
-                writeNumeric(varname, (float[]) value, new int[] { ((float[]) value).length }, false);
-            } else {
-                throw new RuntimeException("Unsupported type: " + value.getClass().getName());
-            }
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        } catch (final IOException ex) {
-            throw new RuntimeException("JuliaBridge connection broken", ex);
-        }
+    public void set(final String varname, final String value) {
+        final String s = jexpr(value);
+        exec(varname + " = " + s);
     }
 
     /**
@@ -317,15 +215,12 @@ public class ModifiedJuliaBridge {
     //CHECKSTYLE:OFF
     public Object get(final String varname) {
         //CHECKSTYLE:ON
-        List<String> rsp = exec("__ans__ = " + varname + "; println(__type__(__ans__))");
+        exec("__ans__ = " + varname + "; println(__type__(__ans__))");
         if (rsp.size() < 1) {
             throw new RuntimeException("Invalid response from Julia REPL: " + rsp);
         }
         //WORKAROUND: always extract the last output as the type because the executed code might have printed another line
         String type = rsp.get(rsp.size() - 1);
-        if (type.contains("ERROR: UndefVarError")) {
-            return null;
-        }
         if ("Nothing".equals(type)) {
             return null;
         }
@@ -334,7 +229,7 @@ public class ModifiedJuliaBridge {
         }
         try {
             if ("String".equals(type) || "Char".equals(type)) {
-                rsp = exec("println(sizeof(__ans__))");
+                exec("println(sizeof(__ans__))");
                 if (rsp.size() < 1) {
                     throw new RuntimeException("Invalid response from Julia REPL");
                 }
@@ -353,7 +248,7 @@ public class ModifiedJuliaBridge {
                 final int d = Integer.parseInt(type.substring(p + 1, type.length() - 1));
                 dims = new int[d];
                 type = type.substring(6, p);
-                rsp = exec("println(size(" + varname + "))");
+                exec("println(size(" + varname + "))");
                 if (rsp.size() < 1) {
                     throw new RuntimeException("Invalid response from Julia REPL");
                 }
@@ -372,42 +267,6 @@ public class ModifiedJuliaBridge {
                 }
             }
             write("write(stdout, " + varname + ")");
-            if ("Int64".equals(type)) {
-                return readNumeric(8, false, dims, false);
-            }
-            if ("Int32".equals(type)) {
-                return readNumeric(4, false, dims, false);
-            }
-            if ("Int16".equals(type)) {
-                return readNumeric(2, false, dims, false);
-            }
-            if ("Int8".equals(type)) {
-                return readNumeric(1, false, dims, false);
-            }
-            if ("Float64".equals(type)) {
-                return readNumeric(8, true, dims, false);
-            }
-            if ("Float32".equals(type)) {
-                return readNumeric(4, true, dims, false);
-            }
-            if ("Complex{Int64}".equals(type)) {
-                return readNumeric(8, false, dims, true);
-            }
-            if ("Complex{Int32}".equals(type)) {
-                return readNumeric(4, false, dims, true);
-            }
-            if ("Complex{Int16}".equals(type)) {
-                return readNumeric(2, false, dims, true);
-            }
-            if ("Complex{Int8}".equals(type)) {
-                return readNumeric(1, false, dims, true);
-            }
-            if ("Complex{Float64}".equals(type)) {
-                return readNumeric(8, true, dims, true);
-            }
-            if ("Complex{Float32}".equals(type)) {
-                return readNumeric(4, true, dims, true);
-            }
             throw new RuntimeException("Unsupported type " + type);
         } catch (final InterruptedException ex) {
             Thread.currentThread().interrupt();
@@ -431,267 +290,13 @@ public class ModifiedJuliaBridge {
     ////// private stuff
 
     //CHECKSTYLE:OFF
-    private String jexpr(final Object value) {
+    private String jexpr(final String value) {
         //CHECKSTYLE:ON
         if (value == null) {
             return "nothing";
-        }
-        if (value instanceof JuliaExpr) {
-            return value.toString();
-        }
-        if (value instanceof String) {
-            return "raw\"" + ((String) value).replace("\"", "\\\"") + "\"";
-        }
-        if (value instanceof Long) {
-            return "Int64(" + value + ")";
-        }
-        if (value instanceof Integer) {
-            return "Int32(" + value + ")";
-        }
-        if (value instanceof Short) {
-            return "Int16(" + value + ")";
-        }
-        if (value instanceof Byte) {
-            return "Int8(" + value + ")";
-        }
-        if (value instanceof Double) {
-            return "Float64(" + value + ")";
-        }
-        if (value instanceof Float) {
-            return "Float32(" + value + ")";
-        }
-        return null;
-    }
-
-    private Object readNumeric(final int nbytes, final boolean fp) throws IOException, InterruptedException {
-        final byte[] buf = new byte[nbytes];
-        read(buf, TIMEOUT);
-        if (nbytes == 1) {
-            return buf[0];
-        }
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(buf).order(ByteOrder.nativeOrder());
-        if (fp) {
-            switch (nbytes) {
-            case 4:
-                return bb.asFloatBuffer().get();
-            case 8:
-                return bb.asDoubleBuffer().get();
-            default:
-                //noop
-            }
         } else {
-            switch (nbytes) {
-            case 2:
-                return bb.asShortBuffer().get();
-            case 4:
-                return bb.asIntBuffer().get();
-            case 8:
-                return bb.asLongBuffer().get();
-            default:
-                //noop
-            }
+            return "raw\"" + value.replace("\"", "\\\"") + "\"";
         }
-        return null;
-    }
-
-    //CHECKSTYLE:OFF
-    private Object readNumeric(final int nbytes, final boolean fp, int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        //CHECKSTYLE:ON
-        if (dims == null && !cplx) {
-            return readNumeric(nbytes, fp);
-        }
-        int nelem = 1;
-        if (dims == null) {
-            //CHECKSTYLE:OFF
-            dims = new int[0];
-            //CHECKSTYLE:ON
-        }
-        for (int i = 0; i < dims.length; i++) {
-            nelem *= dims[i];
-        }
-        if (cplx) {
-            nelem *= 2;
-        }
-        final byte[] buf = new byte[nbytes * nelem];
-        read(buf, TIMEOUT);
-        if (nbytes == 1) {
-            final ByteArray a = new ByteArray();
-            a.data = buf;
-            a.dims = dims;
-            a.isComplex = cplx;
-            return a;
-        }
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(buf).order(ByteOrder.nativeOrder());
-        if (fp) {
-            switch (nbytes) {
-            case 4: {
-                final float[] data = new float[nelem];
-                bb.asFloatBuffer().get(data);
-                final FloatArray a = new FloatArray();
-                a.data = data;
-                a.dims = dims;
-                a.isComplex = cplx;
-                return a;
-            }
-            case 8: {
-                final double[] data = new double[nelem];
-                bb.asDoubleBuffer().get(data);
-                final DoubleArray a = new DoubleArray();
-                a.data = data;
-                a.dims = dims;
-                a.isComplex = cplx;
-                return a;
-            }
-            default:
-                //noop
-            }
-        } else {
-            switch (nbytes) {
-            case 2: {
-                final short[] data = new short[nelem];
-                bb.asShortBuffer().get(data);
-                final ShortArray a = new ShortArray();
-                a.data = data;
-                a.dims = dims;
-                a.isComplex = cplx;
-                return a;
-            }
-            case 4: {
-                final int[] data = new int[nelem];
-                bb.asIntBuffer().get(data);
-                final IntegerArray a = new IntegerArray();
-                a.data = data;
-                a.dims = dims;
-                a.isComplex = cplx;
-                return a;
-            }
-            case 8: {
-                final long[] data = new long[nelem];
-                bb.asLongBuffer().get(data);
-                final LongArray a = new LongArray();
-                a.data = data;
-                a.dims = dims;
-                a.isComplex = cplx;
-                return a;
-            }
-            default:
-                //noop
-            }
-        }
-        return null;
-    }
-
-    private void checkArrayDims(final int len, final int[] dims, final boolean cplx) {
-        int nelem = 1;
-        for (int i = 0; i < dims.length; i++) {
-            nelem *= dims[i];
-        }
-        if (cplx) {
-            nelem *= 2;
-        }
-        if (nelem != len) {
-            throw new RuntimeException("Bad array dimensions");
-        }
-    }
-
-    private String buildArrayWriter(final String varname, final String type, final int[] dims) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(varname);
-        sb.append(" = Array{");
-        sb.append(type);
-        sb.append("}(undef");
-        for (int i = 0; i < dims.length; i++) {
-            sb.append(", ");
-            sb.append(dims[i]);
-        }
-        sb.append("); read!(stdin, ");
-        sb.append(varname);
-        sb.append("); ");
-        sb.append(TERMINATOR);
-        return sb.toString();
-    }
-
-    private void waitUntilTerminator() throws IOException, InterruptedException {
-        while (true) {
-            final String s = readline(TIMEOUT);
-            if (s == null || s.equals(TERMINATOR)) {
-                return;
-            }
-        }
-    }
-
-    private void writeNumeric(final String varname, final long[] data, final int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        checkArrayDims(data.length, dims, cplx);
-        write(buildArrayWriter(varname, cplx ? "Complex{Int64}" : "Int64", dims));
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(data.length * 8);
-        bb.order(ByteOrder.nativeOrder());
-        for (int i = 0; i < data.length; i++) {
-            bb.putLong(data[i]);
-        }
-        write(bb.array());
-        waitUntilTerminator();
-    }
-
-    private void writeNumeric(final String varname, final int[] data, final int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        checkArrayDims(data.length, dims, cplx);
-        write(buildArrayWriter(varname, cplx ? "Complex{Int32}" : "Int32", dims));
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(data.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        for (int i = 0; i < data.length; i++) {
-            bb.putInt(data[i]);
-        }
-        write(bb.array());
-        waitUntilTerminator();
-    }
-
-    private void writeNumeric(final String varname, final short[] data, final int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        checkArrayDims(data.length, dims, cplx);
-        write(buildArrayWriter(varname, cplx ? "Complex{Int16}" : "Int16", dims));
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(data.length * 2);
-        bb.order(ByteOrder.nativeOrder());
-        for (int i = 0; i < data.length; i++) {
-            bb.putShort(data[i]);
-        }
-        write(bb.array());
-        waitUntilTerminator();
-    }
-
-    private void writeNumeric(final String varname, final byte[] data, final int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        checkArrayDims(data.length, dims, cplx);
-        write(buildArrayWriter(varname, cplx ? "Complex{Int8}" : "Int8", dims));
-        write(data);
-        waitUntilTerminator();
-    }
-
-    private void writeNumeric(final String varname, final double[] data, final int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        checkArrayDims(data.length, dims, cplx);
-        write(buildArrayWriter(varname, cplx ? "Complex{Float64}" : "Float64", dims));
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(data.length * 8);
-        bb.order(ByteOrder.nativeOrder());
-        for (int i = 0; i < data.length; i++) {
-            bb.putDouble(data[i]);
-        }
-        write(bb.array());
-        waitUntilTerminator();
-    }
-
-    private void writeNumeric(final String varname, final float[] data, final int[] dims, final boolean cplx)
-            throws IOException, InterruptedException {
-        checkArrayDims(data.length, dims, cplx);
-        write(buildArrayWriter(varname, cplx ? "Complex{Float32}" : "Float32", dims));
-        final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(data.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        for (int i = 0; i < data.length; i++) {
-            bb.putFloat(data[i]);
-        }
-        write(bb.array());
-        waitUntilTerminator();
     }
 
     private String getJuliaExec() {
@@ -714,13 +319,6 @@ public class ModifiedJuliaBridge {
     private void write(final String s) throws IOException {
         IScriptTaskRunnerJulia.LOG.debug("> " + s);
         out.write(s.getBytes());
-        out.write(NEW_LINE);
-        out.flush();
-    }
-
-    private void write(final byte[] b) throws IOException {
-        //        IScriptTaskRunnerJulia.LOG.debug("> (" + (b.length) + " bytes)");
-        out.write(b);
         out.write(NEW_LINE);
         out.flush();
     }
