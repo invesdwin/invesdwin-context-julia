@@ -59,7 +59,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void eval(final String command) {
-        final String adjCommand = command + "; true";
+        final String adjCommand = command + ";\n true";
         IScriptTaskRunnerJulia.LOG.debug("> %s", command);
         final Object result = libjulia_clj.java_api.runString(adjCommand);
         IScriptTaskRunnerJulia.LOG.debug("< %s", result);
