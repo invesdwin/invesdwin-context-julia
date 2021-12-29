@@ -333,7 +333,7 @@ public class ModifiedJuliaBridge {
             return null;
         }
         final String s = readLineBuffer.getStringUtf8(0, readLineBufferPosition);
-        if (Strings.equalsAny(s, TERMINATOR_RAW, TERMINATOR)) {
+        if (!Strings.equalsAny(s, TERMINATOR_RAW, TERMINATOR)) {
             IScriptTaskRunnerJulia.LOG.debug("< %s", s);
         }
         return s;
