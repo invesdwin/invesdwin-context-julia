@@ -9,7 +9,6 @@ import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.pool.ExtendedJuliaBridge;
 import de.invesdwin.context.julia.runtime.jajub.pool.JajubObjectPool;
-import de.invesdwin.context.julia.runtime.juliacaller.pool.JuliaCallerObjectPool;
 import de.invesdwin.util.error.Throwables;
 
 @Immutable
@@ -46,7 +45,7 @@ public final class JajubScriptTaskRunnerJulia
             return result;
         } catch (final Throwable t) {
             //we have to destroy instances on exceptions, otherwise e.g. SFrontiers.jl might get stuck with some inconsistent state
-            JuliaCallerObjectPool.INSTANCE.destroyObject(juliaCaller);
+            JajubObjectPool.INSTANCE.destroyObject(juliaCaller);
             throw Throwables.propagate(t);
         }
     }
