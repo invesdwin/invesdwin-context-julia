@@ -20,8 +20,16 @@ Dependency declaration:
 ## Runtime Integration Modules
 
 We have a few options available for integrating Julia:
-- **invesdwin-context-julia-runtime-juliacaller**: This uses a forked version of [JuliaCaller](https://github.com/jbytecode/juliacaller/issues/1) to fix some compatibility issues. It talks to the julia process via a local socket. Errors are detected by parsing stderr for messages. Though this has the drawback of giving false errors for deprecation warnings.
-- **invesdwin-context-julia-runtime-jajub**: This uses a modified version of [Jajub](https://github.com/org-arl/jajub/issues/2) to make it significantly faster. It talks to the julia process via pipes. Errors are detected by checking for specific protocol messages. This makes it robust against deprecation warnings, but might require debug logging to see the actual errors.
+- **invesdwin-context-julia-runtime-juliacaller**: This uses a forked version of [JuliaCaller](https://github.com/jbytecode/juliacaller/issues/1) to fix some compatibility issues. It talks to the julia process via a local socket. Errors are detected by parsing stderr for messages. This module provides the following configuration options as system properties:
+```properties
+# you can switch to a different julia installation by defining an absolute path here
+de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerProperties.JULIA_COMMAND=julia
+```
+- **invesdwin-context-julia-runtime-jajub**: This uses a forked version of [Jajub](https://github.com/org-arl/jajub/issues/2) to make it significantly faster and make error make error handling better. It talks to the julia process via pipes. Errors are detected by checking for specific protocol messages and by parsing stderr for messages.
+```properties
+# you can switch to a different julia installation by defining an absolute path here
+de.invesdwin.context.julia.runtime.jajub.JajubProperties.JULIA_COMMAND=julia
+```
 - **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It requires an env variable `LD_PRELOAD=/usr/lib/jvm/default-java/lib/libjsig.so` to enable [signal chaining](https://cnuernber.github.io/libjulia-clj/signals.html). Sadly error handling does not give messages about concrete problems and stdout can not be redirected. Currently only linux is supported. This module provides the following configuration options as system properties:
 ```properties
 # specify where the libjulia.so resides on your computer (e.g. /opt/julia/lib/)
