@@ -19,8 +19,8 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
     private final BufferedReader errorReader;
     private final BufferedReader infoReader;
 
-    private Thread errorThread;
-    private Thread infoThread;
+    private volatile Thread errorThread;
+    private volatile Thread infoThread;
 
     @GuardedBy("self")
     private final StringBuilder errorMessage = new StringBuilder();
@@ -34,9 +34,12 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
         errorThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!Threads.isInterrupted()) {
-                    try {
+                try {
+                    while (!Threads.isInterrupted() && errorThread != null) {
                         final String s = errorReader.readLine();
+                        if (errorThread == null) {
+                            return;
+                        }
                         if (Strings.isNotBlank(s)) {
                             synchronized (errorMessage) {
                                 if (errorMessage.length() > 0) {
@@ -48,9 +51,12 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                         } else {
                             FTimeUnit.MILLISECONDS.sleep(1);
                         }
-                    } catch (final Exception e) {
-                        throw Err.process(e);
                     }
+                } catch (final Exception e) {
+                    if (errorThread == null) {
+                        return;
+                    }
+                    throw Err.process(e);
                 }
             }
         });
@@ -58,17 +64,23 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
         infoThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!Threads.isInterrupted()) {
-                    try {
+                try {
+                    while (!Threads.isInterrupted() && infoThread != null) {
                         final String s = infoReader.readLine();
+                        if (infoThread == null) {
+                            return;
+                        }
                         if (Strings.isNotBlank(s)) {
                             IScriptTaskRunnerJulia.LOG.info(s);
                         } else {
                             FTimeUnit.MILLISECONDS.sleep(1);
                         }
-                    } catch (final Exception e) {
-                        throw Err.process(e);
                     }
+                } catch (final Exception e) {
+                    if (infoThread == null) {
+                        return;
+                    }
+                    throw Err.process(e);
                 }
             }
         });

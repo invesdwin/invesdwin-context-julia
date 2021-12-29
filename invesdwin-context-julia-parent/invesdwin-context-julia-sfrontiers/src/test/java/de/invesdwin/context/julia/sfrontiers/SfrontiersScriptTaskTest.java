@@ -179,7 +179,8 @@ public class SfrontiersScriptTaskTest extends ATest {
             new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("Error: BoundsError(Float64[], (1,))");
+            Assertions.assertThat(t.getMessage())
+                    .contains("Error: ArgumentError(\"number of rows of each array must match (got (0, 10))\")");
         }
     }
 
