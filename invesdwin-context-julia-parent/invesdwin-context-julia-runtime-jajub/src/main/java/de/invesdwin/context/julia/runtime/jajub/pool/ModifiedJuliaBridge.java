@@ -25,6 +25,7 @@ import org.arl.jajub.ShortArray;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -53,6 +54,7 @@ public class ModifiedJuliaBridge {
     private final ProcessBuilder jbuilder;
     private Process julia = null;
     private InputStream inp = null;
+    private InputStream err = null;
     private OutputStream out = null;
     private String ver = null;
 
@@ -64,36 +66,6 @@ public class ModifiedJuliaBridge {
     public ModifiedJuliaBridge() {
         final List<String> j = new ArrayList<String>();
         j.add(getJuliaExec());
-        j.addAll(Arrays.asList(JULIA_ARGS));
-        jbuilder = new ProcessBuilder(j);
-    }
-
-    /**
-     * Creates a Java-Julia bridge with custom Julia arguments.
-     *
-     * @param jargs
-     *            custom Julia command-line arguments.
-     */
-    public ModifiedJuliaBridge(final String... jargs) {
-        final List<String> j = new ArrayList<String>();
-        j.add(getJuliaExec());
-        j.addAll(Arrays.asList(jargs));
-        j.addAll(Arrays.asList(JULIA_ARGS));
-        jbuilder = new ProcessBuilder(j);
-    }
-
-    /**
-     * Creates a Java-Julia bridge with custom Julia command and arguments.
-     *
-     * @param jcmd
-     *            custom Julia executable/command.
-     * @param jargs
-     *            custom Julia command-line arguments.
-     */
-    public ModifiedJuliaBridge(final String jcmd, final String... jargs) {
-        final List<String> j = new ArrayList<String>();
-        j.add(jcmd);
-        j.addAll(Arrays.asList(jargs));
         j.addAll(Arrays.asList(JULIA_ARGS));
         jbuilder = new ProcessBuilder(j);
     }
@@ -122,9 +94,9 @@ public class ModifiedJuliaBridge {
         if (isOpen()) {
             return;
         }
-        jbuilder.redirectErrorStream(true);
         julia = jbuilder.start();
         inp = julia.getInputStream();
+        err = julia.getErrorStream();
         out = julia.getOutputStream();
         while (true) {
             final String s = readline(timeout);
@@ -160,7 +132,11 @@ public class ModifiedJuliaBridge {
         }
         julia.destroy();
         julia = null;
+        Closeables.closeQuietly(inp);
         inp = null;
+        Closeables.closeQuietly(err);
+        err = null;
+        Closeables.closeQuietly(out);
         out = null;
         ver = null;
     }
@@ -169,7 +145,6 @@ public class ModifiedJuliaBridge {
      * Gets Julia version.
      */
     public String getJuliaVersion() {
-        openIfNecessary();
         return ver;
     }
 
@@ -183,7 +158,6 @@ public class ModifiedJuliaBridge {
      * @return output (stdout + stderr).
      */
     public List<String> exec(final String jcode, final Duration timeout) {
-        openIfNecessary();
         final List<String> rsp = new ArrayList<String>();
         try {
             flush();
@@ -455,17 +429,6 @@ public class ModifiedJuliaBridge {
     }
 
     ////// private stuff
-
-    private void openIfNecessary() {
-        if (isOpen()) {
-            return;
-        }
-        try {
-            open();
-        } catch (final IOException ex) {
-            throw new RuntimeException("Unable to open JuliaBridge", ex);
-        }
-    }
 
     //CHECKSTYLE:OFF
     private String jexpr(final Object value) {
