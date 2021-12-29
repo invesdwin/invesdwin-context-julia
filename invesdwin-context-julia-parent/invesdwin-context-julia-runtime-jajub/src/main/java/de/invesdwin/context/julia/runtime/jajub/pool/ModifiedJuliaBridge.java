@@ -17,6 +17,8 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 /**
  * Fork of: https://github.com/org-arl/jajub/issues/2
@@ -44,6 +46,8 @@ public class ModifiedJuliaBridge {
     private OutputStream out = null;
     private String ver = null;
     private final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck();
+    private final IByteBuffer readLineBuffer = ByteBuffers.allocateExpandable();
+    private int readLineBufferPosition = 0;
 
     private final List<String> rsp = new ArrayList<>();
 
@@ -319,7 +323,7 @@ public class ModifiedJuliaBridge {
     }
 
     private String readline() throws IOException {
-        final StringBuilder sb = new StringBuilder();
+        readLineBufferPosition = 0;
         //WORKAROUND: sleeping 10 ms between messages is way too slow
         final ASpinWait spinWait = new ASpinWait() {
             @Override
@@ -332,7 +336,7 @@ public class ModifiedJuliaBridge {
                     if (b == NEW_LINE) {
                         return true;
                     }
-                    sb.append((char) b);
+                    readLineBuffer.putByte(readLineBufferPosition++, (byte) b);
                 }
                 return false;
             }
@@ -348,10 +352,10 @@ public class ModifiedJuliaBridge {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-        if (sb.length() == 0) {
+        if (readLineBufferPosition == 0) {
             return null;
         }
-        final String s = sb.toString();
+        final String s = readLineBuffer.getStringUtf8(0, readLineBufferPosition);
         if (!TERMINATOR_RAW.equals(s) && !TERMINATOR.equals(s)) {
             IScriptTaskRunnerJulia.LOG.debug("< " + s);
         }
