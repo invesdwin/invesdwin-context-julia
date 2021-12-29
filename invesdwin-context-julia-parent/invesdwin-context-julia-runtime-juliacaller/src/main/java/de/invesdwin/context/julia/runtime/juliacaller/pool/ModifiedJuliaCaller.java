@@ -124,11 +124,6 @@ public class ModifiedJuliaCaller {
         }
     }
 
-    public synchronized void installPackage(final String pkg) throws IOException {
-        IScriptTaskRunnerJulia.LOG.trace("Installing package %s", pkg);
-        execute("install " + pkg);
-    }
-
     public synchronized void execute(final String command) throws IOException {
         IScriptTaskRunnerJulia.LOG.trace("execute: Sending '%s'", command);
         //WORKAROUND: begin/end make sure that multiple lines are executed together, also newlines need to be escaped

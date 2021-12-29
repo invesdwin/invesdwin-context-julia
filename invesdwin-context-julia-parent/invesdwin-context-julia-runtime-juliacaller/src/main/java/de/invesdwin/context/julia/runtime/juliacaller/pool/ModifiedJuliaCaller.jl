@@ -61,18 +61,19 @@ begin
 				__command__ = __line__[9:end]
 				try
 					eval(Meta.parse(__command__))
-				catch mth_err
-					@error mth_err
+				catch err
+					@error err
 				end
 			elseif startswith(__line__, "get ")
 				__varname__ = __line__[5:end]
-				__D__ = Dict(__varname__ => eval(Meta.parse(__varname__)))
-				writeln(client, json(__D__))
+				try
+					__D__ = Dict(__varname__ => eval(Meta.parse(__varname__)))
+					writeln(client, json(__D__))
+				catch err
+					@error err
+				end
 			elseif startswith(__line__, "exit")
 				break
-			elseif startswith(__line__, "install ")
-				__pkg__ = __line__[9:end]
-				Pkg.add(__Pkg__)
 			elseif startswith(__line__, "shutdown")
 				close(client)
 				close(server)
@@ -98,7 +99,7 @@ begin
 				client = accept(server)
 				if (@isdefined client)
 					handle_client(server, client, DEBUG)
-	    			else
+	    		else
 					close(client)
 				end
 			catch err
