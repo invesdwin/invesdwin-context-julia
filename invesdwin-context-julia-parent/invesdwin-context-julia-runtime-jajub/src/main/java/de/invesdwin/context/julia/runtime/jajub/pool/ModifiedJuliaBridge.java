@@ -45,7 +45,7 @@ public class ModifiedJuliaBridge {
             + "__type__(a) = typeof(a);" //
             + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;" //
             + "println(" + TERMINATOR + ");" };
-    private static final String TERMINATOR_SUFFIX = ";" + TERMINATOR;
+    private static final String TERMINATOR_SUFFIX = ";\n" + TERMINATOR;
     private static final byte[] TERMINATOR_SUFFIX_BYTES = TERMINATOR_SUFFIX.getBytes();
 
     private final ProcessBuilder jbuilder;
