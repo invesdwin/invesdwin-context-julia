@@ -52,7 +52,7 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                         }
                     }
                 } catch (final Throwable e) {
-                    //ignore
+                    //ignore, process must have been closed
                 }
             }
         });
@@ -73,7 +73,7 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                         }
                     }
                 } catch (final Throwable e) {
-                    //ignore
+                    //ignore, process must have been closed
                 }
             }
         });
