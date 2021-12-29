@@ -34,7 +34,7 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class ModifiedJuliaBridge {
 
-    private static final int CR = 10;
+    private static final char NEW_LINE = '\n';
     private static final Duration TIMEOUT = new Duration(10000, FTimeUnit.MILLISECONDS);
     private static final String TERMINATOR_RAW = "__##@@##__";
     private static final String TERMINATOR = "\"" + TERMINATOR_RAW + "\"";
@@ -190,7 +190,7 @@ public class ModifiedJuliaBridge {
             IScriptTaskRunnerJulia.LOG.debug("> " + jcode);
             out.write(jcode.getBytes());
             out.write(TERMINATOR_SUFFIX_BYTES);
-            out.write(CR);
+            out.write(NEW_LINE);
             out.flush();
             while (true) {
                 final String s = readline(timeout);
@@ -751,14 +751,14 @@ public class ModifiedJuliaBridge {
     private void write(final String s) throws IOException {
         IScriptTaskRunnerJulia.LOG.debug("> " + s);
         out.write(s.getBytes());
-        out.write(CR);
+        out.write(NEW_LINE);
         out.flush();
     }
 
     private void write(final byte[] b) throws IOException {
         //        IScriptTaskRunnerJulia.LOG.debug("> (" + (b.length) + " bytes)");
         out.write(b);
-        out.write(CR);
+        out.write(NEW_LINE);
         out.flush();
     }
 
@@ -809,7 +809,7 @@ public class ModifiedJuliaBridge {
             public boolean isConditionFulfilled() throws Exception {
                 while (inp.available() > 0 && !Thread.interrupted()) {
                     final int b = inp.read();
-                    if (b == CR) {
+                    if (b == NEW_LINE) {
                         return true;
                     }
                     sb.append((char) b);
