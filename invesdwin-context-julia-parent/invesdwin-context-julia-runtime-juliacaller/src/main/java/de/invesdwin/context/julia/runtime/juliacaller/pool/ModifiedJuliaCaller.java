@@ -61,7 +61,7 @@ public class ModifiedJuliaCaller {
 
     public void startServer() throws IOException {
         process = Runtime.getRuntime()
-                .exec(pathToJulia + " -iq --depwarn=no --compiled-modules=yes --banner=no --startup-file=no --threads="
+                .exec(pathToJulia + " -q --depwarn=no --compiled-modules=yes --banner=no --startup-file=no --threads="
                         + Executors.getCpuThreadPoolCount());
         final InputStream is = ModifiedJuliaCaller.class
                 .getResourceAsStream(ModifiedJuliaCaller.class.getSimpleName() + ".jl");
