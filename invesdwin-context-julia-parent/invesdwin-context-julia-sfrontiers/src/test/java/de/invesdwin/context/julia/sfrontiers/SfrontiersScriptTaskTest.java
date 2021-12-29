@@ -48,7 +48,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         final double[] efficienciesRaw = new SfrontiersScriptTask(y, x).run(runner);
         final List<Decimal> efficiencies = new ArrayList<Decimal>();
         for (final double efficiency : efficienciesRaw) {
-            efficiencies.add(new Decimal(efficiency).round(8));
+            efficiencies.add(new Decimal(efficiency));
         }
         Assertions.assertThat(efficiencies).isEqualTo(Arrays.asList(new Decimal("0.052"), new Decimal("0.213")));
     }
