@@ -63,8 +63,6 @@ begin
 					eval(Meta.parse(__command__))
 				catch mth_err
 					@error mth_err
-					close(client)
-					close(server)
 				end
 			elseif startswith(__line__, "get ")
 				__varname__ = __line__[5:end]
