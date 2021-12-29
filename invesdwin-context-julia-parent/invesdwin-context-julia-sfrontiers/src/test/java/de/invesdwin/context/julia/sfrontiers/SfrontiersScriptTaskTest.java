@@ -50,7 +50,12 @@ public class SfrontiersScriptTaskTest extends ATest {
         for (final double efficiency : efficienciesRaw) {
             efficiencies.add(new Decimal(efficiency));
         }
-        Assertions.assertThat(efficiencies).isEqualTo(Arrays.asList(new Decimal("0.052"), new Decimal("0.213")));
+        Assertions.assertThat(efficiencies)
+                .isEqualTo(Arrays.asList(new Decimal("0.9999999999990773"), new Decimal("0.9999999999990772"),
+                        new Decimal("0.9999999999990774"), new Decimal("0.9999999999990773"),
+                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990774"),
+                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990773"),
+                        new Decimal("0.9999999999990773"), new Decimal("0.9999999999990773")));
     }
 
     @Test
@@ -127,7 +132,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         }
         for (int i = 0; i < x.length; i++) {
             final double[] row = x[i];
-            for (final int j = 0; j < row.length; i++) {
+            for (int j = 0; j < row.length; j++) {
                 row[j] = -row[j];
             }
         }
