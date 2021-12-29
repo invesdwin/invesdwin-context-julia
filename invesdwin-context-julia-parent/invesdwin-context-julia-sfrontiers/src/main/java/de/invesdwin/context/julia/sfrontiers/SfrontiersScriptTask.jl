@@ -1,9 +1,5 @@
 using Pkg;
 isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies()));
-if !isinstalled("DataFrames")
-  Pkg.add("DataFrames")
-end
-using DataFrames;
 if !isinstalled("SFrontiers")
   Pkg.add("SFrontiers")
 end
