@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -18,7 +19,10 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 /**
@@ -27,15 +31,18 @@ import de.invesdwin.util.time.date.FTimeUnit;
 @NotThreadSafe
 public class ModifiedJuliaCaller {
 
+    protected static final char NEW_LINE = '\n';
     private final String pathToJulia;
     private final ObjectMapper objectMapper;
     private Socket socket;
-    private BufferedWriter bufferedWriterForJuliaConsole, bufferedWriterForSocket;
-    private BufferedReader bufferedReaderForSocket;
+    private BufferedWriter bufferedWriterForJuliaConsole;
+    private OutputStream writerForSocket;
+    private InputStream readerForSocket;
     private final int port;
     private int maximumTriesToConnect = 300;
     private ModifiedJuliaErrorConsoleWatcher watcher;
     private Process process;
+    private final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck();
 
     public ModifiedJuliaCaller(final String pathToJulia, final int port) {
         this.pathToJulia = pathToJulia;
@@ -116,8 +123,8 @@ public class ModifiedJuliaCaller {
             }
         }
         if (connected) {
-            bufferedWriterForSocket = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            bufferedReaderForSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writerForSocket = socket.getOutputStream();
+            readerForSocket = socket.getInputStream();
         } else {
             throw new IllegalStateException(
                     "Socket cannot connect in maximum number of iterations defined as " + maximumTriesToConnect);
@@ -128,30 +135,31 @@ public class ModifiedJuliaCaller {
         IScriptTaskRunnerJulia.LOG.trace("execute: Sending '%s'", command);
         //WORKAROUND: begin/end make sure that multiple lines are executed together, also newlines need to be escaped
         //without this we get: Error: Base.Meta.ParseError("extra token after end of expression")
-        bufferedWriterForSocket
-                .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n") + "\\nend"));
-        bufferedWriterForSocket.newLine();
+        final StringBuilder msg = new StringBuilder("execute begin ");
+        msg.append(Strings.normalizeNewlines(command.replace("\n", "\\n")));
+        msg.append("\\nend");
+        OutputStreams.writeUTF(writerForSocket, msg.toString());
         checkError();
     }
 
     public void exitSession() throws IOException {
-        bufferedWriterForSocket.write("exit");
-        bufferedWriterForSocket.newLine();
+        writerForSocket.write("exit\n".getBytes());
     }
 
     public void shutdownServer() throws IOException {
         watcher.close();
         watcher = null;
-        bufferedWriterForSocket.write("shutdown");
-        bufferedWriterForSocket.newLine();
+        OutputStreams.writeUTF(writerForSocket, "shutdown\n");
     }
 
     public JsonNode getAsJsonNode(final String varname) throws IOException {
         IScriptTaskRunnerJulia.LOG.trace("getAsJsonNode: Requesting variable %s", varname);
-        bufferedWriterForSocket.write("get " + varname);
-        bufferedWriterForSocket.newLine();
-        bufferedWriterForSocket.flush();
-        final String result = bufferedReaderForSocket.readLine();
+        final StringBuilder msg = new StringBuilder("get ");
+        msg.append(varname);
+        msg.append("\n");
+        OutputStreams.writeUTF(writerForSocket, msg.toString());
+        writerForSocket.flush();
+        final String result = readLine();
         checkError();
         if (result == null) {
             checkErrorDelayed();
@@ -184,6 +192,43 @@ public class ModifiedJuliaCaller {
         if (error != null) {
             throw new IllegalStateException(error);
         }
+    }
+
+    private String readLine() throws IOException {
+        final StringBuilder sb = new StringBuilder();
+        //WORKAROUND: sleeping 10 ms between messages is way too slow
+        final ASpinWait spinWait = new ASpinWait() {
+            @Override
+            public boolean isConditionFulfilled() throws Exception {
+                if (interruptedCheck.check()) {
+                    checkError();
+                }
+                while (readerForSocket.available() > 0 && !Thread.interrupted()) {
+                    final int b = readerForSocket.read();
+                    if (b == NEW_LINE) {
+                        return true;
+                    }
+                    sb.append((char) b);
+                }
+                return false;
+            }
+
+            @Override
+            protected boolean isSpinAllowed(final long waitingSinceNanos) {
+                //spinning not needed, wastes cpu cycles that julia could use
+                return false;
+            }
+        };
+        try {
+            spinWait.awaitFulfill(System.nanoTime());
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (sb.length() == 0) {
+            return null;
+        }
+        final String s = sb.toString();
+        return s;
     }
 
 }

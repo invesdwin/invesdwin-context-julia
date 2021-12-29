@@ -73,11 +73,4 @@ public class ExtendedJuliaBridge extends ModifiedJuliaBridge {
         checkError();
     }
 
-    private void checkError() {
-        final String error = getErrWatcher().getErrorMessage();
-        if (error != null) {
-            throw new IllegalStateException(error);
-        }
-    }
-
 }

@@ -15,6 +15,7 @@ import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.JajubProperties;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.Closeables;
 
 /**
@@ -26,8 +27,6 @@ public class ModifiedJuliaBridge {
     private static final char NEW_LINE = '\n';
     private static final String TERMINATOR_RAW = "__##@@##__";
     private static final String TERMINATOR = "\"" + TERMINATOR_RAW + "\"";
-
-    private static final String[] JULIA_EXEC = { "bin/julia", "bin/julia.exe" };
 
     private static final String[] JULIA_ARGS = { "-iq", "--depwarn=no", "--startup-file=no",
             "--threads=" + Executors.getCpuThreadPoolCount(), "-e", "using InteractiveUtils;" //
@@ -44,6 +43,7 @@ public class ModifiedJuliaBridge {
     private ModifiedJuliaErrorConsoleWatcher errWatcher = null;
     private OutputStream out = null;
     private String ver = null;
+    private final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck();
 
     private final List<String> rsp = new ArrayList<>();
 
@@ -288,6 +288,9 @@ public class ModifiedJuliaBridge {
         final ASpinWait spinWait = new ASpinWait() {
             @Override
             public boolean isConditionFulfilled() throws Exception {
+                if (interruptedCheck.check()) {
+                    checkError();
+                }
                 int n = inp.available();
                 while (n > 0 && !Thread.interrupted()) {
                     final int m = buf.length - ofs.intValue();
@@ -321,6 +324,9 @@ public class ModifiedJuliaBridge {
         final ASpinWait spinWait = new ASpinWait() {
             @Override
             public boolean isConditionFulfilled() throws Exception {
+                if (interruptedCheck.check()) {
+                    checkError();
+                }
                 while (inp.available() > 0 && !Thread.interrupted()) {
                     final int b = inp.read();
                     if (b == NEW_LINE) {
@@ -350,6 +356,13 @@ public class ModifiedJuliaBridge {
             IScriptTaskRunnerJulia.LOG.debug("< " + s);
         }
         return s;
+    }
+
+    protected void checkError() {
+        final String error = getErrWatcher().getErrorMessage();
+        if (error != null) {
+            throw new IllegalStateException(error);
+        }
     }
 
 }
