@@ -25,7 +25,7 @@ We have a few options available for integrating Julia:
 # you can switch to a different julia installation by defining an absolute path here
 de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerProperties.JULIA_COMMAND=julia
 ```
-- **invesdwin-context-julia-runtime-jajub**: This uses a forked version of [Jajub](https://github.com/org-arl/jajub/issues/2) to make it significantly faster and make error make error handling better. It talks to the julia process via pipes. Errors are detected by checking for specific protocol messages and by parsing stderr for messages.
+- **invesdwin-context-julia-runtime-jajub**: This uses a forked version of [Jajub](https://github.com/org-arl/jajub/issues/2) to make it significantly faster and make error make error handling better. It talks to the julia process via pipes. Errors are detected by checking for specific protocol messages and by parsing stderr for messages. This module provides the following configuration options as system properties:
 ```properties
 # you can switch to a different julia installation by defining an absolute path here
 de.invesdwin.context.julia.runtime.jajub.JajubProperties.JULIA_COMMAND=julia
