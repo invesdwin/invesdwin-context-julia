@@ -37,8 +37,8 @@ public class ModifiedJuliaBridge {
     private static final String TERMINATOR_RAW = "__##@@##__";
     private static final String TERMINATOR = "\"" + TERMINATOR_RAW + "\"";
 
-    private static final String[] JULIA_ARGS = { "-iq", "--depwarn=no", "--startup-file=no",
-            "--threads=" + Executors.getCpuThreadPoolCount(), "-e", "using InteractiveUtils;" //
+    private static final String[] JULIA_ARGS = { "-iq", "--depwarn=no", "--startup-file=no", "--compiled-modules=yes",
+            "--banner=no", "--threads=" + Executors.getCpuThreadPoolCount(), "-e", "using InteractiveUtils;" //
                     + "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};" //
                     + "__type__(a) = typeof(a);" //
                     + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;" //

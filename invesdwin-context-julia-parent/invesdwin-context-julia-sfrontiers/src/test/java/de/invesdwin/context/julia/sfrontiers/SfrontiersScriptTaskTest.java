@@ -30,6 +30,7 @@ public class SfrontiersScriptTaskTest extends ATest {
     @Inject
     private Julia4jScriptTaskRunnerJulia julia4jScriptTaskRunner;
 
+    @Disabled
     @Test
     public void testJuliaCaller() {
         for (int i = 0; i < ITERATIONS; i++) {
@@ -92,7 +93,7 @@ public class SfrontiersScriptTaskTest extends ATest {
                 row[j] = -row[j];
             }
         }
-        final double[] optimalFsRaw = new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+        final double[] optimalFsRaw = new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
         final List<Decimal> optimalFs = new ArrayList<Decimal>();
         for (final Double optimalFStr : optimalFsRaw) {
             optimalFs.add(new Decimal(optimalFStr).round(3));
@@ -108,10 +109,10 @@ public class SfrontiersScriptTaskTest extends ATest {
         final double[] y = { 1, 2, 3 };
         final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 } };
         try {
-            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("Error: LinearAlgebra.SingularException(3)");
+            Assertions.assertThat(t.getMessage()).contains("LinearAlgebra.SingularException(3)");
         }
     }
 
@@ -122,11 +123,11 @@ public class SfrontiersScriptTaskTest extends ATest {
                 { 5.1, 5.2, 5.3 }, { 6.1, 6.2, 6.3 }, { 7.1, 7.2, 7.3 }, { 8.1, 8.2, 8.3 }, { 9.1, 9.2, 9.3 },
                 { 10.1, 10.2, 10.3 } };
         try {
-            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
             Assertions.assertThat(t.getMessage())
-                    .contains("DomainError(")
+                    .containsIgnoringCase("DomainError")
                     .contains(
                             "sqrt will only return a complex result if called with a complex argument. Try sqrt(Complex(x)).");
         }
@@ -142,12 +143,10 @@ public class SfrontiersScriptTaskTest extends ATest {
             x[i] = Doubles.EMPTY_ARRAY;
         }
         try {
-            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage())
-                    .contains(
-                            "Error: DimensionMismatch(\"diagonal matrix is 0 by 0 but right hand side has 10 rows\")");
+            Assertions.assertThat(t.getMessage()).contains("diagonal matrix is 0 by 0 but right hand side has 10 rows");
         }
     }
 
@@ -156,10 +155,12 @@ public class SfrontiersScriptTaskTest extends ATest {
         try {
             final double[] y = Doubles.EMPTY_ARRAY;
             final double[][] x = Doubles.EMPTY_MATRIX;
-            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("Error: BoundsError(Float64[], (1,))");
+            Assertions.assertThat(t.getMessage())
+                    .containsAnyOf("BoundsError(Float64[], (1,))",
+                            "attempt to access 0-element Array{Float64,1} at index [1]");
         }
     }
 
@@ -170,11 +171,10 @@ public class SfrontiersScriptTaskTest extends ATest {
             final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 1.2, 1.5, 1.6 }, { 1.7, 1.4, 5.6 },
                     { 1.5, 5.7, 2.6 }, { 5.7, 3.6, 5.1 }, { 5.4, 6.1, 7.4 }, { 3.6, 3.6, 3.5 }, { 7.8, 4.6, 3.1 },
                     { 5.1, 3.2, 6.3 } };
-            new SfrontiersScriptTask(y, x).run(juliaCallerScriptTaskRunner);
+            new SfrontiersScriptTask(y, x).run(jajubScriptTaskRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage())
-                    .contains("Error: ArgumentError(\"number of rows of each array must match (got (0, 10))\")");
+            Assertions.assertThat(t.getMessage()).contains("number of rows of each array must match (got (0, 10))");
         }
     }
 
