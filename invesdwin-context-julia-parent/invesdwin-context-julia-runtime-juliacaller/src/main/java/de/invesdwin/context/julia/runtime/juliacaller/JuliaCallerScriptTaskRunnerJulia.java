@@ -44,8 +44,8 @@ public final class JuliaCallerScriptTaskRunnerJulia
             JuliaCallerObjectPool.INSTANCE.returnObject(juliaCaller);
             return result;
         } catch (final Throwable t) {
-            //don't destroy instances because of normal validation errors, julia compilation is too much overhead
-            JuliaCallerObjectPool.INSTANCE.returnObject(juliaCaller);
+            //we have to destroy instances on exceptions, otherwise e.g. SFrontiers.jl might get stuck with some inconsistent state
+            JuliaCallerObjectPool.INSTANCE.destroyObject(juliaCaller);
             throw Throwables.propagate(t);
         }
     }
