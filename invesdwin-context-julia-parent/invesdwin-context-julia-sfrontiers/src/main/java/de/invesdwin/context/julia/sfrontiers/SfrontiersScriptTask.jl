@@ -12,6 +12,7 @@ using SFrontiers;
 
 # run
 sfmodel_spec(sftype(prod), sfdist(half), depvar(y), frontier(x), sigma_u_2(cons), sigma_v_2(cons))
+sfmodel_opt(warmstart_solver(), warmstart_maxIT(), verbose(true), banner(false), marginal(false))
 res = sfmodel_fit()
 
 # output between 0 and 1 as efficiency score (Battese and Coelli (1988) efficiency index)
