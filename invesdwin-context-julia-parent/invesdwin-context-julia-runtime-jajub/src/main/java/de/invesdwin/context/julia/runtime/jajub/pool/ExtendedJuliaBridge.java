@@ -13,7 +13,6 @@ import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
 import de.invesdwin.context.julia.runtime.jajub.JajubScriptTaskEngineJulia;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.date.FTimeUnit;
-import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class ExtendedJuliaBridge extends ModifiedJuliaBridge {
@@ -28,8 +27,8 @@ public class ExtendedJuliaBridge extends ModifiedJuliaBridge {
     }
 
     @Override
-    public void open(final Duration timeout) throws IOException, InterruptedException {
-        super.open(timeout);
+    public void open() throws IOException {
+        super.open();
         resetContext.init();
     }
 
@@ -40,8 +39,8 @@ public class ExtendedJuliaBridge extends ModifiedJuliaBridge {
     }
 
     @Override
-    public void exec(final String jcode, final Duration timeout) {
-        super.exec(jcode, timeout);
+    public void exec(final String jcode) {
+        super.exec(jcode);
         checkError();
     }
 

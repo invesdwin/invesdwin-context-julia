@@ -16,8 +16,6 @@ import de.invesdwin.context.julia.runtime.jajub.JajubProperties;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.lang.Closeables;
-import de.invesdwin.util.time.date.FTimeUnit;
-import de.invesdwin.util.time.duration.Duration;
 
 /**
  * Fork of: https://github.com/org-arl/jajub/issues/2
@@ -26,7 +24,6 @@ import de.invesdwin.util.time.duration.Duration;
 public class ModifiedJuliaBridge {
 
     private static final char NEW_LINE = '\n';
-    private static final Duration TIMEOUT = new Duration(10000, FTimeUnit.MILLISECONDS);
     private static final String TERMINATOR_RAW = "__##@@##__";
     private static final String TERMINATOR = "\"" + TERMINATOR_RAW + "\"";
 
@@ -86,7 +83,7 @@ public class ModifiedJuliaBridge {
      * @param timeout
      *            timeout in milliseconds for process to start.
      */
-    public void open(final Duration timeout) throws IOException, InterruptedException {
+    public void open() throws IOException {
         if (isOpen()) {
             return;
         }
@@ -96,7 +93,7 @@ public class ModifiedJuliaBridge {
         errWatcher.startWatching();
         out = julia.getOutputStream();
         while (true) {
-            final String s = readline(timeout);
+            final String s = readline();
             if (s == null) {
                 close();
                 throw new IOException("Bad Julia process");
@@ -106,17 +103,6 @@ public class ModifiedJuliaBridge {
             } else if (TERMINATOR.contains(s)) {
                 break;
             }
-        }
-    }
-
-    /**
-     * Starts the Julia process.
-     */
-    public void open() throws IOException {
-        try {
-            open(TIMEOUT);
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
         }
     }
 
@@ -154,7 +140,7 @@ public class ModifiedJuliaBridge {
      *            timeout in milliseconds.
      * @return output (stdout + stderr).
      */
-    public void exec(final String jcode, final Duration timeout) {
+    public void exec(final String jcode) {
         rsp.clear();
         try {
             flush();
@@ -164,7 +150,7 @@ public class ModifiedJuliaBridge {
             out.write(NEW_LINE);
             out.flush();
             while (true) {
-                final String s = readline(timeout);
+                final String s = readline();
                 if (s == null) {
                     //retry, we were a bit too fast as it seems
                     continue;
@@ -174,22 +160,9 @@ public class ModifiedJuliaBridge {
                 }
                 rsp.add(s);
             }
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
         } catch (final IOException ex) {
             throw new RuntimeException("JuliaBridge connection broken", ex);
         }
-    }
-
-    /**
-     * Executes Julia code and returns the output.
-     *
-     * @param jcode
-     *            Julia code to run
-     * @return output (stdout + stderr).
-     */
-    public void exec(final String jcode) {
-        exec(jcode, TIMEOUT);
     }
 
     /**
@@ -236,7 +209,7 @@ public class ModifiedJuliaBridge {
                 final int n = Integer.parseInt(rsp.get(0));
                 write("write(stdout, __ans__)");
                 final byte[] buf = new byte[n];
-                read(buf, TIMEOUT);
+                read(buf);
                 return new String(buf);
             }
             int[] dims = null;
@@ -268,12 +241,9 @@ public class ModifiedJuliaBridge {
             }
             write("write(stdout, " + varname + ")");
             throw new RuntimeException("Unsupported type " + type);
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
         } catch (final IOException ex) {
             throw new RuntimeException("JuliaBridge connection broken", ex);
         }
-        return null;
     }
 
     /**
@@ -312,7 +282,7 @@ public class ModifiedJuliaBridge {
         }
     }
 
-    private int read(final byte[] buf, final Duration timeout) throws IOException, InterruptedException {
+    private int read(final byte[] buf) throws IOException {
         final MutableInt ofs = new MutableInt(0);
         //WORKAROUND: sleeping 10 ms between messages is way too slow
         final ASpinWait spinWait = new ASpinWait() {
@@ -337,7 +307,7 @@ public class ModifiedJuliaBridge {
             }
         };
         try {
-            spinWait.awaitFulfill(System.nanoTime(), timeout);
+            spinWait.awaitFulfill(System.nanoTime());
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -345,7 +315,7 @@ public class ModifiedJuliaBridge {
         return ofs.intValue();
     }
 
-    private String readline(final Duration timeout) throws IOException, InterruptedException {
+    private String readline() throws IOException {
         final StringBuilder sb = new StringBuilder();
         //WORKAROUND: sleeping 10 ms between messages is way too slow
         final ASpinWait spinWait = new ASpinWait() {
@@ -368,7 +338,7 @@ public class ModifiedJuliaBridge {
             }
         };
         try {
-            spinWait.awaitFulfill(System.nanoTime(), timeout);
+            spinWait.awaitFulfill(System.nanoTime());
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
