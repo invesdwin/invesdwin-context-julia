@@ -82,7 +82,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void eval(final String eval) {
-        final String command = eval + "; true";
+        final String command = eval + ";\n true";
         IScriptTaskRunnerJulia.LOG.debug("> eval %s", eval);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
