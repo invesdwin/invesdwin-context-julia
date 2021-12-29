@@ -50,9 +50,13 @@ public class JuliaCallerScriptTaskResultsJulia implements IScriptTaskResultsJuli
     @Override
     public String[] getStringVector(final String variable) {
         try {
-            final JsonNode strs = engine.unwrap().getAsJsonNode(variable);
+            JsonNode strs = engine.unwrap().getAsJsonNode(variable);
             if (strs == null) {
                 return null;
+            }
+            //unwrap array
+            while (strs.size() == 1 && strs.get(0).size() > 1) {
+                strs = strs.get(0);
             }
             final String[] values = new String[strs.size()];
             for (int i = 0; i < values.length; i++) {

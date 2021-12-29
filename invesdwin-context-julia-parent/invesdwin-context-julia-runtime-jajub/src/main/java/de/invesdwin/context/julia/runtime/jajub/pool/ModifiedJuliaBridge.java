@@ -754,7 +754,7 @@ public class ModifiedJuliaBridge {
     }
 
     private void write(final byte[] b) throws IOException {
-        IScriptTaskRunnerJulia.LOG.debug("> (" + (b.length) + " bytes)");
+        //        IScriptTaskRunnerJulia.LOG.debug("> (" + (b.length) + " bytes)");
         out.write(b);
         out.write(CR);
         out.flush();
@@ -777,7 +777,6 @@ public class ModifiedJuliaBridge {
                     final int m = buf.length - ofs.intValue();
                     ofs.add(inp.read(buf, ofs.intValue(), n > m ? m : n));
                     if (ofs.intValue() == buf.length) {
-                        IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
                         return true;
                     }
                     n = inp.available();
@@ -796,7 +795,7 @@ public class ModifiedJuliaBridge {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-        IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
+        //        IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
         return ofs.intValue();
     }
 
