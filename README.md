@@ -25,7 +25,7 @@ We have a few options available for integrating Julia:
 # you can switch to a different julia installation by defining an absolute path here
 de.invesdwin.context.julia.runtime.jajub.JajubProperties.JULIA_COMMAND=julia
 ```
-- **invesdwin-context-julia-runtime-juliacaller**: This uses a forked version of [JuliaCaller](https://github.com/jbytecode/juliacaller/issues/1) to fix some compatibility issues and make error recovery possible. It talks to the julia process via a local socket. This makes it less efficient than the Jajub integration. Errors are detected by parsing stderr for messages. This module provides the following configuration options as system properties:
+- **invesdwin-context-julia-runtime-juliacaller**: This uses a forked version of [JuliaCaller](https://github.com/jbytecode/juliacaller/issues/1) to fix some compatibility issues and make error recovery possible. It talks to the julia process via a local socket. This makes it less efficient than the Jajub integration. Also it is less debug friendly because it does not do the Print part of the Read-Eval-Print-Loop (REPL) because it does not use the Julia REPL as the Jajub integration does. Errors are detected by parsing stderr for messages. This module provides the following configuration options as system properties:
 ```properties
 # you can switch to a different julia installation by defining an absolute path here
 de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerProperties.JULIA_COMMAND=julia
