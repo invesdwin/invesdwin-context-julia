@@ -11,14 +11,21 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
+
+import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.JajubProperties;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 /**
  * Fork of: https://github.com/org-arl/jajub/issues/2
@@ -48,6 +55,7 @@ public class ModifiedJuliaBridge {
     private final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck();
     private final IByteBuffer readLineBuffer = ByteBuffers.allocateExpandable();
     private int readLineBufferPosition = 0;
+    private final ObjectMapper mapper;
 
     private final List<String> rsp = new ArrayList<>();
 
@@ -61,6 +69,7 @@ public class ModifiedJuliaBridge {
         j.add(JajubProperties.JULIA_COMMAND);
         j.addAll(Arrays.asList(JULIA_ARGS));
         jbuilder = new ProcessBuilder(j);
+        this.mapper = MarshallerJsonJackson.getInstance().getJsonMapper(false);
     }
 
     //CHECKSTYLE:OFF
@@ -135,20 +144,11 @@ public class ModifiedJuliaBridge {
         return ver;
     }
 
-    /**
-     * Executes Julia code and returns the output.
-     *
-     * @param jcode
-     *            Julia code to run.
-     * @param timeout
-     *            timeout in milliseconds.
-     * @return output (stdout + stderr).
-     */
-    public void exec(final String jcode) {
+    private void exec(final String jcode, final String logMessage, final Object... logArgs) {
         rsp.clear();
         try {
             flush();
-            IScriptTaskRunnerJulia.LOG.debug("> " + jcode);
+            IScriptTaskRunnerJulia.LOG.debug(logMessage, logArgs);
             out.write(jcode.getBytes());
             out.write(TERMINATOR_SUFFIX_BYTES);
             out.write(NEW_LINE);
@@ -178,73 +178,58 @@ public class ModifiedJuliaBridge {
      *            value to bind to the variable.
      */
     public void set(final String varname, final String value) {
-        final String s = jexpr(value);
-        exec(varname + " = " + s);
+        final StringBuilder command = new StringBuilder(varname);
+        command.append(" = ");
+        if (value == null) {
+            command.append("nothing");
+        } else {
+            command.append("raw\"");
+            command.append(value.replace("\"", "\\\""));
+            command.append("\"");
+        }
+        final String commandStr = command.toString();
+        exec(commandStr, "> %s", commandStr);
     }
 
-    /**
-     * Gets a variable from the Julia environment.
-     *
-     * @param varname
-     *            name of the variable.
-     * @return value bound to the variable, null if unavailable.
-     */
-    //CHECKSTYLE:OFF
-    public Object get(final String varname) {
-        //CHECKSTYLE:ON
-        exec("__ans__ = " + varname + "; println(__type__(__ans__))");
+    public JsonNode getAsJsonNode(final String variable) {
+        final StringBuilder message = new StringBuilder("__ans__ = JSON.json(");
+        message.append(variable);
+        message.append("); println(sizeof(__ans__))");
+        exec(message.toString(), "> get %s", variable);
+
+        final String result = get();
+        try {
+            final JsonNode node = mapper.readTree(result);
+            checkError();
+            if (result == null) {
+                checkErrorDelayed();
+            }
+            if (node instanceof NullNode) {
+                return null;
+            } else {
+                return node;
+            }
+        } catch (final Throwable t) {
+            checkErrorDelayed();
+            throw Throwables.propagate(t);
+        }
+    }
+
+    private String get() {
         if (rsp.size() < 1) {
-            throw new RuntimeException("Invalid response from Julia REPL: " + rsp);
-        }
-        //WORKAROUND: always extract the last output as the type because the executed code might have printed another line
-        String type = rsp.get(rsp.size() - 1);
-        if ("Nothing".equals(type)) {
-            return null;
-        }
-        if ("Missing".equals(type)) {
-            return null;
+            throw new RuntimeException("Invalid response from Julia REPL");
         }
         try {
-            if ("String".equals(type) || "Char".equals(type)) {
-                exec("println(sizeof(__ans__))");
-                if (rsp.size() < 1) {
-                    throw new RuntimeException("Invalid response from Julia REPL");
-                }
-                final int n = Integer.parseInt(rsp.get(0));
-                write("write(stdout, __ans__)");
-                final byte[] buf = new byte[n];
-                read(buf);
-                return new String(buf);
+            //WORKAROUND: always extract the last output as the type because the executed code might have printed another line
+            final int n = Integer.parseInt(rsp.get(rsp.size() - 1));
+            if (n == 0) {
+                //Missing or Nothing
+                return null;
             }
-            int[] dims = null;
-            if (type.startsWith("Array{") && type.endsWith("}")) {
-                int p = type.indexOf(',');
-                if (p < 0) {
-                    throw new RuntimeException("Invalid response from Julia REPL");
-                }
-                final int d = Integer.parseInt(type.substring(p + 1, type.length() - 1));
-                dims = new int[d];
-                type = type.substring(6, p);
-                exec("println(size(" + varname + "))");
-                if (rsp.size() < 1) {
-                    throw new RuntimeException("Invalid response from Julia REPL");
-                }
-                final String s = rsp.get(0);
-                int ofs = 1;
-                for (int i = 0; i < d; i++) {
-                    p = s.indexOf(',', ofs);
-                    if (p < 0) {
-                        p = s.indexOf(')', ofs);
-                    }
-                    if (p < 0) {
-                        throw new RuntimeException("Invalid response from Julia REPL");
-                    }
-                    dims[i] = Integer.parseInt(s.substring(ofs, p).trim());
-                    ofs = p + 1;
-                }
-            }
-            write("write(stdout, " + varname + ")");
-            throw new RuntimeException("Unsupported type " + type);
+            write("write(stdout, __ans__)");
+            final byte[] buf = new byte[n];
+            read(buf);
+            return new String(buf);
         } catch (final IOException ex) {
             throw new RuntimeException("JuliaBridge connection broken", ex);
         }
@@ -258,23 +243,14 @@ public class ModifiedJuliaBridge {
      * @return value of the expression.
      */
     public void eval(final String jcode) {
-        exec(jcode);
+        exec(jcode, "> exec %s", jcode);
+        checkError();
     }
 
     ////// private stuff
 
-    //CHECKSTYLE:OFF
-    private String jexpr(final String value) {
-        //CHECKSTYLE:ON
-        if (value == null) {
-            return "nothing";
-        } else {
-            return "raw\"" + value.replace("\"", "\\\"") + "\"";
-        }
-    }
-
     private void write(final String s) throws IOException {
-        IScriptTaskRunnerJulia.LOG.debug("> " + s);
+        //        IScriptTaskRunnerJulia.LOG.debug("> " + s);
         out.write(s.getBytes());
         out.write(NEW_LINE);
         out.flush();
@@ -367,6 +343,16 @@ public class ModifiedJuliaBridge {
         if (error != null) {
             throw new IllegalStateException(error);
         }
+    }
+
+    private void checkErrorDelayed() {
+        //give a bit of time to read the actual error
+        try {
+            FTimeUnit.MILLISECONDS.sleep(10);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        checkError();
     }
 
 }
