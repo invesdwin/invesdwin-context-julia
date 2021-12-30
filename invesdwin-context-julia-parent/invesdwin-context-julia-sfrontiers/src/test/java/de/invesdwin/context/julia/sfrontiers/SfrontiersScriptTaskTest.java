@@ -37,10 +37,10 @@ public class SfrontiersScriptTaskTest extends ATest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mainRunner = jajubScriptTaskRunner;
+        mainRunner = julia4jScriptTaskRunner;
     }
 
-    //    @Disabled
+    @Disabled
     @Test
     public void testJuliaCaller() {
         for (int i = 0; i < ITERATIONS; i++) {
@@ -49,7 +49,7 @@ public class SfrontiersScriptTaskTest extends ATest {
         }
     }
 
-    //    @Disabled
+    @Disabled
     @Test
     public void testJajub() {
         for (int i = 0; i < ITERATIONS; i++) {

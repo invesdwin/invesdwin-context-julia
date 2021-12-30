@@ -148,7 +148,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     private void assertResponseNotNull(final String command, final SWIGTYPE_p_jl_value_t value) throws IOException {
         if (value == null) {
             final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
-            throw new IllegalStateException("Command [" + command
+            throw new IllegalStateException("Command [" + Strings.truncate(command, 100)
                     + "] returned null response which might be caused by a parser error: " + error);
         }
     }
@@ -156,7 +156,8 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     private void assertResponseSuccess(final String command, final boolean success) throws IOException {
         if (!success) {
             final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
-            throw new IllegalStateException("Command [" + command + "] returned a false response: " + error);
+            throw new IllegalStateException(
+                    "Command [" + Strings.truncate(command, 100) + "] returned a false response: " + error);
         }
     }
 
