@@ -79,9 +79,9 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         evalUnchecked(
                 "using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
         evalUnchecked("function j4j_exec(cmd) open(\"" + outputFilePath
-                + "\", \"w\") do io; try eval(Meta.parse(cmd)) catch err @error err; showerror(io, err); end; end; end");
+                + "\", \"w\") do io; redirect_stderr(io) do; try eval(Meta.parse(cmd)) catch err @error err; showerror(io, err); end; end; end; end");
         evalUnchecked("function j4j_get(cmd) open(\"" + outputFilePath
-                + "\", \"w\") do io; try __ans__ = eval(Meta.parse(cmd)); write(io, JSON.json(__ans__)); catch err @error err; showerror(io, err); end; end; end;");
+                + "\", \"w\") do io; redirect_stderr(io) do; try __ans__ = eval(Meta.parse(cmd)); write(io, JSON.json(__ans__)); catch err @error err; showerror(io, err); end; end; end; end;");
         this.resetContext.init();
         initialized = true;
     }
@@ -97,6 +97,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
             assertResponseNotNull(eval, value);
             final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
             assertResponseSuccess(eval, success);
+            assertNoErrors(eval);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -134,6 +135,13 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
             }
         } catch (final Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void assertNoErrors(final String command) throws IOException {
+        final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
+        if (Strings.isNotBlank(error)) {
+            throw new IllegalStateException("Command [" + command + "] returned an error: " + error);
         }
     }
 
