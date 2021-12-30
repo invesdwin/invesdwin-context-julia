@@ -30,7 +30,7 @@ de.invesdwin.context.julia.runtime.jajub.JajubProperties.JULIA_COMMAND=julia
 # you can switch to a different julia installation by defining an absolute path here
 de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerProperties.JULIA_COMMAND=julia
 ```
-- **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It requires an env variable `LD_PRELOAD=/usr/lib/jvm/default-java/lib/libjsig.so` to enable [signal chaining](https://cnuernber.github.io/libjulia-clj/signals.html). Sadly error handling does not give messages about concrete problems and stdout can not be redirected. Currently only linux is supported. This module provides the following configuration options as system properties:
+- **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It requires an env variable `LD_PRELOAD=/usr/lib/jvm/default-java/lib/libjsig.so` to enable [signal chaining](https://cnuernber.github.io/libjulia-clj/signals.html). Currently only linux is supported. This module provides the following configuration options as system properties:
 ```properties
 # specify where the libjulia.so resides on your computer (e.g. /opt/julia/lib/)
 # using debian packaged julia will not work: https://github.com/rssdev10/julia4j/issues/2
