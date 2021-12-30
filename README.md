@@ -50,8 +50,8 @@ de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljProperties.JULIA_HOME=
 ```
 
 You are free to choose which integration method you prefer by selecting the appropriate runtime module as a dependency for your application. The `invesdwin-context-julia-runtime-contract` module defines interfaces for integrating your Julia scripts in a way that works with all of the above runtime modules. So you have the benefit of being able to write your Julia scripts once and easily test against different runtimes in order to: 
-- to measure the performance impact of the different runtime solutions
-- to gain flexibility in various deployment scenarios
+- measure the performance impact of the different runtime solutions
+- gain flexibility in various deployment scenarios
 
 See here for a discussion about potential other integration modules: https://discourse.julialang.org/t/running-julia-from-java-what-is-crazier/31662/39?u=subes
 
