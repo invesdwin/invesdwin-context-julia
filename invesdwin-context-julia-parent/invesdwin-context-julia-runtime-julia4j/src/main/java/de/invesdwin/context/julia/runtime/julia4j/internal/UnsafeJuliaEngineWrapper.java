@@ -97,7 +97,7 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
             assertResponseNotNull(eval, value);
             final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
             assertResponseSuccess(eval, success);
-            assertNoErrors(eval);
+            assertNoErrors();
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -138,10 +138,10 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         }
     }
 
-    private void assertNoErrors(final String command) throws IOException {
+    private void assertNoErrors() throws IOException {
         final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
         if (Strings.isNotBlank(error)) {
-            throw new IllegalStateException("Command [" + command + "] returned an error: " + error);
+            throw new IllegalStateException("Command returned an error: " + error);
         }
     }
 
