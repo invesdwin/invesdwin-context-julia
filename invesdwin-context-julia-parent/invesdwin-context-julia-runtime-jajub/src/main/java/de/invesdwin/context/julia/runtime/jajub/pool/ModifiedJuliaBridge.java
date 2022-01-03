@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.jajub.JajubProperties;
-import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.error.Throwables;
@@ -41,7 +40,7 @@ public class ModifiedJuliaBridge {
     private static final byte[] TERMINATOR_SUFFIX_BYTES = TERMINATOR_SUFFIX.getBytes();
 
     private static final String[] JULIA_ARGS = { "-iq", "--depwarn=no", "--startup-file=no", "--compiled-modules=yes",
-            "--banner=no", "--threads=" + Executors.getCpuThreadPoolCount(), "-e", "using InteractiveUtils;" //
+            "--banner=no", "-e", "using InteractiveUtils;" //
                     + "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};" //
                     + "__type__(a) = typeof(a);" //
                     + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;" //

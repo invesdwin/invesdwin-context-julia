@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
-import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.Strings;
@@ -61,8 +60,7 @@ public class ModifiedJuliaCaller {
 
     public void startServer() throws IOException {
         process = Runtime.getRuntime()
-                .exec(pathToJulia + " -q --depwarn=no --compiled-modules=yes --banner=no --startup-file=no --threads="
-                        + Executors.getCpuThreadPoolCount());
+                .exec(pathToJulia + " -q --depwarn=no --compiled-modules=yes --banner=no --startup-file=no");
         final InputStream is = ModifiedJuliaCaller.class
                 .getResourceAsStream(ModifiedJuliaCaller.class.getSimpleName() + ".jl");
         final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
