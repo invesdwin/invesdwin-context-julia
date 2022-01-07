@@ -30,7 +30,7 @@ de.invesdwin.context.julia.runtime.jajub.JajubProperties.JULIA_COMMAND=julia
 # you can switch to a different julia installation by defining an absolute path here
 de.invesdwin.context.julia.runtime.juliacaller.JuliaCallerProperties.JULIA_COMMAND=julia
 ```
-- **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It requires an env variable `LD_PRELOAD=/usr/lib/jvm/default-java/lib/libjsig.so` to enable [signal chaining](https://cnuernber.github.io/libjulia-clj/signals.html). Currently only linux is supported. Only single threaded usage is possible due to a lack of sandboxing, but Julia can use multiple threads. It is less efficient than the below libjulia-clj integration because it has to retrieve results and errors through an output file instead of memory operations. This module provides the following configuration options as system properties:
+- **invesdwin-context-julia-runtime-julia4j**: This uses [Julia4j](https://github.com/rssdev10/julia4j/issues/2) as a JNI binding to Julia. It requires an env variable `LD_PRELOAD=/usr/lib/jvm/default-java/lib/libjsig.so` to enable [signal chaining](https://cnuernber.github.io/libjulia-clj/signals.html). Currently only linux is supported. Only single threaded usage is possible due to a lack of sandboxing. It is less efficient than the below libjulia-clj integration. This module provides the following configuration options as system properties:
 ```properties
 # specify where the libjulia.so resides on your computer (e.g. /opt/julia/lib/)
 # using debian packaged julia will not work: https://github.com/rssdev10/julia4j/issues/2
