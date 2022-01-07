@@ -198,15 +198,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Int8}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putByteVector(variable, value);
         }
     }
 
@@ -217,23 +209,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Int8}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Int8}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putByteMatrix(variable, value);
         }
     }
 
@@ -247,15 +223,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Int16}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putShortVector(variable, value);
         }
     }
 
@@ -266,23 +234,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Int16}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Int16}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putShortMatrix(variable, value);
         }
     }
 
@@ -296,15 +248,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Int32}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putIntegerVector(variable, value);
         }
     }
 
@@ -315,23 +259,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Int32}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Int32}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putIntegerMatrix(variable, value);
         }
     }
 
@@ -345,15 +273,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Int64}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putLongVector(variable, value);
         }
     }
 
@@ -364,23 +284,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Int64}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Int64}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putLongMatrix(variable, value);
         }
     }
 
@@ -394,15 +298,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Float32}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putFloatVector(variable, value);
         }
     }
 
@@ -413,23 +309,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Float32}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Float32}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putFloatMatrix(variable, value);
         }
     }
 
@@ -443,15 +323,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Float64}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putDoubleVector(variable, value);
         }
     }
 
@@ -462,23 +334,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Float64}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Float64}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putDoubleMatrix(variable, value);
         }
     }
 
