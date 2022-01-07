@@ -2,7 +2,6 @@ package de.invesdwin.context.julia.runtime.julia4j.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 
-import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
@@ -25,7 +23,6 @@ import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Booleans;
 
@@ -45,9 +42,6 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     private final IReentrantLock lock;
     private final JuliaResetContext resetContext;
     private final ObjectMapper mapper;
-    private final File outputFile = new File(ContextProperties.TEMP_DIRECTORY,
-            UnsafeJuliaEngineWrapper.class.getSimpleName() + ".out");
-    private final String outputFilePath = outputFile.getAbsolutePath();
     private boolean initialized = false;
 
     private UnsafeJuliaEngineWrapper() {
@@ -71,17 +65,12 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (Julia4J.jl_is_initialized() == 0) {
             Julia4J.jl_init();
         }
-        try {
-            Files.touch(outputFile);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
         evalUnchecked(
                 "using InteractiveUtils; using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;");
-        evalUnchecked("function j4j_exec(cmd) open(\"" + outputFilePath
-                + "\", \"w\") do io; redirect_stderr(io) do; try eval(Meta.parse(cmd)) catch err @error err; showerror(io, err); end; end; end; end");
-        evalUnchecked("function j4j_get(cmd) open(\"" + outputFilePath
-                + "\", \"w\") do io; redirect_stderr(io) do; try __ans__ = eval(Meta.parse(cmd)); write(io, JSON.json(__ans__)); catch err @error err; showerror(io, err); end; end; end; end;");
+        evalUnchecked(
+                "function j4j_exec(cmd) try eval(Meta.parse(cmd)); return nothing catch err @error err; return sprint(showerror, err, backtrace()); end; end");
+        evalUnchecked(
+                "function j4j_get(cmd) try return JSON.json(eval(Meta.parse(cmd))); catch err @error err; return sprint(showerror, err, backtrace()); end; end;");
         this.resetContext.init();
         initialized = true;
     }
@@ -89,15 +78,13 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     @Override
     public void exec(final String eval) {
         final String command = "j4j_exec(\"begin "
-                + Strings.normalizeNewlines(eval.trim()).replace("\n", "\\n").replace("\"", "\\\"")
-                + "\\nend\");\ntrue";
+                + Strings.normalizeNewlines(eval.trim()).replace("\n", "\\n").replace("\"", "\\\"") + "\\nend\")";
         IScriptTaskRunnerJulia.LOG.debug("> exec %s", eval);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
             assertResponseNotNull(eval, value);
-            final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-            assertResponseSuccess(eval, success);
-            assertNoErrors();
+            final String error = Julia4J.jl_unbox_string(value);
+            assertResponseSuccess(eval, error);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -118,15 +105,12 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public JsonNode getAsJsonNode(final String variable) {
-        final String command = "j4j_get(\"" + variable + "\"); true";
+        final String command = "j4j_get(\"" + variable + "\")";
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final SWIGTYPE_p_jl_value_t value = Julia4J.jl_eval_string(command);
         try {
             assertResponseNotNull(variable, value);
-            final boolean success = Booleans.checkedCast(Julia4J.jl_unbox_bool(value));
-            //        IScriptTaskRunnerJulia.LOG.debug("< %s", success);
-            assertResponseSuccess(variable, success);
-            final String result = Files.readFileToString(outputFile, Charset.defaultCharset());
+            final String result = Julia4J.jl_unbox_string(value);
             final JsonNode node = mapper.readTree(result);
             if (node instanceof NullNode) {
                 return null;
@@ -138,26 +122,24 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
         }
     }
 
-    private void assertNoErrors() throws IOException {
-        final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
-        if (Strings.isNotBlank(error)) {
-            throw new IllegalStateException("Command returned an error: " + error);
-        }
-    }
-
     private void assertResponseNotNull(final String command, final SWIGTYPE_p_jl_value_t value) throws IOException {
         if (value == null) {
-            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
             throw new IllegalStateException("Command [" + Strings.truncate(command, 100).replace("\n", "\\n")
-                    + "] returned null response which might be caused by a parser error: " + error);
+                    + "] returned null response which might be caused by a parser error");
         }
     }
 
     private void assertResponseSuccess(final String command, final boolean success) throws IOException {
         if (!success) {
-            final String error = Files.readFileToString(outputFile, Charset.defaultCharset());
+            throw new IllegalStateException(
+                    "Command [" + Strings.truncate(command, 100).replace("\n", "\\n") + "] returned a false response");
+        }
+    }
+
+    private void assertResponseSuccess(final String command, final String error) throws IOException {
+        if (Strings.isNotBlank(error)) {
             throw new IllegalStateException("Command [" + Strings.truncate(command, 100).replace("\n", "\\n")
-                    + "] returned a false response: " + error);
+                    + "] returned an error: " + error);
         }
     }
 
