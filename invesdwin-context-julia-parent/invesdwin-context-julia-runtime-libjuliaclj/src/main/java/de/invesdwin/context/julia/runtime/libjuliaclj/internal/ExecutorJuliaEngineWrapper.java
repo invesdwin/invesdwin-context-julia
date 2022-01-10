@@ -297,6 +297,114 @@ public final class ExecutorJuliaEngineWrapper implements IJuliaEngineWrapper {
     }
 
     @Override
+    public void putCharacterVectorAsString(final String variable, final char[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putCharacterVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putCharacterMatrixAsString(final String variable, final char[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putCharacterMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putStringVectorAsString(final String variable, final String[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putStringVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putStringMatrixAsString(final String variable, final String[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putStringMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putBooleanVectorAsString(final String variable, final boolean[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putBooleanVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putBooleanMatrixAsString(final String variable, final boolean[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putBooleanMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putByteVectorAsString(final String variable, final byte[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putByteVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putByteMatrixAsString(final String variable, final byte[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putByteMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putShortVectorAsString(final String variable, final short[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putShortVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putShortMatrixAsString(final String variable, final short[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putShortMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putIntegerVectorAsString(final String variable, final int[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putIntegerVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putIntegerMatrixAsString(final String variable, final int[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putIntegerMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putLongVectorAsString(final String variable, final long[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putLongVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putLongMatrixAsString(final String variable, final long[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putLongMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putFloatVectorAsString(final String variable, final float[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putFloatVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putFloatMatrixAsString(final String variable, final float[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putFloatMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putDoubleVectorAsString(final String variable, final double[] value) {
+        final Future<?> future = executor.submit(() -> delegate.putDoubleVectorAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
+    public void putDoubleMatrixAsString(final String variable, final double[][] value) {
+        final Future<?> future = executor.submit(() -> delegate.putDoubleMatrixAsString(variable, value));
+        Futures.waitNoInterrupt(future);
+    }
+
+    @Override
     public void reset() {
         final Future<?> future = executor.submit(() -> delegate.reset());
         Futures.waitNoInterrupt(future);

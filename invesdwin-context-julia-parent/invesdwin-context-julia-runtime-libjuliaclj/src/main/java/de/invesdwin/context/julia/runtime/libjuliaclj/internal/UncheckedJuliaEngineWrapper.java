@@ -16,6 +16,7 @@ import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljProperties;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskEngineJulia;
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
@@ -42,6 +43,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
     public static final WrappedExecutorService EXECUTOR = Executors
             .newFixedThreadPool(InitializingJuliaEngineWrapper.class.getSimpleName(), 1);
     public static final UncheckedJuliaEngineWrapper INSTANCE = new UncheckedJuliaEngineWrapper();
+    private static final int MIN_ELEMENTS_FOR_CREATE_ARRAY = 0;
 
     private final IReentrantLock lock;
     private final JuliaResetContext resetContext;
@@ -495,8 +497,13 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putByteVector(final String variable, final byte[] vector) {
-        final Object array = libjulia_clj.java_api.createArray("int8", new int[] { 1, vector.length }, vector);
-        putGlobalFunction.invoke(variable, array);
+        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putByteVectorAsString(variable, vector);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final Object array = libjulia_clj.java_api.createArray("int8", new int[] { 1, vector.length }, vector);
+            putGlobalFunction.invoke(variable, array);
+        }
     }
 
     @Override
@@ -519,9 +526,13 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putShortVector(final String variable, final short[] vector) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final Object array = libjulia_clj.java_api.createArray("int16", new int[] { 1, vector.length }, vector);
-        putGlobalFunction.invoke(variable, array);
+        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putShortVectorAsString(variable, vector);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final Object array = libjulia_clj.java_api.createArray("int16", new int[] { 1, vector.length }, vector);
+            putGlobalFunction.invoke(variable, array);
+        }
     }
 
     @Override
@@ -540,9 +551,13 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putIntegerVector(final String variable, final int[] vector) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final Object array = libjulia_clj.java_api.createArray("int32", new int[] { 1, vector.length }, vector);
-        putGlobalFunction.invoke(variable, array);
+        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putIntegerVectorAsString(variable, vector);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final Object array = libjulia_clj.java_api.createArray("int32", new int[] { 1, vector.length }, vector);
+            putGlobalFunction.invoke(variable, array);
+        }
     }
 
     @Override
@@ -561,9 +576,13 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putLongVector(final String variable, final long[] vector) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final Object array = libjulia_clj.java_api.createArray("int64", new int[] { 1, vector.length }, vector);
-        putGlobalFunction.invoke(variable, array);
+        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putLongVectorAsString(variable, vector);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final Object array = libjulia_clj.java_api.createArray("int64", new int[] { 1, vector.length }, vector);
+            putGlobalFunction.invoke(variable, array);
+        }
     }
 
     @Override
@@ -582,9 +601,13 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putFloatVector(final String variable, final float[] vector) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final Object array = libjulia_clj.java_api.createArray("float32", new int[] { 1, vector.length }, vector);
-        putGlobalFunction.invoke(variable, array);
+        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putFloatVectorAsString(variable, vector);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final Object array = libjulia_clj.java_api.createArray("float32", new int[] { 1, vector.length }, vector);
+            putGlobalFunction.invoke(variable, array);
+        }
     }
 
     @Override
@@ -603,9 +626,13 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putDoubleVector(final String variable, final double[] vector) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final Object array = libjulia_clj.java_api.createArray("float64", new int[] { 1, vector.length }, vector);
-        putGlobalFunction.invoke(variable, array);
+        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putDoubleVectorAsString(variable, vector);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final Object array = libjulia_clj.java_api.createArray("float64", new int[] { 1, vector.length }, vector);
+            putGlobalFunction.invoke(variable, array);
+        }
     }
 
     @Override
@@ -624,19 +651,23 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putByteMatrix(final String variable, final byte[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final byte[] vector = new byte[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
+        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putByteMatrixAsString(variable, matrix);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final int cols = matrix[0].length;
+            final int rows = matrix.length;
+            final byte[] vector = new byte[rows * cols];
+            int i = 0;
+            for (int c = 0; c < cols; c++) {
+                for (int r = 0; r < rows; r++) {
+                    vector[i] = matrix[r][c];
+                    i++;
+                }
             }
+            final Object array = libjulia_clj.java_api.createArray("int8", new int[] { cols, rows }, vector);
+            putGlobalFunction.invoke(variable, array);
         }
-        final Object array = libjulia_clj.java_api.createArray("int8", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -673,19 +704,23 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putShortMatrix(final String variable, final short[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final short[] vector = new short[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
+        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putShortMatrixAsString(variable, matrix);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final int cols = matrix[0].length;
+            final int rows = matrix.length;
+            final short[] vector = new short[rows * cols];
+            int i = 0;
+            for (int c = 0; c < cols; c++) {
+                for (int r = 0; r < rows; r++) {
+                    vector[i] = matrix[r][c];
+                    i++;
+                }
             }
+            final Object array = libjulia_clj.java_api.createArray("int16", new int[] { cols, rows }, vector);
+            putGlobalFunction.invoke(variable, array);
         }
-        final Object array = libjulia_clj.java_api.createArray("int16", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -722,19 +757,23 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putIntegerMatrix(final String variable, final int[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final int[] vector = new int[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
+        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putIntegerMatrixAsString(variable, matrix);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final int cols = matrix[0].length;
+            final int rows = matrix.length;
+            final int[] vector = new int[rows * cols];
+            int i = 0;
+            for (int c = 0; c < cols; c++) {
+                for (int r = 0; r < rows; r++) {
+                    vector[i] = matrix[r][c];
+                    i++;
+                }
             }
+            final Object array = libjulia_clj.java_api.createArray("int32", new int[] { cols, rows }, vector);
+            putGlobalFunction.invoke(variable, array);
         }
-        final Object array = libjulia_clj.java_api.createArray("int32", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -771,19 +810,23 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putLongMatrix(final String variable, final long[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final long[] vector = new long[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
+        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putLongMatrixAsString(variable, matrix);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final int cols = matrix[0].length;
+            final int rows = matrix.length;
+            final long[] vector = new long[rows * cols];
+            int i = 0;
+            for (int c = 0; c < cols; c++) {
+                for (int r = 0; r < rows; r++) {
+                    vector[i] = matrix[r][c];
+                    i++;
+                }
             }
+            final Object array = libjulia_clj.java_api.createArray("int64", new int[] { cols, rows }, vector);
+            putGlobalFunction.invoke(variable, array);
         }
-        final Object array = libjulia_clj.java_api.createArray("int64", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -820,19 +863,23 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putFloatMatrix(final String variable, final float[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final float[] vector = new float[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
+        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putFloatMatrixAsString(variable, matrix);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final int cols = matrix[0].length;
+            final int rows = matrix.length;
+            final float[] vector = new float[rows * cols];
+            int i = 0;
+            for (int c = 0; c < cols; c++) {
+                for (int r = 0; r < rows; r++) {
+                    vector[i] = matrix[r][c];
+                    i++;
+                }
             }
+            final Object array = libjulia_clj.java_api.createArray("float32", new int[] { cols, rows }, vector);
+            putGlobalFunction.invoke(variable, array);
         }
-        final Object array = libjulia_clj.java_api.createArray("float32", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -869,19 +916,23 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putDoubleMatrix(final String variable, final double[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final double[] vector = new double[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
+        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
+            putDoubleMatrixAsString(variable, matrix);
+        } else {
+            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+            final int cols = matrix[0].length;
+            final int rows = matrix.length;
+            final double[] vector = new double[rows * cols];
+            int i = 0;
+            for (int c = 0; c < cols; c++) {
+                for (int r = 0; r < rows; r++) {
+                    vector[i] = matrix[r][c];
+                    i++;
+                }
             }
+            final Object array = libjulia_clj.java_api.createArray("float64", new int[] { cols, rows }, vector);
+            putGlobalFunction.invoke(variable, array);
         }
-        final Object array = libjulia_clj.java_api.createArray("float64", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -914,6 +965,334 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
             }
         }
         return matrix;
+    }
+
+    @Override
+    public void putCharacterVectorAsString(final String variable, final char[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Char}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append("'");
+            sb.append(value[i]);
+            sb.append("'");
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putCharacterMatrixAsString(final String variable, final char[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Char}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append("'");
+                sb.append(value[row][col]);
+                sb.append("'");
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putStringVectorAsString(final String variable, final String[] value) {
+        final StringBuilder sb = new StringBuilder("Array{String}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            final String v = value[i];
+            if (v == null) {
+                sb.append("\"\"");
+            } else {
+                sb.append("\"");
+                sb.append(v);
+                sb.append("\"");
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putStringMatrixAsString(final String variable, final String[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{String}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                final String v = value[row][col];
+                if (v == null) {
+                    sb.append("\"\"");
+                } else {
+                    sb.append("\"");
+                    sb.append(v);
+                    sb.append("\"");
+                }
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putBooleanVectorAsString(final String variable, final boolean[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Bool}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putBooleanMatrixAsString(final String variable, final boolean[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Bool}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putByteVectorAsString(final String variable, final byte[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Int8}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putByteMatrixAsString(final String variable, final byte[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Int8}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putShortVectorAsString(final String variable, final short[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Int16}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putShortMatrixAsString(final String variable, final short[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Int16}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putIntegerVectorAsString(final String variable, final int[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Int32}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putIntegerMatrixAsString(final String variable, final int[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Int32}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putLongVectorAsString(final String variable, final long[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Int64}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putLongMatrixAsString(final String variable, final long[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Int64}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putFloatVectorAsString(final String variable, final float[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Float32}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putFloatMatrixAsString(final String variable, final float[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Float32}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putDoubleVectorAsString(final String variable, final double[] value) {
+        final StringBuilder sb = new StringBuilder("Array{Float64}([");
+        for (int i = 0; i < value.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(value[i]);
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    @Override
+    public void putDoubleMatrixAsString(final String variable, final double[][] value) {
+        final int rows = value.length;
+        final int cols = value[0].length;
+        final StringBuilder sb = new StringBuilder("Array{Float64}([");
+        for (int row = 0; row < rows; row++) {
+            Assertions.checkEquals(value[row].length, cols);
+            if (row > 0) {
+                sb.append(";");
+            }
+            for (int col = 0; col < cols; col++) {
+                if (col > 0) {
+                    sb.append(" ");
+                }
+                sb.append(value[row][col]);
+            }
+        }
+        sb.append("])");
+        putExpression(variable, sb.toString());
+    }
+
+    public void putExpression(final String variable, final String expression) {
+        eval(variable + " = " + expression);
     }
 
     @Override

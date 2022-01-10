@@ -314,6 +314,114 @@ public final class InitializingJuliaEngineWrapper implements IJuliaEngineWrapper
     }
 
     @Override
+    public void putCharacterVectorAsString(final String variable, final char[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putCharacterVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putCharacterMatrixAsString(final String variable, final char[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putCharacterMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putStringVectorAsString(final String variable, final String[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putStringVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putStringMatrixAsString(final String variable, final String[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putStringMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putBooleanVectorAsString(final String variable, final boolean[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putBooleanVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putBooleanMatrixAsString(final String variable, final boolean[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putBooleanMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putByteVectorAsString(final String variable, final byte[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putByteVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putByteMatrixAsString(final String variable, final byte[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putByteMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putShortVectorAsString(final String variable, final short[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putShortVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putShortMatrixAsString(final String variable, final short[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putShortMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putIntegerVectorAsString(final String variable, final int[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putIntegerVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putIntegerMatrixAsString(final String variable, final int[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putIntegerMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putLongVectorAsString(final String variable, final long[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putLongVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putLongMatrixAsString(final String variable, final long[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putLongMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putFloatVectorAsString(final String variable, final float[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putFloatVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putFloatMatrixAsString(final String variable, final float[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putFloatMatrixAsString(variable, value);
+    }
+
+    @Override
+    public void putDoubleVectorAsString(final String variable, final double[] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putDoubleVectorAsString(variable, value);
+    }
+
+    @Override
+    public void putDoubleMatrixAsString(final String variable, final double[][] value) {
+        maybeInit();
+        UncheckedJuliaEngineWrapper.INSTANCE.putDoubleMatrixAsString(variable, value);
+    }
+
+    @Override
     public void reset() {
         maybeInit();
         UncheckedJuliaEngineWrapper.INSTANCE.reset();

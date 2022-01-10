@@ -98,4 +98,40 @@ public interface IJuliaEngineWrapper {
 
     double[][] getDoubleMatrixAsJson(String variable);
 
+    void putCharacterVectorAsString(String variable, char[] value);
+
+    void putCharacterMatrixAsString(String variable, char[][] value);
+
+    void putStringVectorAsString(String variable, String[] value);
+
+    void putStringMatrixAsString(String variable, String[][] value);
+
+    void putBooleanVectorAsString(String variable, boolean[] value);
+
+    void putBooleanMatrixAsString(String variable, boolean[][] value);
+
+    void putByteVectorAsString(String variable, byte[] value);
+
+    void putByteMatrixAsString(String variable, byte[][] value);
+
+    void putShortVectorAsString(String variable, short[] value);
+
+    void putShortMatrixAsString(String variable, short[][] value);
+
+    void putIntegerVectorAsString(String variable, int[] value);
+
+    void putIntegerMatrixAsString(String variable, int[][] value);
+
+    void putLongVectorAsString(String variable, long[] value);
+
+    void putLongMatrixAsString(String variable, long[][] value);
+
+    void putFloatVectorAsString(String variable, float[] value);
+
+    void putFloatMatrixAsString(String variable, float[][] value);
+
+    void putDoubleVectorAsString(String variable, double[] value);
+
+    void putDoubleMatrixAsString(String variable, double[][] value);
+
 }

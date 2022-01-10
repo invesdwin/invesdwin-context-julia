@@ -3,7 +3,6 @@ package de.invesdwin.context.julia.runtime.libjuliaclj;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskInputsJulia;
-import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
 public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia {
@@ -29,17 +28,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Char}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append("'");
-                sb.append(value[i]);
-                sb.append("'");
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putCharacterVectorAsString(variable, value);
         }
     }
 
@@ -50,25 +39,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Char}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Char}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append("'");
-                    sb.append(value[row][col]);
-                    sb.append("'");
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putCharacterMatrixAsString(variable, value);
         }
     }
 
@@ -86,22 +57,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{String}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                final String v = value[i];
-                if (v == null) {
-                    sb.append("\"\"");
-                } else {
-                    sb.append("\"");
-                    sb.append(v);
-                    sb.append("\"");
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putStringVectorAsString(variable, value);
         }
     }
 
@@ -112,30 +68,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{String}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{String}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    final String v = value[row][col];
-                    if (v == null) {
-                        sb.append("\"\"");
-                    } else {
-                        sb.append("\"");
-                        sb.append(v);
-                        sb.append("\"");
-                    }
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putStringMatrixAsString(variable, value);
         }
     }
 
@@ -149,15 +82,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         if (value == null) {
             putNull(variable);
         } else {
-            final StringBuilder sb = new StringBuilder("Array{Bool}([");
-            for (int i = 0; i < value.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(value[i]);
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putBooleanVectorAsString(variable, value);
         }
     }
 
@@ -168,23 +93,7 @@ public class LibjuliacljScriptTaskInputsJulia implements IScriptTaskInputsJulia 
         } else if (value.length == 0 || value[0].length == 0) {
             putExpression(variable, "Array{Bool}(undef, " + value.length + ", 0)");
         } else {
-            final int rows = value.length;
-            final int cols = value[0].length;
-            final StringBuilder sb = new StringBuilder("Array{Bool}([");
-            for (int row = 0; row < rows; row++) {
-                Assertions.checkEquals(value[row].length, cols);
-                if (row > 0) {
-                    sb.append(";");
-                }
-                for (int col = 0; col < cols; col++) {
-                    if (col > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(value[row][col]);
-                }
-            }
-            sb.append("])");
-            putExpression(variable, sb.toString());
+            getEngine().unwrap().putBooleanMatrixAsString(variable, value);
         }
     }
 
