@@ -43,7 +43,6 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
     public static final WrappedExecutorService EXECUTOR = Executors
             .newFixedThreadPool(InitializingJuliaEngineWrapper.class.getSimpleName(), 1);
     public static final UncheckedJuliaEngineWrapper INSTANCE = new UncheckedJuliaEngineWrapper();
-    private static final int MIN_ELEMENTS_FOR_CREATE_ARRAY = 0;
 
     private final IReentrantLock lock;
     private final JuliaResetContext resetContext;
@@ -497,13 +496,9 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putByteVector(final String variable, final byte[] vector) {
-        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putByteVectorAsString(variable, vector);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final Object array = libjulia_clj.java_api.createArray("int8", new int[] { 1, vector.length }, vector);
-            putGlobalFunction.invoke(variable, array);
-        }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final Object array = libjulia_clj.java_api.createArray("int8", new int[] { 1, vector.length }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -526,13 +521,9 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putShortVector(final String variable, final short[] vector) {
-        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putShortVectorAsString(variable, vector);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final Object array = libjulia_clj.java_api.createArray("int16", new int[] { 1, vector.length }, vector);
-            putGlobalFunction.invoke(variable, array);
-        }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final Object array = libjulia_clj.java_api.createArray("int16", new int[] { 1, vector.length }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -551,13 +542,9 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putIntegerVector(final String variable, final int[] vector) {
-        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putIntegerVectorAsString(variable, vector);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final Object array = libjulia_clj.java_api.createArray("int32", new int[] { 1, vector.length }, vector);
-            putGlobalFunction.invoke(variable, array);
-        }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final Object array = libjulia_clj.java_api.createArray("int32", new int[] { 1, vector.length }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -576,13 +563,9 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putLongVector(final String variable, final long[] vector) {
-        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putLongVectorAsString(variable, vector);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final Object array = libjulia_clj.java_api.createArray("int64", new int[] { 1, vector.length }, vector);
-            putGlobalFunction.invoke(variable, array);
-        }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final Object array = libjulia_clj.java_api.createArray("int64", new int[] { 1, vector.length }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -601,13 +584,9 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putFloatVector(final String variable, final float[] vector) {
-        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putFloatVectorAsString(variable, vector);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final Object array = libjulia_clj.java_api.createArray("float32", new int[] { 1, vector.length }, vector);
-            putGlobalFunction.invoke(variable, array);
-        }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final Object array = libjulia_clj.java_api.createArray("float32", new int[] { 1, vector.length }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -626,13 +605,9 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putDoubleVector(final String variable, final double[] vector) {
-        if (vector.length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putDoubleVectorAsString(variable, vector);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final Object array = libjulia_clj.java_api.createArray("float64", new int[] { 1, vector.length }, vector);
-            putGlobalFunction.invoke(variable, array);
-        }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final Object array = libjulia_clj.java_api.createArray("float64", new int[] { 1, vector.length }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -651,23 +626,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putByteMatrix(final String variable, final byte[][] matrix) {
-        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putByteMatrixAsString(variable, matrix);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final int cols = matrix[0].length;
-            final int rows = matrix.length;
-            final byte[] vector = new byte[rows * cols];
-            int i = 0;
-            for (int c = 0; c < cols; c++) {
-                for (int r = 0; r < rows; r++) {
-                    vector[i] = matrix[r][c];
-                    i++;
-                }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final byte[] vector = new byte[rows * cols];
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                vector[i] = matrix[r][c];
+                i++;
             }
-            final Object array = libjulia_clj.java_api.createArray("int8", new int[] { cols, rows }, vector);
-            putGlobalFunction.invoke(variable, array);
         }
+        final Object array = libjulia_clj.java_api.createArray("int8", new int[] { cols, rows }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -704,23 +675,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putShortMatrix(final String variable, final short[][] matrix) {
-        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putShortMatrixAsString(variable, matrix);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final int cols = matrix[0].length;
-            final int rows = matrix.length;
-            final short[] vector = new short[rows * cols];
-            int i = 0;
-            for (int c = 0; c < cols; c++) {
-                for (int r = 0; r < rows; r++) {
-                    vector[i] = matrix[r][c];
-                    i++;
-                }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final short[] vector = new short[rows * cols];
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                vector[i] = matrix[r][c];
+                i++;
             }
-            final Object array = libjulia_clj.java_api.createArray("int16", new int[] { cols, rows }, vector);
-            putGlobalFunction.invoke(variable, array);
         }
+        final Object array = libjulia_clj.java_api.createArray("int16", new int[] { cols, rows }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -757,23 +724,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putIntegerMatrix(final String variable, final int[][] matrix) {
-        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putIntegerMatrixAsString(variable, matrix);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final int cols = matrix[0].length;
-            final int rows = matrix.length;
-            final int[] vector = new int[rows * cols];
-            int i = 0;
-            for (int c = 0; c < cols; c++) {
-                for (int r = 0; r < rows; r++) {
-                    vector[i] = matrix[r][c];
-                    i++;
-                }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final int[] vector = new int[rows * cols];
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                vector[i] = matrix[r][c];
+                i++;
             }
-            final Object array = libjulia_clj.java_api.createArray("int32", new int[] { cols, rows }, vector);
-            putGlobalFunction.invoke(variable, array);
         }
+        final Object array = libjulia_clj.java_api.createArray("int32", new int[] { cols, rows }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -810,23 +773,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putLongMatrix(final String variable, final long[][] matrix) {
-        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putLongMatrixAsString(variable, matrix);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final int cols = matrix[0].length;
-            final int rows = matrix.length;
-            final long[] vector = new long[rows * cols];
-            int i = 0;
-            for (int c = 0; c < cols; c++) {
-                for (int r = 0; r < rows; r++) {
-                    vector[i] = matrix[r][c];
-                    i++;
-                }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final long[] vector = new long[rows * cols];
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                vector[i] = matrix[r][c];
+                i++;
             }
-            final Object array = libjulia_clj.java_api.createArray("int64", new int[] { cols, rows }, vector);
-            putGlobalFunction.invoke(variable, array);
         }
+        final Object array = libjulia_clj.java_api.createArray("int64", new int[] { cols, rows }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -863,23 +822,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putFloatMatrix(final String variable, final float[][] matrix) {
-        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putFloatMatrixAsString(variable, matrix);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final int cols = matrix[0].length;
-            final int rows = matrix.length;
-            final float[] vector = new float[rows * cols];
-            int i = 0;
-            for (int c = 0; c < cols; c++) {
-                for (int r = 0; r < rows; r++) {
-                    vector[i] = matrix[r][c];
-                    i++;
-                }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final float[] vector = new float[rows * cols];
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                vector[i] = matrix[r][c];
+                i++;
             }
-            final Object array = libjulia_clj.java_api.createArray("float32", new int[] { cols, rows }, vector);
-            putGlobalFunction.invoke(variable, array);
         }
+        final Object array = libjulia_clj.java_api.createArray("float32", new int[] { cols, rows }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
@@ -916,23 +871,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putDoubleMatrix(final String variable, final double[][] matrix) {
-        if (matrix.length * matrix[0].length < MIN_ELEMENTS_FOR_CREATE_ARRAY) {
-            putDoubleMatrixAsString(variable, matrix);
-        } else {
-            IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-            final int cols = matrix[0].length;
-            final int rows = matrix.length;
-            final double[] vector = new double[rows * cols];
-            int i = 0;
-            for (int c = 0; c < cols; c++) {
-                for (int r = 0; r < rows; r++) {
-                    vector[i] = matrix[r][c];
-                    i++;
-                }
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final double[] vector = new double[rows * cols];
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                vector[i] = matrix[r][c];
+                i++;
             }
-            final Object array = libjulia_clj.java_api.createArray("float64", new int[] { cols, rows }, vector);
-            putGlobalFunction.invoke(variable, array);
         }
+        final Object array = libjulia_clj.java_api.createArray("float64", new int[] { cols, rows }, vector);
+        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
