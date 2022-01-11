@@ -26,7 +26,7 @@ public final class JuliaCallerObjectPool extends ATimeoutObjectPool<ExtendedJuli
     }
 
     @Override
-    public void destroyObject(final ExtendedJuliaCaller obj) {
+    public void invalidateObject(final ExtendedJuliaCaller obj) {
         try {
             obj.shutdownServer();
         } catch (final IOException e) {

@@ -45,7 +45,7 @@ public final class JuliaCallerScriptTaskRunnerJulia
             return result;
         } catch (final Throwable t) {
             //we have to destroy instances on exceptions, otherwise e.g. SFrontiers.jl might get stuck with some inconsistent state
-            JuliaCallerObjectPool.INSTANCE.destroyObject(juliaCaller);
+            JuliaCallerObjectPool.INSTANCE.invalidateObject(juliaCaller);
             throw Throwables.propagate(t);
         }
     }

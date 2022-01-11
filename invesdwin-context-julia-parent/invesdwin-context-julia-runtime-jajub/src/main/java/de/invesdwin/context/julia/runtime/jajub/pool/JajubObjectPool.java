@@ -24,7 +24,7 @@ public final class JajubObjectPool extends ATimeoutObjectPool<ExtendedJuliaBridg
     }
 
     @Override
-    public void destroyObject(final ExtendedJuliaBridge obj) {
+    public void invalidateObject(final ExtendedJuliaBridge obj) {
         obj.close();
     }
 
