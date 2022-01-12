@@ -20,16 +20,18 @@ import de.invesdwin.util.lang.reflection.Reflections;
  */
 @Immutable
 @Named
-public final class ProvidedScriptTaskRunnerJulia implements IScriptTaskRunnerJulia, FactoryBean<ProvidedScriptTaskRunnerJulia> {
+public final class ProvidedScriptTaskRunnerJulia
+        implements IScriptTaskRunnerJulia, FactoryBean<ProvidedScriptTaskRunnerJulia> {
 
     public static final String PROVIDED_INSTANCE_KEY = IScriptTaskRunnerJulia.class.getName();
 
     public static final ProvidedScriptTaskRunnerJulia INSTANCE = new ProvidedScriptTaskRunnerJulia();
 
-    @GuardedBy("ProvidedScriptTaskRunnerR.class")
+    @GuardedBy("this.class")
     private static IScriptTaskRunnerJulia providedInstance;
 
-    private ProvidedScriptTaskRunnerJulia() {}
+    private ProvidedScriptTaskRunnerJulia() {
+    }
 
     public static synchronized IScriptTaskRunnerJulia getProvidedInstance() {
         if (providedInstance == null) {
@@ -63,11 +65,11 @@ public final class ProvidedScriptTaskRunnerJulia implements IScriptTaskRunnerJul
                     }
                     Strings.removeEnd(runnersStr, "|");
                     runnersStr.append(")");
-                    throw new IllegalStateException(
-                            "More than one service provider found for [" + PROVIDED_INSTANCE_KEY + "=" + runnersStr
-                                    + "] to choose from. Please remove unwanted ones from the classpath or choose a "
-                                    + "specific one by defining a system property for the preferred one. E.g. on the command line with -D"
-                                    + PROVIDED_INSTANCE_KEY + "=" + runners.keySet().iterator().next());
+                    throw new IllegalStateException("More than one service provider found for [" + PROVIDED_INSTANCE_KEY
+                            + "=" + runnersStr
+                            + "] to choose from. Please remove unwanted ones from the classpath or choose a "
+                            + "specific one by defining a system property for the preferred one. E.g. on the command line with -D"
+                            + PROVIDED_INSTANCE_KEY + "=" + runners.keySet().iterator().next());
                 }
                 setProvidedInstance(runners.values().iterator().next());
             }
