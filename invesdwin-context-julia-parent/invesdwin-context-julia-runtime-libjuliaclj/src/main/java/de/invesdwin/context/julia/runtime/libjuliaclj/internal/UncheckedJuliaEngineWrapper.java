@@ -32,6 +32,7 @@ import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.Shorts;
+import de.invesdwin.util.time.Instant;
 import tech.v3.Tensor;
 import tech.v3.datatype.NDBuffer;
 
@@ -74,6 +75,60 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
         this.putGlobalFunction = (IFn) libjulia_clj.java_api.runString(
                 "function libjuliaclj_putGlobal(variable, value); global __ans__ = value; eval(Meta.parse(\"global \"*variable*\" = __ans__\")); return nothing; end");
+
+        final int cols = 10;
+        for (final int rows : new int[] { 1, 10, 25, 50, 100, 1000 }) {
+            System.out.println("\nArray Size: " + rows + "*" + cols + "=" + (rows * cols));
+            final float[][] matrix = new float[rows][];
+            int element = 0;
+            for (int i = 0; i < rows; i++) {
+                final float[] row = new float[cols];
+                matrix[i] = row;
+                for (int j = 0; j < cols; j++) {
+                    row[j] = element++;
+                }
+            }
+            final int iterations = 100;
+            final LibjuliacljScriptTaskEngineJulia engine = new LibjuliacljScriptTaskEngineJulia(this);
+            for (int t = 0; t < 2; t++) {
+                Instant start = new Instant();
+                for (int i = 0; i < iterations; i++) {
+                    putFloatMatrix("asdf", matrix);
+                    final float[][] out = getFloatMatrix("asdf");
+                    Assertions.checkEquals(matrix, out);
+                }
+                if (t == 1) {
+                    System.out.println("array->array: " + start);
+                }
+                start = new Instant();
+                for (int i = 0; i < iterations; i++) {
+                    putFloatMatrixTensor("asdf", matrix);
+                    final float[][] out = getFloatMatrixTensor("asdf");
+                    Assertions.checkEquals(matrix, out);
+                }
+                if (t == 1) {
+                    System.out.println("tensor->tensor: " + start);
+                }
+                start = new Instant();
+                for (int i = 0; i < iterations; i++) {
+                    putFloatMatrix("asdf", matrix);
+                    final float[][] out = getFloatMatrixTensor("asdf");
+                    Assertions.checkEquals(matrix, out);
+                }
+                if (t == 1) {
+                    System.out.println("array->tensor: " + start);
+                }
+                start = new Instant();
+                for (int i = 0; i < iterations; i++) {
+                    putFloatMatrixTensor("asdf", matrix);
+                    final float[][] out = getFloatMatrix("asdf");
+                    Assertions.checkEquals(matrix, out);
+                }
+                if (t == 1) {
+                    System.out.println("tensor->array: " + start);
+                }
+            }
+        }
 
         this.resetContext.init();
     }
@@ -827,7 +882,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putFloatMatrix(final String variable, final float[][] matrix) {
-        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        //        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
         final float[] vector = new float[rows * cols];
@@ -844,7 +899,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public float[][] getFloatMatrix(final String variable) {
-        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
+        //        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final Object array = libjulia_clj.java_api.runString("__ans__=" + variable + ";\n__ans__");
         if (array == null) {
             return null;
@@ -868,6 +923,54 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
                 matrix[r][c] = vector[i];
+                i++;
+            }
+        }
+        return matrix;
+    }
+
+    public void putFloatMatrixTensor(final String variable, final float[][] matrix) {
+        //        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        final int cols = matrix[0].length;
+        final int rows = matrix.length;
+        final Object array = libjulia_clj.java_api
+                .runString(variable + " = Array{Float64}(undef, " + rows + ", " + cols + "); " + variable);
+        final NDBuffer tensor = Tensor.asTensor(array);
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                tensor.ndWriteDouble(i, matrix[r][c]);
+                i++;
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public float[][] getFloatMatrixTensor(final String variable) {
+        //        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
+        final Object array = libjulia_clj.java_api.runString("__ans__=" + variable + ";\n__ans__");
+        if (array == null) {
+            return null;
+        }
+        if (!isJuliaArray(array)) {
+            return getFloatMatrixAsJson("__ans__");
+        }
+        final NDBuffer tensor = Tensor.asTensor(array);
+        final Iterable<Object> shape = tensor.shape();
+        final Iterator<Object> dims = shape.iterator();
+        final int cols = Integers.checkedCast(dims.next());
+        final int rows = Integers.checkedCast(dims.next());
+        if (dims.hasNext()) {
+            throw new IllegalArgumentException("Not a matrix: " + Lists.toList(shape));
+        }
+        final float[][] matrix = new float[rows][];
+        for (int r = 0; r < rows; r++) {
+            matrix[r] = new float[cols];
+        }
+        int i = 0;
+        for (int c = 0; c < cols; c++) {
+            for (int r = 0; r < rows; r++) {
+                matrix[r][c] = Floats.checkedCast(tensor.ndReadDouble(i));
                 i++;
             }
         }
