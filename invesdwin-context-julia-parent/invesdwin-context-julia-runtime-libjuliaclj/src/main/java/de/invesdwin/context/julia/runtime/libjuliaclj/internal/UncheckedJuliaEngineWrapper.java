@@ -1,6 +1,5 @@
 package de.invesdwin.context.julia.runtime.libjuliaclj.internal;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,7 +31,6 @@ import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.Shorts;
-import de.invesdwin.util.time.Instant;
 import tech.v3.Tensor;
 import tech.v3.datatype.NDBuffer;
 
@@ -75,60 +73,6 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
         this.putGlobalFunction = (IFn) libjulia_clj.java_api.runString(
                 "function libjuliaclj_putGlobal(variable, value); global __ans__ = value; eval(Meta.parse(\"global \"*variable*\" = __ans__\")); return nothing; end");
-
-        final int cols = 10;
-        for (final int rows : new int[] { 1, 10, 25, 50, 100, 1000 }) {
-            System.out.println("\nArray Size: " + rows + "*" + cols + "=" + (rows * cols));
-            final float[][] matrix = new float[rows][];
-            int element = 0;
-            for (int i = 0; i < rows; i++) {
-                final float[] row = new float[cols];
-                matrix[i] = row;
-                for (int j = 0; j < cols; j++) {
-                    row[j] = element++;
-                }
-            }
-            final int iterations = 100;
-            final LibjuliacljScriptTaskEngineJulia engine = new LibjuliacljScriptTaskEngineJulia(this);
-            for (int t = 0; t < 2; t++) {
-                Instant start = new Instant();
-                for (int i = 0; i < iterations; i++) {
-                    putFloatMatrix("asdf", matrix);
-                    final float[][] out = getFloatMatrix("asdf");
-                    Assertions.checkEquals(matrix, out);
-                }
-                if (t == 1) {
-                    System.out.println("array->array: " + start);
-                }
-                start = new Instant();
-                for (int i = 0; i < iterations; i++) {
-                    putFloatMatrixTensor("asdf", matrix);
-                    final float[][] out = getFloatMatrixTensor("asdf");
-                    Assertions.checkEquals(matrix, out);
-                }
-                if (t == 1) {
-                    System.out.println("tensor->tensor: " + start);
-                }
-                start = new Instant();
-                for (int i = 0; i < iterations; i++) {
-                    putFloatMatrix("asdf", matrix);
-                    final float[][] out = getFloatMatrixTensor("asdf");
-                    Assertions.checkEquals(matrix, out);
-                }
-                if (t == 1) {
-                    System.out.println("array->tensor: " + start);
-                }
-                start = new Instant();
-                for (int i = 0; i < iterations; i++) {
-                    putFloatMatrixTensor("asdf", matrix);
-                    final float[][] out = getFloatMatrix("asdf");
-                    Assertions.checkEquals(matrix, out);
-                }
-                if (t == 1) {
-                    System.out.println("tensor->array: " + start);
-                }
-            }
-        }
 
         this.resetContext.init();
     }
@@ -688,19 +632,20 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
-        final byte[] vector = new byte[rows * cols];
+        final Object array = libjulia_clj.java_api
+                .runString(variable + " = Array{Int8}(undef, " + rows + ", " + cols + "); " + variable);
+        final NDBuffer tensor = Tensor.asTensor(array);
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
+                tensor.ndWriteLong(i, matrix[r][c]);
                 i++;
             }
         }
-        final Object array = libjulia_clj.java_api.createArray("int8", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public byte[][] getByteMatrix(final String variable) {
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final Object array = libjulia_clj.java_api.runString("__ans__=" + variable + ";\n__ans__");
@@ -710,14 +655,14 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (!isJuliaArray(array)) {
             return getByteMatrixAsJson("__ans__");
         }
-        final Map<?, ?> map = libjulia_clj.java_api.arrayToJVM(array);
-        final byte[] vector = Bytes.checkedCastVector(map.get("data"));
-        final int[] dims = (int[]) map.get("shape");
-        if (dims.length != 2) {
-            throw new IllegalArgumentException("Not a matrix: " + Arrays.toString(dims));
+        final NDBuffer tensor = Tensor.asTensor(array);
+        final Iterable<Object> shape = tensor.shape();
+        final Iterator<Object> dims = shape.iterator();
+        final int cols = Integers.checkedCast(dims.next());
+        final int rows = Integers.checkedCast(dims.next());
+        if (dims.hasNext()) {
+            throw new IllegalArgumentException("Not a matrix: " + Lists.toList(shape));
         }
-        final int cols = dims[0];
-        final int rows = dims[1];
         final byte[][] matrix = new byte[rows][];
         for (int r = 0; r < rows; r++) {
             matrix[r] = new byte[cols];
@@ -725,7 +670,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                matrix[r][c] = vector[i];
+                matrix[r][c] = Bytes.checkedCast(tensor.ndReadLong(i));
                 i++;
             }
         }
@@ -737,18 +682,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
-        final short[] vector = new short[rows * cols];
+        final Object array = libjulia_clj.java_api
+                .runString(variable + " = Array{Int16}(undef, " + rows + ", " + cols + "); " + variable);
+        final NDBuffer tensor = Tensor.asTensor(array);
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
+                tensor.ndWriteLong(i, matrix[r][c]);
                 i++;
             }
         }
-        final Object array = libjulia_clj.java_api.createArray("int16", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public short[][] getShortMatrix(final String variable) {
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
@@ -759,14 +705,14 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (!isJuliaArray(array)) {
             return getShortMatrixAsJson("__ans__");
         }
-        final Map<?, ?> map = libjulia_clj.java_api.arrayToJVM(array);
-        final short[] vector = Shorts.checkedCastVector(map.get("data"));
-        final int[] dims = (int[]) map.get("shape");
-        if (dims.length != 2) {
-            throw new IllegalArgumentException("Not a matrix: " + Arrays.toString(dims));
+        final NDBuffer tensor = Tensor.asTensor(array);
+        final Iterable<Object> shape = tensor.shape();
+        final Iterator<Object> dims = shape.iterator();
+        final int cols = Integers.checkedCast(dims.next());
+        final int rows = Integers.checkedCast(dims.next());
+        if (dims.hasNext()) {
+            throw new IllegalArgumentException("Not a matrix: " + Lists.toList(shape));
         }
-        final int cols = dims[0];
-        final int rows = dims[1];
         final short[][] matrix = new short[rows][];
         for (int r = 0; r < rows; r++) {
             matrix[r] = new short[cols];
@@ -774,7 +720,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                matrix[r][c] = vector[i];
+                matrix[r][c] = Shorts.checkedCast(tensor.ndReadLong(i));
                 i++;
             }
         }
@@ -786,19 +732,20 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
-        final int[] vector = new int[rows * cols];
+        final Object array = libjulia_clj.java_api
+                .runString(variable + " = Array{Int32}(undef, " + rows + ", " + cols + "); " + variable);
+        final NDBuffer tensor = Tensor.asTensor(array);
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
+                tensor.ndWriteLong(i, matrix[r][c]);
                 i++;
             }
         }
-        final Object array = libjulia_clj.java_api.createArray("int32", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public int[][] getIntegerMatrix(final String variable) {
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final Object array = libjulia_clj.java_api.runString("__ans__=" + variable + ";\n__ans__");
@@ -808,14 +755,14 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (!isJuliaArray(array)) {
             return getIntegerMatrixAsJson("__ans__");
         }
-        final Map<?, ?> map = libjulia_clj.java_api.arrayToJVM(array);
-        final int[] vector = Integers.checkedCastVector(map.get("data"));
-        final int[] dims = (int[]) map.get("shape");
-        if (dims.length != 2) {
-            throw new IllegalArgumentException("Not a matrix: " + Arrays.toString(dims));
+        final NDBuffer tensor = Tensor.asTensor(array);
+        final Iterable<Object> shape = tensor.shape();
+        final Iterator<Object> dims = shape.iterator();
+        final int cols = Integers.checkedCast(dims.next());
+        final int rows = Integers.checkedCast(dims.next());
+        if (dims.hasNext()) {
+            throw new IllegalArgumentException("Not a matrix: " + Lists.toList(shape));
         }
-        final int cols = dims[0];
-        final int rows = dims[1];
         final int[][] matrix = new int[rows][];
         for (int r = 0; r < rows; r++) {
             matrix[r] = new int[cols];
@@ -823,7 +770,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                matrix[r][c] = vector[i];
+                matrix[r][c] = Integers.checkedCast(tensor.ndReadLong(i));
                 i++;
             }
         }
@@ -882,59 +829,11 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
 
     @Override
     public void putFloatMatrix(final String variable, final float[][] matrix) {
-        //        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
-        final int cols = matrix[0].length;
-        final int rows = matrix.length;
-        final float[] vector = new float[rows * cols];
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
-                i++;
-            }
-        }
-        final Object array = libjulia_clj.java_api.createArray("float32", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
-    }
-
-    @Override
-    public float[][] getFloatMatrix(final String variable) {
-        //        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
-        final Object array = libjulia_clj.java_api.runString("__ans__=" + variable + ";\n__ans__");
-        if (array == null) {
-            return null;
-        }
-        if (!isJuliaArray(array)) {
-            return getFloatMatrixAsJson("__ans__");
-        }
-        final Map<?, ?> map = libjulia_clj.java_api.arrayToJVM(array);
-        final float[] vector = Floats.checkedCastVector(map.get("data"));
-        final int[] dims = (int[]) map.get("shape");
-        if (dims.length != 2) {
-            throw new IllegalArgumentException("Not a matrix: " + Arrays.toString(dims));
-        }
-        final int cols = dims[0];
-        final int rows = dims[1];
-        final float[][] matrix = new float[rows][];
-        for (int r = 0; r < rows; r++) {
-            matrix[r] = new float[cols];
-        }
-        int i = 0;
-        for (int c = 0; c < cols; c++) {
-            for (int r = 0; r < rows; r++) {
-                matrix[r][c] = vector[i];
-                i++;
-            }
-        }
-        return matrix;
-    }
-
-    public void putFloatMatrixTensor(final String variable, final float[][] matrix) {
-        //        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
+        IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
         final Object array = libjulia_clj.java_api
-                .runString(variable + " = Array{Float64}(undef, " + rows + ", " + cols + "); " + variable);
+                .runString(variable + " = Array{Float32}(undef, " + rows + ", " + cols + "); " + variable);
         final NDBuffer tensor = Tensor.asTensor(array);
         int i = 0;
         for (int c = 0; c < cols; c++) {
@@ -945,9 +844,10 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    public float[][] getFloatMatrixTensor(final String variable) {
-        //        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
+    public float[][] getFloatMatrix(final String variable) {
+        IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
         final Object array = libjulia_clj.java_api.runString("__ans__=" + variable + ";\n__ans__");
         if (array == null) {
             return null;
