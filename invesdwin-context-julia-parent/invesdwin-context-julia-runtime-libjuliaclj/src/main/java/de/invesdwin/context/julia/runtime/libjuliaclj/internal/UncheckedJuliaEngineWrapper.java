@@ -2,6 +2,7 @@ package de.invesdwin.context.julia.runtime.libjuliaclj.internal;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -17,6 +18,7 @@ import de.invesdwin.context.julia.runtime.contract.JuliaResetContext;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljProperties;
 import de.invesdwin.context.julia.runtime.libjuliaclj.LibjuliacljScriptTaskEngineJulia;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
@@ -30,6 +32,8 @@ import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.Shorts;
+import tech.v3.Tensor;
+import tech.v3.datatype.NDBuffer;
 
 /**
  * Always acquire the lock first before accessing the julia engine instance. Also make sure commands are only executed
@@ -776,18 +780,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
-        final long[] vector = new long[rows * cols];
+        final Object array = libjulia_clj.java_api
+                .runString(variable + " = Array{Int64}(undef, " + rows + ", " + cols + "); " + variable);
+        final NDBuffer tensor = Tensor.asTensor(array);
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
+                tensor.ndWriteLong(i, matrix[r][c]);
                 i++;
             }
         }
-        final Object array = libjulia_clj.java_api.createArray("int64", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public long[][] getLongMatrix(final String variable) {
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
@@ -798,14 +803,14 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (!isJuliaArray(array)) {
             return getLongMatrixAsJson("__ans__");
         }
-        final Map<?, ?> map = libjulia_clj.java_api.arrayToJVM(array);
-        final long[] vector = Longs.checkedCastVector(map.get("data"));
-        final int[] dims = (int[]) map.get("shape");
-        if (dims.length != 2) {
-            throw new IllegalArgumentException("Not a matrix: " + Arrays.toString(dims));
+        final NDBuffer tensor = Tensor.asTensor(array);
+        final Iterable<Object> shape = tensor.shape();
+        final Iterator<Object> dims = shape.iterator();
+        final int cols = Integers.checkedCast(dims.next());
+        final int rows = Integers.checkedCast(dims.next());
+        if (dims.hasNext()) {
+            throw new IllegalArgumentException("Not a matrix: " + Lists.toList(shape));
         }
-        final int cols = dims[0];
-        final int rows = dims[1];
         final long[][] matrix = new long[rows][];
         for (int r = 0; r < rows; r++) {
             matrix[r] = new long[cols];
@@ -813,7 +818,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                matrix[r][c] = vector[i];
+                matrix[r][c] = tensor.ndReadLong(i);
                 i++;
             }
         }
@@ -874,18 +879,19 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         IScriptTaskRunnerJulia.LOG.debug("> put %s", variable);
         final int cols = matrix[0].length;
         final int rows = matrix.length;
-        final double[] vector = new double[rows * cols];
+        final Object array = libjulia_clj.java_api
+                .runString(variable + " = Array{Float64}(undef, " + rows + ", " + cols + "); " + variable);
+        final NDBuffer tensor = Tensor.asTensor(array);
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                vector[i] = matrix[r][c];
+                tensor.ndWriteDouble(i, matrix[r][c]);
                 i++;
             }
         }
-        final Object array = libjulia_clj.java_api.createArray("float64", new int[] { cols, rows }, vector);
-        putGlobalFunction.invoke(variable, array);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public double[][] getDoubleMatrix(final String variable) {
         IScriptTaskRunnerJulia.LOG.debug("> get %s", variable);
@@ -896,14 +902,14 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         if (!isJuliaArray(array)) {
             return getDoubleMatrixAsJson("__ans__");
         }
-        final Map<?, ?> map = libjulia_clj.java_api.arrayToJVM(array);
-        final double[] vector = Doubles.checkedCastVector(map.get("data"));
-        final int[] dims = (int[]) map.get("shape");
-        if (dims.length != 2) {
-            throw new IllegalArgumentException("Not a matrix: " + Arrays.toString(dims));
+        final NDBuffer tensor = Tensor.asTensor(array);
+        final Iterable<Object> shape = tensor.shape();
+        final Iterator<Object> dims = shape.iterator();
+        final int cols = Integers.checkedCast(dims.next());
+        final int rows = Integers.checkedCast(dims.next());
+        if (dims.hasNext()) {
+            throw new IllegalArgumentException("Not a matrix: " + Lists.toList(shape));
         }
-        final int cols = dims[0];
-        final int rows = dims[1];
         final double[][] matrix = new double[rows][];
         for (int r = 0; r < rows; r++) {
             matrix[r] = new double[cols];
@@ -911,7 +917,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         int i = 0;
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows; r++) {
-                matrix[r][c] = vector[i];
+                matrix[r][c] = tensor.ndReadDouble(i);
                 i++;
             }
         }
