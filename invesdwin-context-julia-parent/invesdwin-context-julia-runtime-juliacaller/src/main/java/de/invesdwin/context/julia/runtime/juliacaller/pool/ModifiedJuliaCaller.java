@@ -211,7 +211,7 @@ public class ModifiedJuliaCaller {
             }
 
             @Override
-            protected boolean isSpinAllowed(final long waitingSinceNanos) {
+            protected boolean determineSpinAllowed() {
                 //spinning not needed, wastes cpu cycles that julia could use
                 return false;
             }

@@ -284,10 +284,11 @@ public class ModifiedJuliaBridge {
             }
 
             @Override
-            protected boolean isSpinAllowed(final long waitingSinceNanos) {
+            protected boolean determineSpinAllowed() {
                 //spinning not needed, wastes cpu cycles that julia could use
                 return false;
             }
+
         };
         try {
             spinWait.awaitFulfill(System.nanoTime());
@@ -318,10 +319,11 @@ public class ModifiedJuliaBridge {
             }
 
             @Override
-            protected boolean isSpinAllowed(final long waitingSinceNanos) {
+            protected boolean determineSpinAllowed() {
                 //spinning not needed, wastes cpu cycles that julia could use
                 return false;
             }
+
         };
         try {
             spinWait.awaitFulfill(System.nanoTime());
