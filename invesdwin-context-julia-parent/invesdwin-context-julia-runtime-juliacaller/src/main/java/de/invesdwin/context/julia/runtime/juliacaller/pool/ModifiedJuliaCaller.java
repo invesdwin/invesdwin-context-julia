@@ -209,12 +209,6 @@ public class ModifiedJuliaCaller {
                 }
                 return false;
             }
-
-            @Override
-            protected boolean determineSpinAllowed() {
-                //spinning not needed, wastes cpu cycles that julia could use
-                return false;
-            }
         };
         try {
             spinWait.awaitFulfill(System.nanoTime());
