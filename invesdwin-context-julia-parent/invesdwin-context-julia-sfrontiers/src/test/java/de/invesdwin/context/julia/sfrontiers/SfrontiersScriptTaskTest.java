@@ -132,7 +132,8 @@ public class SfrontiersScriptTaskTest extends ATest {
             new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("LinearAlgebra.SingularException(4)");
+            Assertions.assertThat(t.getMessage())
+                    .containsAnyOf("LinearAlgebra.SingularException", "Multi-collinearity in the variables");
         }
     }
 
