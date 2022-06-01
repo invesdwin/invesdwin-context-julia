@@ -15,6 +15,7 @@ using LinearAlgebra;
 #cons = [1,1,1,1,1,1,1,1,1,1]
 
 # https://discourse.julialang.org/t/remove-identical-columns-from-matrix/62378/5
+# normalization does not change the final efficiency scores
 xNormalized = hcat(unique(normalize.(eachcol(x)))...)
 
 # run
