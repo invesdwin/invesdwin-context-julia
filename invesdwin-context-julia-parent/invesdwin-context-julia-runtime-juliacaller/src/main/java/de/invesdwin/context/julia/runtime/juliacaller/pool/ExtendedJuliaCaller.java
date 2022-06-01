@@ -20,6 +20,7 @@ public class ExtendedJuliaCaller extends ModifiedJuliaCaller {
     @Override
     public void connect() throws IOException {
         super.connect();
+        getWatcher().clearLog();
         resetContext.init();
     }
 
