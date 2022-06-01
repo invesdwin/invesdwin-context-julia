@@ -127,12 +127,24 @@ public class SfrontiersScriptTaskTest extends ATest {
     @Test
     public void testSingularException() {
         final double[] y = { 1, 2, 3 };
+        final double[][] x = { { 1.1, 1.2, 1.3 }, { 1.1, 1.2, 1.3 }, { 1.1, 1.2, 1.3 } };
+        try {
+            new SfrontiersScriptTask(y, x).run(mainRunner);
+            Assertions.failExceptionExpected();
+        } catch (final Throwable t) {
+            Assertions.assertThat(t.getMessage()).contains("LinearAlgebra.SingularException(4)");
+        }
+    }
+
+    @Test
+    public void testCollinearityException() {
+        final double[] y = { 1, 2, 3 };
         final double[][] x = { { 1.1, 1.2, 1.3 }, { 2.1, 2.2, 2.3 }, { 3.1, 3.2, 3.3 } };
         try {
             new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("LinearAlgebra.SingularException(3)");
+            Assertions.assertThat(t.getMessage()).contains("Multi-collinearity in the variables");
         }
     }
 
@@ -166,7 +178,7 @@ public class SfrontiersScriptTaskTest extends ATest {
             new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage()).contains("diagonal matrix is 0 by 0 but right hand side has 10 rows");
+            Assertions.assertThat(t.getMessage()).contains("attempt to access 0-element");
         }
     }
 
@@ -178,10 +190,7 @@ public class SfrontiersScriptTaskTest extends ATest {
             new SfrontiersScriptTask(y, x).run(mainRunner);
             Assertions.failExceptionExpected();
         } catch (final Throwable t) {
-            Assertions.assertThat(t.getMessage())
-                    .containsAnyOf("BoundsError(Float64[], (1,))",
-                            "attempt to access 0-element Array{Float64,1} at index [1]",
-                            "attempt to access 0-element Vector{Float64} at index [1]");
+            Assertions.assertThat(t.getMessage()).containsAnyOf("attempt to access 0-element");
         }
     }
 
