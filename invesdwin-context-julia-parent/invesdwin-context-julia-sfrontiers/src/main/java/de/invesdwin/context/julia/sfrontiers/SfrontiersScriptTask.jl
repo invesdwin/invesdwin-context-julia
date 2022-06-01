@@ -10,8 +10,11 @@ using SFrontiers;
 #x = [1.1 1.2 1.3;2.1 2.2 2.3;1.2 1.5 1.6;1.7 1.4 5.6;1.5 5.7 2.6;5.7 3.6 5.1;5.4 6.1 7.4;3.6 3.6 3.5;7.8 4.6 3.1;5.1 3.2 6.3]
 #cons = [1,1,1,1,1,1,1,1,1,1]
 
+# https://discourse.julialang.org/t/remove-identical-columns-from-matrix/62378/5
+xUnique = hcat(unique(eachcol(x))...)
+
 # run
-sfmodel_spec(sftype(prod), sfdist(half), depvar(y), frontier(x), sigma_u_2(cons), sigma_v_2(cons))
+sfmodel_spec(sftype(prod), sfdist(half), depvar(y), frontier(xUnique), sigma_u_2(cons), sigma_v_2(cons))
 sfmodel_opt(verbose(false), banner(false), marginal(false))
 res = sfmodel_fit()
 
