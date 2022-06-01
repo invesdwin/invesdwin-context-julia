@@ -4,6 +4,10 @@ if !isinstalled("SFrontiers")
   Pkg.add("SFrontiers")
 end
 using SFrontiers;
+if !isinstalled("LinearAlgebra")
+  Pkg.add("LinearAlgebra")
+end
+using LinearAlgebra;
 
 # inputs
 #y = [1,2,3,4,5,6,7,8,9,10]
@@ -11,10 +15,10 @@ using SFrontiers;
 #cons = [1,1,1,1,1,1,1,1,1,1]
 
 # https://discourse.julialang.org/t/remove-identical-columns-from-matrix/62378/5
-xUnique = hcat(unique(eachcol(x))...)
+xNormalized = hcat(unique(normalize.(eachcol(x)))...)
 
 # run
-sfmodel_spec(sftype(prod), sfdist(half), depvar(y), frontier(xUnique), sigma_u_2(cons), sigma_v_2(cons))
+sfmodel_spec(sftype(prod), sfdist(half), depvar(y), frontier(xNormalized), sigma_u_2(cons), sigma_v_2(cons))
 sfmodel_opt(verbose(false), banner(false), marginal(false))
 res = sfmodel_fit()
 
