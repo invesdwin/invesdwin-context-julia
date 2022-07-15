@@ -43,7 +43,7 @@ public class ModifiedJuliaBridge {
             "--banner=no", "-e", "using InteractiveUtils;" //
                     + "__type__(::AbstractArray{T,N}) where T where N = Array{T,N};" //
                     + "__type__(a) = typeof(a);" //
-                    + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); Pkg.add(\"JSON\"); end; using JSON;" //
+                    + "using Pkg; isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies())); if !isinstalled(\"JSON\"); redirect_stderr(stdout) do; Pkg.add(\"JSON\"); end; end; using JSON;" //
                     + "println(" + TERMINATOR + ");" };
 
     private final ProcessBuilder jbuilder;

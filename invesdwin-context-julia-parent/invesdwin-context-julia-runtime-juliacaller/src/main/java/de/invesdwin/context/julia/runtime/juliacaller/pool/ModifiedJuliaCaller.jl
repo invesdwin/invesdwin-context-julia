@@ -8,7 +8,10 @@ begin
 	isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies()))
 	
 	if !isinstalled("JSON")
-	    Pkg.add("JSON")
+		# redirect stderr to stdout so that stderr parsing on java does not confused falsely in jajub or juliacaller
+	    redirect_stderr(stdout) do
+	        Pkg.add("JSON")
+	    end
 	end
 	
 	using JSON

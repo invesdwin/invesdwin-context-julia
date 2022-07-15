@@ -1,11 +1,15 @@
 using Pkg;
 isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies()));
 if !isinstalled("SFrontiers")
-  Pkg.add("SFrontiers")
+  redirect_stderr(stdout) do
+  	Pkg.add("SFrontiers")
+  end
 end
 using SFrontiers;
 if !isinstalled("LinearAlgebra")
-  Pkg.add("LinearAlgebra")
+  redirect_stderr(stdout) do
+    Pkg.add("LinearAlgebra")
+  end
 end
 using LinearAlgebra;
 

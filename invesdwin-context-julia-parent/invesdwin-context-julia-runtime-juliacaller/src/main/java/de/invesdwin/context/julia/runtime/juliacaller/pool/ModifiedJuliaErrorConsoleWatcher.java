@@ -39,7 +39,7 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
                         if (errorThread == null) {
                             return;
                         }
-                        if (Strings.isNotBlank(s)) {
+                        if (Strings.isNotBlank(s) && !s.contains("Info: Precompiling ")) {
                             synchronized (errorMessage) {
                                 if (errorMessage.length() > 0) {
                                     errorMessage.append("\n");
