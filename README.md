@@ -88,7 +88,7 @@ For more elaborate examples of the Julia script integration, have a look at `inv
 
 ## Installing Packages
 
-With JuliaCaller and Jajub one has to redirect stderr to stdout when using Pkg.install so that the normal output on stderr is not interpreted as an error on the Java side due to stderr parsing. It is also good to only install a package if it does not exist yet in a script, so a check needs to be added. So use the following snippet to install packages:
+With JuliaCaller and Jajub one has to redirect stderr to stdout when using Pkg.install so that the normal output on stderr is not interpreted as an error on the Java side due to stderr parsing. It is also good to only install a package if it does not exist yet in a script, so a check needs to be added. So use the following snippet to install packages in scripts:
 
 ```
 using Pkg;
