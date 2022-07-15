@@ -86,6 +86,21 @@ Assertions.assertThat(result).isEqualTo("Hello World!");
 
 For more elaborate examples of the Julia script integration, have a look at `invesdwin-context-julia-sfrontiers` or the test cases in `invesdwin-context-julia-runtime-contract` which are executed in each individual runtime module test suite.
 
+## Installing Packages
+
+With JuliaCaller and Jajub one has to redirect stderr to stdout when using Pkg.install so that the normal output on stderr is not interpreted as an error on the Java side due to stderr parsing. It is also good to only install a package if it does not exist yet in a script, so a check needs to be added. So use the following snippet to install packages:
+
+```
+using Pkg;
+isinstalled(pkg::String) = any(x -> x.name == pkg && x.is_direct_dep, values(Pkg.dependencies()));
+if !isinstalled("SomePackage")
+  redirect_stderr(stdout) do
+  	Pkg.add("SomePackage")
+  end
+end
+using SomePackage;
+```
+
 ## Avoiding Bootstrap
 
 If you want to use this project without the overhead of having to initialize a [invesdwin-context](https://github.com/invesdwin/invesdwin-context) bootstrap with its spring-context and module configuration, you can disable the bootstrap with the following code before using any scripts:
