@@ -26,9 +26,9 @@ public final class JuliaCallerObjectPool extends ATimeoutObjectPool<ExtendedJuli
     }
 
     @Override
-    public void invalidateObject(final ExtendedJuliaCaller obj) {
+    public void invalidateObject(final ExtendedJuliaCaller element) {
         try {
-            obj.shutdownServer();
+            element.shutdownServer();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -48,9 +48,9 @@ public final class JuliaCallerObjectPool extends ATimeoutObjectPool<ExtendedJuli
     }
 
     @Override
-    protected void passivateObject(final ExtendedJuliaCaller obj) {
+    protected void passivateObject(final ExtendedJuliaCaller element) {
         try {
-            obj.reset();
+            element.reset();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

@@ -24,8 +24,8 @@ public final class JajubObjectPool extends ATimeoutObjectPool<ExtendedJuliaBridg
     }
 
     @Override
-    public void invalidateObject(final ExtendedJuliaBridge obj) {
-        obj.close();
+    public void invalidateObject(final ExtendedJuliaBridge element) {
+        element.close();
     }
 
     @Override
@@ -40,9 +40,9 @@ public final class JajubObjectPool extends ATimeoutObjectPool<ExtendedJuliaBridg
     }
 
     @Override
-    protected void passivateObject(final ExtendedJuliaBridge obj) {
+    protected void passivateObject(final ExtendedJuliaBridge element) {
         try {
-            obj.reset();
+            element.reset();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
