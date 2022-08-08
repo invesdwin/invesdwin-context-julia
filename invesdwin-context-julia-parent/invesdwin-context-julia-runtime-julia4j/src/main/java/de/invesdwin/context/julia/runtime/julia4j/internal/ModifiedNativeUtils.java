@@ -27,10 +27,11 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.ProviderNotFoundException;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.collections.Collections;
 
 /**
  * A simple library class which helps with loading dynamic libraries stored in the JAR archive. These libraries usually
