@@ -9,7 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.util.concurrent.Threads;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 @ThreadSafe

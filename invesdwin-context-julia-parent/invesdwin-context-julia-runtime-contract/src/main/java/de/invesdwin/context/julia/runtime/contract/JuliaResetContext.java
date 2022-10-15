@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.invesdwin.context.integration.marshaller.MarshallerJsonJackson;
 import de.invesdwin.context.integration.script.IScriptTaskEngine;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @NotThreadSafe
 public class JuliaResetContext {
