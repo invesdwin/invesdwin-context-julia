@@ -1,7 +1,7 @@
 package de.invesdwin.context.julia.runtime.contract.internal;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import de.invesdwin.context.julia.runtime.contract.ProvidedScriptTaskRunnerJulia;
 import de.invesdwin.context.test.ATest;

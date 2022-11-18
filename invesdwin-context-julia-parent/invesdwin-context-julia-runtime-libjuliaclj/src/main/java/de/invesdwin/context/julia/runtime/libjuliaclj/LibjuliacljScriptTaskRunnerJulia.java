@@ -3,7 +3,7 @@ package de.invesdwin.context.julia.runtime.libjuliaclj;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.springframework.beans.factory.FactoryBean;
 
