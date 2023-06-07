@@ -61,8 +61,7 @@ public final class ModifiedNativeUtils {
     /**
      * Private constructor - this class will never be instanced
      */
-    private ModifiedNativeUtils() {
-    }
+    private ModifiedNativeUtils() {}
 
     /**
      * Loads library from current JAR archive
@@ -174,6 +173,7 @@ public final class ModifiedNativeUtils {
      *
      * @return list of names of loaded dynamic libraries
      */
+    @SuppressWarnings("unchecked")
     public static List<String> loadedLibraryNames() {
         try {
             final Field lib = ClassLoader.class.getDeclaredField("loadedLibraryNames");
