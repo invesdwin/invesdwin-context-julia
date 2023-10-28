@@ -33,6 +33,7 @@
 	<properties>
 		<project.version.invesdwin-context>1.0.4-SNAPSHOT</project.version.invesdwin-context>
 		<project.version.invesdwin-context-julia>${project.version}</project.version.invesdwin-context-julia>
+		<project.version.invesdwin-context-integration>1.0.3-SNAPSHOT</project.version.invesdwin-context-integration>
 
 		<version.julia4j>0.0.2-inv</version.julia4j>
 		<version.libjulia-clj>1.000-beta-8</version.libjulia-clj>
@@ -44,6 +45,13 @@
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-parent</artifactId>
 				<version>${project.version.invesdwin-context}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-context-integration-parent</artifactId>
+				<version>${project.version.invesdwin-context-integration}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
