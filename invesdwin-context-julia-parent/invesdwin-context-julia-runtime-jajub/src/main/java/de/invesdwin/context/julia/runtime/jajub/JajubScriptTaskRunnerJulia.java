@@ -1,15 +1,17 @@
 package de.invesdwin.context.julia.runtime.jajub;
 
 import javax.annotation.concurrent.Immutable;
-import jakarta.inject.Named;
 
 import org.springframework.beans.factory.FactoryBean;
 
+import de.invesdwin.context.integration.script.callback.IScriptTaskCallback;
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
+import de.invesdwin.context.julia.runtime.contract.callback.socket.SocketScriptTaskCallbackContext;
 import de.invesdwin.context.julia.runtime.jajub.pool.ExtendedJuliaBridge;
 import de.invesdwin.context.julia.runtime.jajub.pool.JajubObjectPool;
 import de.invesdwin.util.error.Throwables;
+import jakarta.inject.Named;
 
 @Immutable
 @Named
@@ -21,16 +23,25 @@ public final class JajubScriptTaskRunnerJulia
     /**
      * public for ServiceLoader support
      */
-    public JajubScriptTaskRunnerJulia() {
-    }
+    public JajubScriptTaskRunnerJulia() {}
 
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
         final ExtendedJuliaBridge juliaCaller = JajubObjectPool.INSTANCE.borrowObject();
+        final IScriptTaskCallback callback = scriptTask.getCallback();
+        final SocketScriptTaskCallbackContext context;
+        if (callback != null) {
+            context = new SocketScriptTaskCallbackContext(callback);
+        } else {
+            context = null;
+        }
         try {
             //inputs
             final JajubScriptTaskEngineJulia engine = new JajubScriptTaskEngineJulia(juliaCaller);
+            if (context != null) {
+                context.init(engine);
+            }
             scriptTask.populateInputs(engine.getInputs());
 
             //execute
@@ -47,6 +58,10 @@ public final class JajubScriptTaskRunnerJulia
             //we have to destroy instances on exceptions, otherwise e.g. SFrontiers.jl might get stuck with some inconsistent state
             JajubObjectPool.INSTANCE.invalidateObject(juliaCaller);
             throw Throwables.propagate(t);
+        } finally {
+            if (context != null) {
+                context.close();
+            }
         }
     }
 
