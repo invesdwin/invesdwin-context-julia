@@ -40,17 +40,7 @@ begin
 	            error("IScriptTaskCallback not available")
 	        end
 	    end
-	    try
-	        return callJava_invokeSocket(methodName, parameters)
-	    catch err
-	        #retry once, throw exception on second try
-	        try
-	            close(socketScriptTaskCallbackSocket)
-	        catch ignore
-	        end
-	        callJava_createSocket()
-	        return callJava_invokeSocket(methodName, parameters)
-	    end
+        return callJava_invokeSocket(methodName, parameters)
 	end
 
 
