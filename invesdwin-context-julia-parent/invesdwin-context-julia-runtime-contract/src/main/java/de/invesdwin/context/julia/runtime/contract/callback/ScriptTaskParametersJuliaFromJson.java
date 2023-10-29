@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 @NotThreadSafe
 public class ScriptTaskParametersJuliaFromJson extends AScriptTaskParametersJuliaFromJson implements Closeable {
 
+    private JsonNode dims;
     private JsonNode parameters;
 
-    public void setParameters(final JsonNode parameters) {
+    public void setParameters(final JsonNode dims, final JsonNode parameters) {
+        this.dims = dims;
         this.parameters = parameters;
     }
 
@@ -26,7 +28,13 @@ public class ScriptTaskParametersJuliaFromJson extends AScriptTaskParametersJuli
     }
 
     @Override
+    protected JsonNode getAsJsonNodeDims(final int index) {
+        return dims.get(index);
+    }
+
+    @Override
     public void close() {
+        dims = null;
         parameters = null;
     }
 

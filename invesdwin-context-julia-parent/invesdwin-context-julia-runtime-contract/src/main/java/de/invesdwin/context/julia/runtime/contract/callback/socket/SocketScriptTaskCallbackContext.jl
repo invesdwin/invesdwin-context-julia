@@ -25,8 +25,17 @@ begin
 	    write(socketScriptTaskCallbackSocket, socketScriptTaskCallbackContextUuid * "\n")
 	end
 	
+	function callJava_paramSize(x)
+		if isa(x, Array)
+			return size(x)
+		else
+			return nothing
+		end
+	end
+	
 	function callJava_invokeSocket(methodName, parameters)
-	    write(socketScriptTaskCallbackSocket, methodName * ";" * json(parameters) * "\n")
+		dims = map(callJava_paramSize, parameters)
+	    write(socketScriptTaskCallbackSocket, methodName  * ";" * json(dims) * ";" * json(parameters) * "\n")
 	    # WORKAOUND: newlines need to be escaped over the wire, unescape here
 	    returnExpression = replace(readline(socketScriptTaskCallbackSocket), "\\n" => "\n")
 	    return eval(Meta.parse(returnExpression))

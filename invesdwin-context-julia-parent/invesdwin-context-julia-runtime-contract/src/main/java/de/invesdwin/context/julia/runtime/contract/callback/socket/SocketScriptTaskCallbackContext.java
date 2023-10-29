@@ -67,14 +67,15 @@ public class SocketScriptTaskCallbackContext implements Closeable {
         return server.getPort();
     }
 
-    public String invoke(final String methodName, final String args) {
+    public String invoke(final String methodName, final String dims, final String args) {
         final ScriptTaskParametersJuliaFromJson parameters = ScriptTaskParametersJuliaFromJsonPool.INSTANCE
                 .borrowObject();
         final ScriptTaskReturnsJuliaToExpression returns = ScriptTaskReturnsJuliaToExpressionPool.INSTANCE
                 .borrowObject();
         try {
+            final JsonNode jsonDims = toJsonNode(dims);
             final JsonNode jsonArgs = toJsonNode(args);
-            parameters.setParameters(jsonArgs);
+            parameters.setParameters(jsonDims, jsonArgs);
             callback.invoke(methodName, parameters, returns);
             return returns.getReturnExpression();
         } catch (final Throwable t) {

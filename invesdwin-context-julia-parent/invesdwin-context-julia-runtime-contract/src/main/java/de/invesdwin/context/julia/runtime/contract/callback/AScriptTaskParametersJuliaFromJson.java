@@ -13,6 +13,8 @@ public abstract class AScriptTaskParametersJuliaFromJson extends AScriptTaskPara
 
     protected abstract JsonNode getAsJsonNode(int index);
 
+    protected abstract JsonNode getAsJsonNodeDims(int index);
+
     @Override
     public boolean isNull(final int index) {
         return getAsJsonNode(index) instanceof NullNode;
@@ -63,19 +65,13 @@ public abstract class AScriptTaskParametersJuliaFromJson extends AScriptTaskPara
         }
         if (strsMatrix.size() == 0) {
             //https://stackoverflow.com/questions/23079625/extract-array-dimensions-in-julia
-            //            final int[] dims = getIntegerVector("size(" + variable + ")");
-            //            final int rows = dims[0];
-            //            final String[][] emptyMatrix = new String[rows][];
-            //            for (int i = 0; i < rows; i++) {
-            //                emptyMatrix[i] = Strings.EMPTY_ARRAY;
-            //            }
-            //            return emptyMatrix;
-            /*
-             * TODO: since julia is column major and we can't call back to julia because it blocks on the javaCall(...),
-             * we can not figure out the number of rows for the empty matrix. So this is an edge case we can not
-             * properly handle here.
-             */
-            return Strings.EMPTY_MATRIX;
+            final JsonNode dims = getAsJsonNodeDims(index);
+            final int rows = dims.get(0).asInt();
+            final String[][] emptyMatrix = new String[rows][];
+            for (int i = 0; i < rows; i++) {
+                emptyMatrix[i] = Strings.EMPTY_ARRAY;
+            }
+            return emptyMatrix;
         }
         //[11 12 13;21 22 23;31 32 33;41 42 43]
         //[[11,21,31,41],[12,22,32,42],[13,23,33,43]]
