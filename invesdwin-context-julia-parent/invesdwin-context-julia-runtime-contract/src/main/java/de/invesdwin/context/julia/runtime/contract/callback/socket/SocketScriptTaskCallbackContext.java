@@ -19,8 +19,11 @@ import de.invesdwin.context.julia.runtime.contract.callback.ScriptTaskParameters
 import de.invesdwin.context.julia.runtime.contract.callback.ScriptTaskParametersJuliaFromJsonPool;
 import de.invesdwin.context.julia.runtime.contract.callback.ScriptTaskReturnsJuliaToExpression;
 import de.invesdwin.context.julia.runtime.contract.callback.ScriptTaskReturnsJuliaToExpressionPool;
+import de.invesdwin.context.log.error.Err;
+import de.invesdwin.context.log.error.LoggedRuntimeException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.UUIDs;
+import de.invesdwin.util.lang.string.Strings;
 
 @ThreadSafe
 public class SocketScriptTaskCallbackContext implements Closeable {
@@ -73,6 +76,13 @@ public class SocketScriptTaskCallbackContext implements Closeable {
             final JsonNode jsonArgs = toJsonNode(args);
             parameters.setParameters(jsonArgs);
             callback.invoke(methodName, parameters, returns);
+            return returns.getReturnExpression();
+        } catch (final Throwable t) {
+            final LoggedRuntimeException loggedError = Err.process(t);
+            final String errorMessage = Strings.normalizeNewlines(Throwables.concatMessages(loggedError))
+                    .replace("\n", "\\n")
+                    .replace("\"", "\\\"");
+            returns.returnExpression("error(\"callJavaException: " + errorMessage + "\")");
             return returns.getReturnExpression();
         } finally {
             ScriptTaskReturnsJuliaToExpressionPool.INSTANCE.returnObject(returns);

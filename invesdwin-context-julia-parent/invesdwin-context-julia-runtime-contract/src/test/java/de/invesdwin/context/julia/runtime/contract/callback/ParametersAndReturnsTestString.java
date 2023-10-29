@@ -41,7 +41,7 @@ public class ParametersAndReturnsTestString {
 
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
-                engine.eval(new ClassPathResource(ParametersAndReturnsTestShort.class.getSimpleName() + ".jl",
+                engine.eval(new ClassPathResource(ParametersAndReturnsTestString.class.getSimpleName() + ".jl",
                         ParametersAndReturnsTestString.class));
             }
 

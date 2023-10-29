@@ -53,10 +53,11 @@ public class JuliaResetContext {
                 //can not redefine data types
                 continue;
             }
-            if (summary.startsWith("typeof(")) {
+            if (summary.startsWith("typeof(") || summary.contains(" function ")) {
                 /*
                  * we don't know the arguments to functions here so we can not redifne them properly. They should not
-                 * take too much memory, so it should be fine to just leave them
+                 * take too much memory, so it should be fine to just leave them, new function definitions will
+                 * overwrite them
                  */
                 continue;
             }
