@@ -16,7 +16,7 @@ begin
 	
 	using JSON
 	
-	function callJava_createSocket()
+	function callback_createSocket()
 		if socketScriptTaskCallbackServerHost == "localhost"
 			global socketScriptTaskCallbackSocket = connect(socketScriptTaskCallbackServerPort)
 		else
@@ -25,7 +25,7 @@ begin
 	    write(socketScriptTaskCallbackSocket, socketScriptTaskCallbackContextUuid * "\n")
 	end
 	
-	function callJava_paramSize(x)
+	function callback_paramSize(x)
 		if isa(x, Array)
 			return size(x)
 		else
@@ -33,23 +33,23 @@ begin
 		end
 	end
 	
-	function callJava_invokeSocket(methodName, parameters)
-		dims = map(callJava_paramSize, parameters)
+	function callback_invokeSocket(methodName, parameters)
+		dims = map(callback_paramSize, parameters)
 	    write(socketScriptTaskCallbackSocket, methodName  * ";" * json(dims) * ";" * json(parameters) * "\n")
 	    # WORKAOUND: newlines need to be escaped over the wire, unescape here
 	    returnExpression = readline(socketScriptTaskCallbackSocket)
 	    return eval(Meta.parse(returnExpression))
 	end
 	
-	function callJava(methodName, parameters...)
+	function callback(methodName, parameters...)
 	    if !isdefined(Main, :socketScriptTaskCallbackContext)
 	        if isdefined(Main, :socketScriptTaskCallbackContextUuid)
-	            callJava_createSocket()
+	            callback_createSocket()
 	        else
 	            error("IScriptTaskCallback not available")
 	        end
 	    end
-        return callJava_invokeSocket(methodName, parameters)
+        return callback_invokeSocket(methodName, parameters)
 	end
 
 

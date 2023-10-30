@@ -2,19 +2,19 @@ println("getString")
 if isdefined(Main, :getString) && !isnothing(getString)
 	error("getString already defined!")
 end
-getString = callJava("getString")
+getString = callback("getString")
 println(typeof(getString))
 println(getString)
 if typeof(getString) != String
 	error("getString not String!")
 end
-callJava("setString",getString)
+callback("setString",getString)
 
 println("getStringWithNull")
 if isdefined(Main, :getStringWithNull) && !isnothing(getStringWithNull)
 	error("getStringWithNull already defined!")
 end
-getStringWithNull = callJava("getStringWithNull")
+getStringWithNull = callback("getStringWithNull")
 println(typeof(getStringWithNull))
 println(getStringWithNull)
 if typeof(getStringWithNull) != Nothing
@@ -23,26 +23,26 @@ end
 if !isnothing(getStringWithNull)
 	error("getStringWithNull not nothing!")
 end
-callJava("setStringWithNull",getStringWithNull)
+callback("setStringWithNull",getStringWithNull)
 
 println("getStringVector")
 if isdefined(Main, :getStringVector) && !isnothing(getStringVector)
 	error("getStringVector already defined!")
 end
-getStringVector = callJava("getStringVector")
+getStringVector = callback("getStringVector")
 println(eltype(getStringVector))
 println(getStringVector)
 if eltype(getStringVector) != String
 	error("getStringVector not String!")
 end
-callJava("setStringVector",getStringVector)
+callback("setStringVector",getStringVector)
 
 
 println("getStringVectorWithNull")
 if isdefined(Main, :getStringVectorWithNull) && !isnothing(getStringVectorWithNull)
 	error("getStringVectorWithNull already defined!")
 end
-getStringVectorWithNull = callJava("getStringVectorWithNull")
+getStringVectorWithNull = callback("getStringVectorWithNull")
 println(eltype(getStringVectorWithNull))
 println(getStringVectorWithNull)
 if eltype(getStringVectorWithNull) != String
@@ -51,25 +51,25 @@ end
 if !isempty(getStringVectorWithNull[2])
 	error("getStringVectorWithNull[2] not empty!")
 end
-callJava("setStringVectorWithNull",getStringVectorWithNull)
+callback("setStringVectorWithNull",getStringVectorWithNull)
 
 println("getStringVectorAsList")
 if isdefined(Main, :getStringVectorAsList) && !isnothing(getStringVectorAsList)
 	error("getStringVectorAsList already defined!")
 end
-getStringVectorAsList = callJava("getStringVectorAsList")
+getStringVectorAsList = callback("getStringVectorAsList")
 println(eltype(getStringVectorAsList))
 println(getStringVectorAsList)
 if eltype(getStringVectorAsList) != String
 	error("getStringVectorAsList not String!")
 end
-callJava("setStringVectorAsList",getStringVectorAsList)
+callback("setStringVectorAsList",getStringVectorAsList)
 
 println("getStringVectorAsListWithNull")
 if isdefined(Main, :getStringVectorAsListWithNull) && !isnothing(getStringVectorAsListWithNull)
 	error("getStringVectorAsListWithNull already defined!")
 end
-getStringVectorAsListWithNull = callJava("getStringVectorAsListWithNull")
+getStringVectorAsListWithNull = callback("getStringVectorAsListWithNull")
 println(eltype(getStringVectorAsListWithNull))
 println(getStringVectorAsListWithNull)
 if eltype(getStringVectorAsListWithNull) != String
@@ -78,26 +78,26 @@ end
 if !isempty(getStringVectorAsListWithNull[2])
 	error("getStringVectorAsListWithNull[2] not empty!")
 end
-callJava("setStringVectorAsListWithNull",getStringVectorAsListWithNull)
+callback("setStringVectorAsListWithNull",getStringVectorAsListWithNull)
 
 println("getStringMatrix")
 if isdefined(Main, :getStringMatrix) && !isnothing(getStringMatrix)
 	error("getStringMatrix already defined!")
 end
-getStringMatrix = callJava("getStringMatrix")
+getStringMatrix = callback("getStringMatrix")
 println(eltype(getStringMatrix))
 println(getStringMatrix)
 if eltype(getStringMatrix) != String
 	error("getStringMatrix not String!")
 end
-callJava("setStringMatrix",getStringMatrix)
+callback("setStringMatrix",getStringMatrix)
 
 
 println("getStringMatrixWithNull")
 if isdefined(Main, :getStringMatrixWithNull) && !isnothing(getStringMatrixWithNull)
 	error("getStringMatrixWithNull already defined!")
 end
-getStringMatrixWithNull = callJava("getStringMatrixWithNull")
+getStringMatrixWithNull = callback("getStringMatrixWithNull")
 println(eltype(getStringMatrixWithNull))
 println(getStringMatrixWithNull)
 if eltype(getStringMatrixWithNull) != String
@@ -112,25 +112,25 @@ end
 if !isempty(getStringMatrixWithNull[3,3])
 	error("getStringMatrixWithNull[3,3] not empty!")
 end
-callJava("setStringMatrixWithNull",getStringMatrixWithNull)
+callback("setStringMatrixWithNull",getStringMatrixWithNull)
 
 println("getStringMatrixAsList")
 if isdefined(Main, :getStringMatrixAsList) && !isnothing(getStringMatrixAsList)
 	error("getStringMatrixAsList already defined!")
 end
-getStringMatrixAsList = callJava("getStringMatrixAsList")
+getStringMatrixAsList = callback("getStringMatrixAsList")
 println(eltype(getStringMatrixAsList))
 println(getStringMatrixAsList)
 if eltype(getStringMatrixAsList) != String
 	error("getStringMatrixAsList not String!")
 end
-callJava("setStringMatrixAsList",getStringMatrixAsList)
+callback("setStringMatrixAsList",getStringMatrixAsList)
 
 println("getStringMatrixAsListWithNull")
 if isdefined(Main, :getStringMatrixAsListWithNull) && !isnothing(getStringMatrixAsListWithNull)
 	error("getStringMatrixAsListWithNull already defined!")
 end
-getStringMatrixAsListWithNull = callJava("getStringMatrixAsListWithNull")
+getStringMatrixAsListWithNull = callback("getStringMatrixAsListWithNull")
 println(eltype(getStringMatrixAsListWithNull))
 println(getStringMatrixAsListWithNull)
 if eltype(getStringMatrixAsListWithNull) != String
@@ -145,4 +145,4 @@ end
 if !isempty(getStringMatrixAsListWithNull[3,3])
 	error("getStringMatrixAsListWithNull[3,3] not empty!")
 end
-callJava("setStringMatrixAsListWithNull",getStringMatrixAsListWithNull)
+callback("setStringMatrixAsListWithNull",getStringMatrixAsListWithNull)

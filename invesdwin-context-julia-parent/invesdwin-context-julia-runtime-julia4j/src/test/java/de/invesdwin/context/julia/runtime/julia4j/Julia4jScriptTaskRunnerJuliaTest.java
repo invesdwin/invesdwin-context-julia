@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.julia.runtime.contract.InputsAndResultsTests;
-import de.invesdwin.context.julia.runtime.contract.callback.CallJavaTest;
+import de.invesdwin.context.julia.runtime.contract.callback.CallbackTest;
 import de.invesdwin.context.julia.runtime.contract.callback.ParametersAndReturnsTests;
 import de.invesdwin.context.test.ATest;
 import jakarta.inject.Inject;
@@ -37,8 +37,8 @@ public class Julia4jScriptTaskRunnerJuliaTest extends ATest {
     }
 
     @Test
-    public void testCallJava() {
-        new CallJavaTest(runner).testCallJava();
+    public void testCallbackSimple() {
+        new CallbackTest(runner).testCallback();
     }
 
 }

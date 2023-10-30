@@ -83,7 +83,7 @@ public class SocketScriptTaskCallbackContext implements Closeable {
             final String errorMessage = Strings.normalizeNewlines(Throwables.concatMessages(loggedError))
                     .replace("\n", "\\n")
                     .replace("\"", "\\\"");
-            returns.returnExpression("error(\"callJavaException: " + errorMessage + "\")");
+            returns.returnExpression("error(\"CallbackException: " + errorMessage + "\")");
             return returns.getReturnExpression();
         } finally {
             ScriptTaskReturnsJuliaToExpressionPool.INSTANCE.returnObject(returns);
