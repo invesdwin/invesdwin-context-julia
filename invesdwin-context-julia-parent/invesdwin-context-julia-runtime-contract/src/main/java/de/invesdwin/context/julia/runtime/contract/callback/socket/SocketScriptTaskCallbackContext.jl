@@ -37,7 +37,7 @@ begin
 		dims = map(callJava_paramSize, parameters)
 	    write(socketScriptTaskCallbackSocket, methodName  * ";" * json(dims) * ";" * json(parameters) * "\n")
 	    # WORKAOUND: newlines need to be escaped over the wire, unescape here
-	    returnExpression = replace(readline(socketScriptTaskCallbackSocket), "\\n" => "\n")
+	    returnExpression = readline(socketScriptTaskCallbackSocket)
 	    return eval(Meta.parse(returnExpression))
 	end
 	
