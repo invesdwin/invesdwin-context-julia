@@ -19,14 +19,14 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.UUIDs;
 
 @NotThreadSafe
-public class CallbackTest {
+public class SimpleCallbackTest {
 
     private static final Map<String, String> UUID_SECRET = new ConcurrentHashMap<>();
 
     private final IScriptTaskRunnerJulia runner;
     private int voidMethodCalled;
 
-    public CallbackTest(final IScriptTaskRunnerJulia runner) {
+    public SimpleCallbackTest(final IScriptTaskRunnerJulia runner) {
         this.runner = runner;
     }
 
@@ -47,7 +47,7 @@ public class CallbackTest {
         voidMethodCalled++;
     }
 
-    public void testCallback() {
+    public void testSimpleCallback() {
         final String uuid = UUIDs.newPseudoRandomUUID();
         final String secret = "secret123";
         UUID_SECRET.put(uuid, secret);
@@ -56,7 +56,7 @@ public class CallbackTest {
 
                 @Override
                 public IScriptTaskCallback getCallback() {
-                    return new ReflectiveScriptTaskCallback(CallbackTest.this);
+                    return new ReflectiveScriptTaskCallback(SimpleCallbackTest.this);
                 }
 
                 @Override
@@ -66,7 +66,7 @@ public class CallbackTest {
 
                 @Override
                 public void executeScript(final IScriptTaskEngine engine) {
-                    engine.eval(new ClassPathResource(CallbackTest.class.getSimpleName() + ".jl", CallbackTest.class));
+                    engine.eval(new ClassPathResource(SimpleCallbackTest.class.getSimpleName() + ".jl", SimpleCallbackTest.class));
                 }
 
                 @Override
