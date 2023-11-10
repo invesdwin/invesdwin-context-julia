@@ -1,5 +1,5 @@
 # invesdwin-context-julia
-Integrate Julia functionality with these modules for the [invesdwin-context](https://github.com/subes/invesdwin-context) module system.
+Integrate Julia functionality with these modules for the [invesdwin-context](https://github.com/subes/invesdwin-context) module system. All integration modules provide unified bidirectional communication between Java and Julia. That way you can switch the Julia provider without having to change your script implementation. See test cases for examples on how to implement your script integrations.
 
 ## Maven
 
