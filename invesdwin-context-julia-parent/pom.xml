@@ -105,23 +105,6 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.renjin</groupId>
-					<artifactId>renjin-maven-plugin</artifactId>
-					<version>${version.renjin}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.renjin</groupId>
-					<artifactId>gcc-bridge-maven-plugin</artifactId>
-					<version>${version.renjin}</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
-
 	<distributionManagement>
 		<repository>
 			<id>invesdwin-oss</id>
