@@ -36,7 +36,7 @@
 		<project.version.invesdwin-context-julia>${project.version}</project.version.invesdwin-context-julia>
 
 		<version.julia4j>0.0.2-inv</version.julia4j>
-		<version.libjulia-clj>1.000-beta-8</version.libjulia-clj>
+		<version.libjulia-clj>1.000-beta-9</version.libjulia-clj>
 	</properties>
 
 	<dependencyManagement>
