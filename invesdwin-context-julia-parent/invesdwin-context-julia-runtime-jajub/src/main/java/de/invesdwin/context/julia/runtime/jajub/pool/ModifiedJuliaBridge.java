@@ -113,7 +113,7 @@ public class ModifiedJuliaBridge {
             }
             if (s.startsWith("Julia Version ")) {
                 ver = s;
-            } else if (TERMINATOR.contains(s)) {
+            } else if (s.contains(TERMINATOR_RAW)) {
                 break;
             }
         }
