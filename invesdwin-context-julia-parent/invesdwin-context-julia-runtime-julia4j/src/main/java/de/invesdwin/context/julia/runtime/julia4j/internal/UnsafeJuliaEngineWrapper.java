@@ -45,8 +45,13 @@ public final class UnsafeJuliaEngineWrapper implements IJuliaEngineWrapper {
     private boolean initialized = false;
 
     private UnsafeJuliaEngineWrapper() {
-        final String path = new File(Julia4jProperties.JULIA_LIBRARY_PATH, "libjulia.so").getAbsolutePath();
-        System.load(path);
+        for (final String dir : Julia4jProperties.JULIA_LIBRARY_PATH) {
+            final File file = new File(dir, "libjulia.so");
+            if (file.exists()) {
+                System.load(file.getAbsolutePath());
+                break;
+            }
+        }
         try {
             ModifiedNativeUtils.loadLibraryFromJar(NativeUtils.libnameToPlatform("libjulia4j"));
         } catch (final IOException e) {
