@@ -24,4 +24,9 @@ public class ScriptTaskReturnsJuliaToExpression extends AScriptTaskReturnsJuliaT
         returnExpression = null;
     }
 
+    @Override
+    public String toString() {
+        return returnExpression;
+    }
+
 }

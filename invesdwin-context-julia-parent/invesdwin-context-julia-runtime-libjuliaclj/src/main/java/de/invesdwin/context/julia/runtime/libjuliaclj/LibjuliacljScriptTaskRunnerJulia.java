@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import org.springframework.beans.factory.FactoryBean;
 
 import de.invesdwin.context.integration.script.callback.IScriptTaskCallback;
+import de.invesdwin.context.integration.script.callback.LoggingDelegateScriptTaskCallback;
 import de.invesdwin.context.julia.runtime.contract.AScriptTaskJulia;
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
 import de.invesdwin.context.julia.runtime.contract.callback.socket.SocketScriptTaskCallbackContext;
@@ -37,7 +38,8 @@ public final class LibjuliacljScriptTaskRunnerJulia
             final IScriptTaskCallback callback = scriptTask.getCallback();
             final SocketScriptTaskCallbackContext context;
             if (callback != null) {
-                context = new SocketScriptTaskCallbackContext(callback);
+                context = new SocketScriptTaskCallbackContext(
+                        LoggingDelegateScriptTaskCallback.maybeWrap(LOG, callback));
             } else {
                 context = null;
             }
