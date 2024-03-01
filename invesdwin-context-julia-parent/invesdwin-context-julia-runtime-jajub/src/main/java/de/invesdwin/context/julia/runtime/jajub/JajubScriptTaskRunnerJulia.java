@@ -29,7 +29,7 @@ public final class JajubScriptTaskRunnerJulia
     @Override
     public <T> T run(final AScriptTaskJulia<T> scriptTask) {
         //get session
-        final ExtendedJuliaBridge juliaCaller = JajubObjectPool.INSTANCE.borrowObject();
+        final ExtendedJuliaBridge bridge = JajubObjectPool.INSTANCE.borrowObject();
         final IScriptTaskCallback callback = scriptTask.getCallback();
         final SocketScriptTaskCallbackContext context;
         if (callback != null) {
@@ -39,7 +39,7 @@ public final class JajubScriptTaskRunnerJulia
         }
         try {
             //inputs
-            final JajubScriptTaskEngineJulia engine = new JajubScriptTaskEngineJulia(juliaCaller);
+            final JajubScriptTaskEngineJulia engine = new JajubScriptTaskEngineJulia(bridge);
             if (context != null) {
                 context.init(engine);
             }
@@ -56,11 +56,11 @@ public final class JajubScriptTaskRunnerJulia
             engine.close();
 
             //return
-            JajubObjectPool.INSTANCE.returnObject(juliaCaller);
+            JajubObjectPool.INSTANCE.returnObject(bridge);
             return result;
         } catch (final Throwable t) {
             //we have to destroy instances on exceptions, otherwise e.g. SFrontiers.jl might get stuck with some inconsistent state
-            JajubObjectPool.INSTANCE.invalidateObject(juliaCaller);
+            JajubObjectPool.INSTANCE.invalidateObject(bridge);
             throw Throwables.propagate(t);
         } finally {
             if (context != null) {

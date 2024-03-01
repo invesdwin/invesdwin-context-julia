@@ -250,7 +250,7 @@ public class ModifiedJuliaBridge {
     ////// private stuff
 
     private void write(final String s) throws IOException {
-        //        IScriptTaskRunnerJulia.LOG.debug("> " + s);
+        IScriptTaskRunnerJulia.LOG.trace("> " + s);
         out.write(s.getBytes());
         out.write(NEW_LINE);
         out.flush();
@@ -288,7 +288,7 @@ public class ModifiedJuliaBridge {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-        //        IScriptTaskRunnerJulia.LOG.debug("< (" + ofs + " bytes)");
+        IScriptTaskRunnerJulia.LOG.trace("< (" + ofs + " bytes)");
         return ofs.intValue();
     }
 

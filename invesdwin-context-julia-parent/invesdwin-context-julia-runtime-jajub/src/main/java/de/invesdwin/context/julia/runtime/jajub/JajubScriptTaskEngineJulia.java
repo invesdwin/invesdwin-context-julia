@@ -12,19 +12,19 @@ import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 @NotThreadSafe
 public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
 
-    private ExtendedJuliaBridge juliaCaller;
+    private ExtendedJuliaBridge bridge;
     private final JajubScriptTaskInputsJulia inputs;
     private final JajubScriptTaskResultsJulia results;
 
-    public JajubScriptTaskEngineJulia(final ExtendedJuliaBridge juliaCaller) {
-        this.juliaCaller = juliaCaller;
+    public JajubScriptTaskEngineJulia(final ExtendedJuliaBridge bridge) {
+        this.bridge = bridge;
         this.inputs = new JajubScriptTaskInputsJulia(this);
         this.results = new JajubScriptTaskResultsJulia(this);
     }
 
     @Override
     public void eval(final String expression) {
-        juliaCaller.eval(expression);
+        bridge.eval(expression);
     }
 
     @Override
@@ -39,12 +39,12 @@ public class JajubScriptTaskEngineJulia implements IScriptTaskEngine {
 
     @Override
     public void close() {
-        juliaCaller = null;
+        bridge = null;
     }
 
     @Override
     public ExtendedJuliaBridge unwrap() {
-        return juliaCaller;
+        return bridge;
     }
 
     /**
