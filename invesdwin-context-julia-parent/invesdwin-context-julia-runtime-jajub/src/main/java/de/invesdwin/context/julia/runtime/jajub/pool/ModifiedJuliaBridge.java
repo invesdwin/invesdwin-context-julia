@@ -169,28 +169,6 @@ public class ModifiedJuliaBridge {
         }
     }
 
-    /**
-     * Sets a variable in the Julia environment.
-     *
-     * @param varname
-     *            name of the variable.
-     * @param value
-     *            value to bind to the variable.
-     */
-    public void set(final String varname, final String value) {
-        final StringBuilder command = new StringBuilder(varname);
-        command.append(" = ");
-        if (value == null) {
-            command.append("nothing");
-        } else {
-            command.append("raw\"");
-            command.append(value.replace("\"", "\\\""));
-            command.append("\"");
-        }
-        final String commandStr = command.toString();
-        exec(commandStr, "> %s", commandStr);
-    }
-
     public JsonNode getAsJsonNode(final String variable) {
         final StringBuilder message = new StringBuilder("__ans__ = JSON.json(");
         message.append(variable);
