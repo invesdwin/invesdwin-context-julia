@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.julia.runtime.contract.IScriptTaskRunnerJulia;
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
@@ -50,6 +51,7 @@ public class ParametersAndReturnsTests {
                 ParametersAndReturnsTests.class.getSimpleName() + "_testParallel",
                 Runtime.getRuntime().availableProcessors());
         try {
+            Assertions.checkNotNull(Thread.interrupted());
             Futures.submitAndWait(executor, tasks);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
