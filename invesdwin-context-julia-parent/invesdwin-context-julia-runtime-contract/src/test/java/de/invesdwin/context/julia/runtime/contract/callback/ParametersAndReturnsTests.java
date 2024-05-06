@@ -51,13 +51,13 @@ public class ParametersAndReturnsTests {
                 ParametersAndReturnsTests.class.getSimpleName() + "_testParallel",
                 Runtime.getRuntime().availableProcessors());
         try {
+            //prevent interruptedException that somehow occurs here
             Assertions.checkNotNull(Thread.interrupted());
             Futures.submitAndWait(executor, tasks);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
-            //let the finalizer do this, somehow otherwise subsequent runs gets interrupted magically
-            //        } finally {
-            //            executor.shutdown();
+        } finally {
+            executor.shutdown();
         }
     }
 
