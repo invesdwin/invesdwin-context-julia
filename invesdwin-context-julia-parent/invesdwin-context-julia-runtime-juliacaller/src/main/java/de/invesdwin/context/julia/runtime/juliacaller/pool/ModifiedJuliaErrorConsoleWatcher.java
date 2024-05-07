@@ -33,10 +33,11 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
         errorThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                final Thread currentThread = Thread.currentThread();
                 try {
-                    while (!Threads.isInterrupted() && errorThread != null) {
+                    while (!Threads.isInterrupted() && errorThread != currentThread) {
                         final String s = errorReader.readLine();
-                        if (errorThread == null) {
+                        if (errorThread != currentThread) {
                             return;
                         }
                         if (Strings.isNotBlank(s) && !s.contains("Info: Precompiling ")) {
@@ -60,10 +61,11 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
         infoThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                final Thread currentThread = Thread.currentThread();
                 try {
-                    while (!Threads.isInterrupted() && infoThread != null) {
+                    while (!Threads.isInterrupted() && infoThread != currentThread) {
                         final String s = infoReader.readLine();
-                        if (infoThread == null) {
+                        if (infoThread != currentThread) {
                             return;
                         }
                         if (Strings.isNotBlank(s)) {
@@ -82,14 +84,8 @@ public class ModifiedJuliaErrorConsoleWatcher implements Closeable {
 
     @Override
     public void close() {
-        if (errorThread != null) {
-            errorThread.interrupt();
-            errorThread = null;
-        }
-        if (infoThread != null) {
-            infoThread.interrupt();
-            infoThread = null;
-        }
+        errorThread = null;
+        infoThread = null;
         clearLog();
     }
 

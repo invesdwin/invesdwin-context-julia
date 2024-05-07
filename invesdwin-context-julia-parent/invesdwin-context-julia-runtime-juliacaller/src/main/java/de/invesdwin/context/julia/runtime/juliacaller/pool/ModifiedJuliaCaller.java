@@ -38,7 +38,13 @@ public class ModifiedJuliaCaller {
     private int maximumTriesToConnect = 300;
     private ModifiedJuliaErrorConsoleWatcher watcher;
     private Process process;
-    private final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck();
+    private final LoopInterruptedCheck interruptedCheck = new LoopInterruptedCheck() {
+        @Override
+        protected boolean onInterval() throws InterruptedException {
+            //don't throw on interrupt because this makes tests flaky
+            return true;
+        }
+    };
 
     public ModifiedJuliaCaller(final String pathToJulia, final int port) {
         this.pathToJulia = pathToJulia;
