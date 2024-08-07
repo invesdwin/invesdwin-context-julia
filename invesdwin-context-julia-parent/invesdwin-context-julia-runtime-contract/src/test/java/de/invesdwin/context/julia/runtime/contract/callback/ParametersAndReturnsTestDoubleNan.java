@@ -40,7 +40,7 @@ public class ParametersAndReturnsTestDoubleNan {
 
             @Override
             public void executeScript(final IScriptTaskEngine engine) {
-                engine.eval(new ClassPathResource(ParametersAndReturnsTestDoubleNan.class.getSimpleName() + ".js",
+                engine.eval(new ClassPathResource(ParametersAndReturnsTestDoubleNan.class.getSimpleName() + ".jl",
                         ParametersAndReturnsTestDoubleNan.class));
             }
 
