@@ -948,7 +948,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Char}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final char[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -957,7 +958,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                     sb.append(" ");
                 }
                 sb.append("'");
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
                 sb.append("'");
             }
         }
@@ -991,7 +992,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{String}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final String[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -999,7 +1001,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                final String v = value[row][col];
+                final String v = valueRow[col];
                 if (v == null) {
                     sb.append("\"\"");
                 } else {
@@ -1032,7 +1034,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Bool}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final boolean[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1040,7 +1043,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
@@ -1066,7 +1069,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Int8}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final byte[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1074,7 +1078,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
@@ -1100,7 +1104,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Int16}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final short[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1108,7 +1113,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
@@ -1134,7 +1139,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Int32}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final int[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1142,7 +1148,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
@@ -1168,7 +1174,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Int64}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final long[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1176,7 +1183,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
@@ -1202,7 +1209,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Float32}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final float[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1210,7 +1218,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
@@ -1236,7 +1244,8 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
         final int cols = value[0].length;
         final StringBuilder sb = new StringBuilder("Array{Float64}([");
         for (int row = 0; row < rows; row++) {
-            Assertions.checkEquals(value[row].length, cols);
+            final double[] valueRow = value[row];
+            Assertions.checkEquals(valueRow.length, cols);
             if (row > 0) {
                 sb.append(";");
             }
@@ -1244,7 +1253,7 @@ public final class UncheckedJuliaEngineWrapper implements IJuliaEngineWrapper {
                 if (col > 0) {
                     sb.append(" ");
                 }
-                sb.append(value[row][col]);
+                sb.append(valueRow[col]);
             }
         }
         sb.append("])");
