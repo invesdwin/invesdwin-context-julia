@@ -23,7 +23,7 @@ if eltype(getDoubleVector) != Float64
 	error("getDoubleVector not Float64!")
 end
 if !isnan(getDoubleVector[2])
-	error("getDoubleVector[1] not NaN!")
+	error("getDoubleVector[2] not NaN!")
 end
 
 println("getDoubleVectorAsList")
@@ -37,7 +37,7 @@ if eltype(getDoubleVectorAsList) != Float64
 	error("getDoubleVectorAsList not Float64!")
 end
 if !isnan(getDoubleVectorAsList[2])
-	error("getDoubleVectorAsList[1] not NaN!")
+	error("getDoubleVectorAsList[2] not NaN!")
 end
 	
 println("getDoubleMatrix")
@@ -51,13 +51,13 @@ if eltype(getDoubleMatrix) != Float64
 	error("getDoubleMatrix not Float64!")
 end
 if !isnan(getDoubleMatrix[1,1])
-	error("getDoubleMatrix[0][0] not NaN!")
-end
-if !isnan(getDoubleMatrix[2,2])
 	error("getDoubleMatrix[1][1] not NaN!")
 end
-if !isnan(getDoubleMatrix[3,3])
+if !isnan(getDoubleMatrix[2,2])
 	error("getDoubleMatrix[2][2] not NaN!")
+end
+if !isnan(getDoubleMatrix[3,3])
+	error("getDoubleMatrix[3][3] not NaN!")
 end
 
 println("getDoubleMatrixAsList")
@@ -71,11 +71,11 @@ if eltype(getDoubleMatrixAsList) != Float64
 	error("getDoubleMatrixAsList not Float64!")
 end
 if !isnan(getDoubleMatrixAsList[1,1])
-	error("getDoubleMatrixAsList[0][0] not NaN!")
-end
-if !isnan(getDoubleMatrixAsList[2,2])
 	error("getDoubleMatrixAsList[1][1] not NaN!")
 end
-if !isnan(getDoubleMatrixAsList[3,3])
+if !isnan(getDoubleMatrixAsList[2,2])
 	error("getDoubleMatrixAsList[2][2] not NaN!")
+end
+if !isnan(getDoubleMatrixAsList[3,3])
+	error("getDoubleMatrixAsList[3][3] not NaN!")
 end
