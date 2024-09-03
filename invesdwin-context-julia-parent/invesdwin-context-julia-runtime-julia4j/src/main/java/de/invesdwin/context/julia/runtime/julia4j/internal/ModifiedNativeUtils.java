@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.context.ContextProperties;
 import de.invesdwin.util.collections.Collections;
 
 /**
@@ -136,7 +137,7 @@ public final class ModifiedNativeUtils {
     }
 
     private static File createTempDirectory(final String prefix) throws IOException {
-        final String tempDir = System.getProperty("java.io.tmpdir");
+        final String tempDir = ContextProperties.TEMP_DIRECTORY.getAbsolutePath();
         final File generatedDir = new File(tempDir, prefix + System.nanoTime());
 
         if (!generatedDir.mkdir()) {
