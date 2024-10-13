@@ -56,7 +56,7 @@ begin
 	function handle_client(server, client, debug)
 		while true
 			# WORKAOUND: newlines need to be escaped over the wire, unescape here
-			__line__ = replace(readline(client), "\\n" => "\n")
+			__line__ = replace(readline(client), "__##@\\n@##__" => "\n")
 			if debug
 				println(__line__)
 			end

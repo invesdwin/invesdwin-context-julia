@@ -136,8 +136,9 @@ public class ModifiedJuliaCaller {
         IScriptTaskRunnerJulia.LOG.trace("execute: Sending '%s'", command);
         //WORKAROUND: begin/end make sure that multiple lines are executed together, also newlines need to be escaped
         //without this we get: Error: Base.Meta.ParseError("extra token after end of expression")
-        bufferedWriterForSocket
-                .write("execute begin " + Strings.normalizeNewlines(command.replace("\n", "\\n") + "\\nend"));
+        final String newlineEscaped = "__##@\\n@##__";
+        bufferedWriterForSocket.write("execute begin "
+                + Strings.normalizeNewlines(command.replace("\n", newlineEscaped) + newlineEscaped + "end"));
         bufferedWriterForSocket.newLine();
         bufferedWriterForSocket.flush();
         checkError();
