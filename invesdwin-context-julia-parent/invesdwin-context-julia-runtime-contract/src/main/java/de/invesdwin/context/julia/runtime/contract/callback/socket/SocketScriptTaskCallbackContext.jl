@@ -37,7 +37,7 @@ begin
 		dims = map(callback_paramSize, parameters)
 	    write(socketScriptTaskCallbackSocket, methodName  * ";" * json(dims) * ";" * json(parameters) * "\n")
 	    # WORKAOUND: newlines need to be escaped over the wire, unescape here
-	    returnExpression = replace(readline(socketScriptTaskCallbackSocket), "__##J@\\n@C##__" => "\n")
+	    returnExpression = replace(readline(socketScriptTaskCallbackSocket), "__##J@NL@C##__" => "\n")
 	    # https://stackoverflow.com/a/54317201
 	    return eval(Meta.parse("begin $returnExpression end"))
 	end
